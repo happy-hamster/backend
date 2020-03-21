@@ -9,6 +9,7 @@ import de.sakpaas.backend.model.Occupancy;
 import de.sakpaas.backend.service.LocationMapper;
 import de.sakpaas.backend.service.LocationService;
 import de.sakpaas.backend.service.OccupancyService;
+import de.sakpaas.backend.service.PresenceService;
 import javassist.NotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,19 +25,22 @@ import static org.springframework.http.HttpStatus.OK;
 @RestController
 public class LocationController {
     private static final String MAPPING_POST_OCCUPANCY = "/{locationId}/occupancy";
+    private static final String MAPPING_POST_CHECKIN = "/{locationId}/check-in";
     private static final String MAPPING_BY_ID = "/{locationId}";
 
-    private final LocationService locationService;
-    private final LocationApiSearchDAS locationApiSearchDAS;
-    private final LocationMapper locationMapper;
-    private final OccupancyService occupancyService;
+    private LocationService locationService;
+    private LocationApiSearchDAS locationApiSearchDAS;
+    private LocationMapper locationMapper;
+    private OccupancyService occupancyService;
+    private PresenceService presenceService;
 
     public LocationController(LocationService locationService, LocationApiSearchDAS locationApiSearchDAS,
-            LocationMapper locationMapper, OccupancyService occupancyService) {
+            LocationMapper locationMapper, OccupancyService occupancyService, PresenceService presenceService) {
         this.locationService = locationService;
         this.locationApiSearchDAS = locationApiSearchDAS;
         this.locationMapper = locationMapper;
         this.occupancyService = occupancyService;
+        this.presenceService = presenceService;
     }
 
     @GetMapping
@@ -97,5 +101,17 @@ public class LocationController {
         occupancyService.save(new Occupancy(location, occupancyDto.getOccupancy()));
 
         return new ResponseEntity<>("Success!", CREATED);
+    }
+
+    @PostMapping(value = MAPPING_POST_CHECKIN)
+    public ResponseEntity<String> postNewCheckIn(@PathVariable("locationId") Long locationId) throws NotFoundException {
+        Location location = locationService.getById(locationId).orElse(null);
+        if (location != null) {
+            presenceService.addNewCheckin(location);
+            return new ResponseEntity<>("Success!", CREATED);
+        } else {
+            throw new NotFoundException("Found no location to id");
+        }
+
     }
 }

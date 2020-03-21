@@ -2,6 +2,7 @@ package de.sakpaas.backend.service;
 
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.Presence;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +17,7 @@ public class PresenceService {
   @Value("${app.presence.duration}")
   private int confDuration;
 
+  @Autowired
   public PresenceService(PresenceRepository presenceRepository) {
     this.presenceRepository = presenceRepository;
   }
