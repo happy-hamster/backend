@@ -21,7 +21,8 @@ public class LocationMapper {
         }
 
         return new LocationSearchOutputDto(location.getId(), location.getName(),
-                occupancyService.getAverageOccupancy(location), location.getLatitude(), location.getLongitude());
+                occupancyService.getAverageOccupancy(location), location.getLatitude(), location.getLongitude(), location.getStreet(),
+                location.getHousenumber(), location.getPostcode(), location.getCity(), location.getCountry());
     }
 
     public LocationSearchOutputDto mapToOutputDto(LocationSearchOSMResultDto apiResult) {
@@ -30,6 +31,7 @@ public class LocationMapper {
         }
 
         return new LocationSearchOutputDto(apiResult.getId(), apiResult.getName(), null, apiResult.getLat(),
-                apiResult.getLon());
+                apiResult.getLon(), apiResult.getStreet(), apiResult.getHousenumber(), apiResult.getPostcode(),
+                apiResult.getCity(), apiResult.getCountry());
     }
 }

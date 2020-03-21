@@ -16,9 +16,9 @@ public class LocationSearchOSMResultDto {
 
     @JsonCreator
     public LocationSearchOSMResultDto(@JsonProperty("id") long id,
-            @JsonProperty("lat") double lat,
-            @JsonProperty("lon") double lon,
-            @JsonProperty("tags") TagsDto tags) {
+                                      @JsonProperty("lat") double lat,
+                                      @JsonProperty("lon") double lon,
+                                      @JsonProperty("tags") TagsDto tags) {
         this.id = id;
         this.lat = lat;
         this.lon = lon;
@@ -28,4 +28,25 @@ public class LocationSearchOSMResultDto {
     public String getName() {
         return tags.getName();
     }
+
+    public String getStreet() {
+        return tags.getStreet();
+    }
+
+    public String getHousenumber() {
+        return tags.getHousenumber();
+    }
+
+    public String getPostcode() {
+        return tags.getPostcode();
+    }
+
+    public String getCity() {
+        return tags.getCity();
+    }
+
+    public String getCountry() {
+        return tags.getCountry();
+    }
+
 }

@@ -27,4 +27,21 @@ public class Location {
 
     @Column(name = "LONGITUDE", nullable = false)
     private Double longitude;
+
+    @Column(name = "STREET")
+    private String street;
+
+    @Column(name = "HOUSENUMBER")
+    private String housenumber;
+
+    @Column(name = "POSTCODE")
+    private String postcode;
+
+    @Column(name = "CITY")
+    private String city;
+
+    @Column(name = "COUNTRY")
+    private String country;
+
+
 }
