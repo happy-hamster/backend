@@ -106,11 +106,17 @@ public class LocationController {
     @PostMapping(value = MAPPING_POST_CHECKIN)
     public ResponseEntity<String> postNewCheckIn(@PathVariable("locationId") Long locationId) throws NotFoundException {
         Location location = locationService.getById(locationId).orElse(null);
+
+        if (location == null) {
+            location = locationService.save(
+                    locationMapper.mapToLocation(locationApiSearchDAS.getLocationById(locationId)));
+        }
+
         if (location != null) {
             presenceService.addNewCheckin(location);
             return new ResponseEntity<>("Success!", CREATED);
         } else {
-            throw new NotFoundException("Found no location to id");
+            throw new NotFoundException("Found no location to id: " + locationId);
         }
 
     }

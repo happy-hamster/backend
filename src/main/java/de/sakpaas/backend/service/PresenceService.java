@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
-import java.util.List;
 
 @Service
 public class PresenceService {
@@ -39,7 +38,7 @@ public class PresenceService {
     presenceRepository.save(new Presence(location, ZonedDateTime.now(), ZonedDateTime.now().plusMinutes(duration)));
   }
 
-  public List<Presence> getActiveCheckIns(Location location) {
+  public Long getActiveCheckIns(Location location) {
     return presenceRepository.findByLocationAndCheckOutBeforeAndCheckInAfter(location, ZonedDateTime.now(),
             ZonedDateTime.now());
   }

@@ -5,10 +5,8 @@ import de.sakpaas.backend.model.Presence;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.ZonedDateTime;
-import java.util.List;
 
 public interface PresenceRepository extends JpaRepository<Presence, Long> {
-
-  List<Presence> findByLocationAndCheckOutBeforeAndCheckInAfter(Location location, ZonedDateTime before,
+  Long findByLocationAndCheckOutBeforeAndCheckInAfter(Location location, ZonedDateTime before,
           ZonedDateTime after);
 }
