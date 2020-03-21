@@ -9,5 +9,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 
 public interface PresenceRepository extends JpaRepository<Presence, Long> {
-  List<Occupancy> findByLocationAndCheckOutBeforeAndCheckInAfter(Location location, ZonedDateTime after);
+
+  List<Presence> findByLocationAndCheckOutBeforeAndCheckInAfter(Location location, ZonedDateTime after);
+
 }
