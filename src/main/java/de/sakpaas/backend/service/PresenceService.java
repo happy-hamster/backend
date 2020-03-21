@@ -1,8 +1,10 @@
 package de.sakpaas.backend.service;
 
+import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.Presence;
 import org.springframework.stereotype.Service;
 
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 @Service
@@ -32,7 +34,7 @@ public class PresenceService {
     presenceRepository.save(new Presence(locationId, now, new Date(now.getTime() + duration)));
   }
 
-  public void getActiveCheckins(String locationId) {
-
+  public void getActiveCheckins(Location location) {
+    presenceRepository.findByLocationAndCheckOutBeforeAndCheckInAfter(location, ZonedDateTime.now());
   }
 }
