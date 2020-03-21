@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.springframework.http.HttpStatus.OK;
-@CrossOrigin
+@CrossOrigin(origins = "*")
 @RequestMapping("api/v1/locations")
 @RestController
 public class LocationController {
