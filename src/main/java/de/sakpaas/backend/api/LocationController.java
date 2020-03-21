@@ -84,7 +84,7 @@ public class LocationController {
     }
 
     @PostMapping(value = MAPPING_POST_OCCUPANCY)
-    public ResponseEntity<String> postNewOccupancy(@RequestBody OccupancyDto occupancyDto,
+    public ResponseEntity<LocationSearchOutputDto> postNewOccupancy(@RequestBody OccupancyDto occupancyDto,
             @PathVariable("locationId") Long locationId) throws NotFoundException {
 
         occupancyDto.setLocationId(locationId);
@@ -100,7 +100,7 @@ public class LocationController {
 
         occupancyService.save(new Occupancy(location, occupancyDto.getOccupancy()));
 
-        return new ResponseEntity<>("Success!", CREATED);
+        return new ResponseEntity<>(locationMapper.mapToOutputDto(location), CREATED);
     }
 
     @PostMapping(value = MAPPING_POST_CHECKIN)
@@ -114,7 +114,7 @@ public class LocationController {
 
         if (location != null) {
             presenceService.addNewCheckin(location);
-            return new ResponseEntity<>("Success!", CREATED);
+            return ResponseEntity.status(CREATED).build();
         } else {
             throw new NotFoundException("Found no location to id: " + locationId);
         }
