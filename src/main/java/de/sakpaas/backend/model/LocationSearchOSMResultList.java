@@ -1,0 +1,18 @@
+package de.sakpaas.backend.model;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.util.List;
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class LocationSearchOSMResultList {
+
+    private List<LocationSearchOSMResultElement> elements;
+
+}
