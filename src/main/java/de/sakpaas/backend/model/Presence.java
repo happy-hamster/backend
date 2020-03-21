@@ -16,7 +16,7 @@ public class Presence {
   @Column(name = "ID", nullable = false)
   @NaturalId
   @Id
-  private String id;
+  private Long id;
   @JoinColumn(name = "LOCATION_ID", referencedColumnName = "ID", nullable = false)
   @ManyToOne(optional = false)
   private Location location;
