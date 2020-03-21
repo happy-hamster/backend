@@ -21,15 +21,21 @@ class OccupancyServiceTest {
 
   @Test
   void getAverageOccupancy() {
-    Location location = new Location(1829487L, "LIDL", 42.0, 8.0);
+    Location location = new Location(1829487L, "LIDL", 42.0, 8.0, null, null, null, null, null);
     ZonedDateTime time = ZonedDateTime.now();
 
     List<Occupancy> occupancyList = new ArrayList<>();
-    occupancyList.add(new Occupancy(12345L, location, 0.5, time.minusMinutes(15)));
-    occupancyList.add(new Occupancy(12345L, location, 0.8, time.minusMinutes(30)));
-    occupancyList.add(new Occupancy(12345L, location, 1.0, time.minusMinutes(45)));
+    occupancyList.add(buildOccupancy(location, 0.5, time.minusMinutes(15)));
+    occupancyList.add(buildOccupancy(location, 0.8, time.minusMinutes(30)));
+    occupancyList.add(buildOccupancy(location, 1.0, time.minusMinutes(45)));
 
     assertTrue(1.0 > OccupancyService.calculateAverage(occupancyList, time));
+  }
+
+  private static Occupancy buildOccupancy(Location location, double occupancy, ZonedDateTime time) {
+    Occupancy obj = new Occupancy(location, occupancy);
+    obj.setTimestamp(time);
+    return obj;
   }
 
   @Test
