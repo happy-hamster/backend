@@ -12,7 +12,7 @@ import java.util.Map;
 @NoArgsConstructor
 public class LocationSearchOSMResultElement {
 
-    private String id;
+    private long id;
     private double lat;
     private double lon;
     private Map<String,String> tags;

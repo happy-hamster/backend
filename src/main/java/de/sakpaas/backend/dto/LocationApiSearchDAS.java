@@ -5,8 +5,8 @@ package de.sakpaas.backend.dto;
 import de.sakpaas.backend.model.LocationSearchOSMResultList;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.reactive.function.client.WebClient;
-@Repository("LocationSearchDAS")
-public class LocationSearchDAS implements LocationSearchDao {
+@Repository("LocationApiSearchDAS")
+public class LocationApiSearchDAS implements LocationSearchDao {
 
     WebClient client = WebClient.create("https://overpass-api.de/api/interpreter");
 

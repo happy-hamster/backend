@@ -12,7 +12,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Location {
 
-    private String id;
+    private long id;
     private String name;
     private Double occupancy;
     private double latitude;

@@ -13,18 +13,20 @@ import java.util.stream.Collectors;
 
 @Service
 public class LocationService {
-    private final LocationSearchDao locationSearchDao;
+    private LocationSearchDao locationApiSearchDao;
+    private LocationSearchDao locationDbSearchDao;
 
     @Autowired
-    public LocationService(@Qualifier("LocationSearchDAS") LocationSearchDao locationSearchDao) {
-        this.locationSearchDao = locationSearchDao;
+    public LocationService(@Qualifier("LocationApiSearchDAS") LocationSearchDao locationApiSearchDao, @Qualifier("LocationDbSearchDAS") LocationSearchDao locationDbSearchDao) {
+        this.locationApiSearchDao = locationApiSearchDao;
+        this.locationDbSearchDao =locationDbSearchDao;
     }
 
     //TODO: at first search for location in our db
 
     public List<Location> getLocationSearchResultsByCoordinates(Double latitude, Double longitude, Double radius) {
         // search for Locations via OSM-API
-        LocationSearchOSMResultList searchResult = locationSearchDao.getLocationByCoordinates(latitude, longitude, radius);
+        LocationSearchOSMResultList searchResult = locationApiSearchDao.getLocationByCoordinates(latitude, longitude, radius);
         return searchResult.getElements().stream()
                 .map(e -> new Location(e.getId(),e.getName(),null,e.getLat(),e.getLon()))
                 .collect(Collectors.toList());
