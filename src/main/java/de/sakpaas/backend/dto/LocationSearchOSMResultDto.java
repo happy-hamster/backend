@@ -16,12 +16,13 @@ public class LocationSearchOSMResultDto {
 
     @JsonCreator
     public LocationSearchOSMResultDto(@JsonProperty("id") long id,
-                                      @JsonProperty("lat") double lat,
-                                      @JsonProperty("lon") double lon,
-                                      @JsonProperty("tags") TagsDto tags) {
+            @JsonProperty("lat") double lat,
+            @JsonProperty("lon") double lon,
+            @JsonProperty("center") CenterDto centerDto,
+            @JsonProperty("tags") TagsDto tags) {
         this.id = id;
-        this.lat = lat;
-        this.lon = lon;
+        this.lat = lat != 0 ? lat : centerDto.getLat();
+        this.lon = lon != 0 ? lon : centerDto.getLon();
         this.tags = tags;
     }
 
