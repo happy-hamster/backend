@@ -1,6 +1,6 @@
 server:
   servlet:
-    context-path: /SAKPaaS
+    context-path: /sakpaas
     application-display-name: SAKPaaS
 spring:
   jpa:
