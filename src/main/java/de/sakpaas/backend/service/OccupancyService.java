@@ -25,15 +25,19 @@ public class OccupancyService {
     }
 
     public Double getAverageOccupancy(Location location) {
+        ZonedDateTime time = now();
         List<Occupancy> occupancies = occupancyRepository.findByLocationAndTimestampAfter(location,
                 now().minusHours(2));
+        return calculateAverage(occupancies, time);
+    }
 
+    public static Double calculateAverage(List<Occupancy> occupancies, ZonedDateTime time) {
         // If there is no occupancy, we can't give an average
         if(occupancies.isEmpty())
             return null;
 
         // After this deadline we have to factor in the bell curve
-        ZonedDateTime deadline = now().minusMinutes(15);
+        ZonedDateTime deadline = time.minusMinutes(15);
 
         // Collect all occupancies and factors
         double totalOccupancy = 0.0;
@@ -42,7 +46,7 @@ public class OccupancyService {
             double factor = 1.0;
             // Calculate factor if necessary
             if(occupancy.getTimestamp().isBefore(deadline)) {
-                double minutes = ChronoUnit.MINUTES.between(now(), occupancy.getTimestamp());
+                double minutes = ChronoUnit.MINUTES.between(time, occupancy.getTimestamp());
                 factor = bellCurve(minutes);
             }
 
