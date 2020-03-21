@@ -38,7 +38,7 @@ public class LocationController {
         }
 
         List<LocationSearchOSMResultDto> apiResultLocationList = locationApiSearchDAS.getLocationByCoordinates(
-                latitude, longitude, radius).getBody();
+                latitude, longitude, radius);
 
         if (apiResultLocationList == null) {
             throw new NotFoundException("no locations found!");

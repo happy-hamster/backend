@@ -1,29 +1,31 @@
 package de.sakpaas.backend.dto;
 
-import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-import java.util.Map;
 
 @Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
+@JsonPropertyOrder({ "id", "lat", "lon", "tags" })
 public class LocationSearchOSMResultDto {
 
     private long id;
     private double lat;
     private double lon;
-    private Map<String, String> tags;
+    private TagsDto tags;
 
-    public String getName() {
-        if (tags.containsKey("name")) {
-            return tags.get("name");
-        }
-        return "";
-
+    @JsonCreator
+    public LocationSearchOSMResultDto(@JsonProperty("id") long id,
+            @JsonProperty("lat") double lat,
+            @JsonProperty("lon") double lon,
+            @JsonProperty("tags") TagsDto tags) {
+        this.id = id;
+        this.lat = lat;
+        this.lon = lon;
+        this.tags = tags;
     }
 
+    public String getName() {
+        return tags.getName();
+    }
 }

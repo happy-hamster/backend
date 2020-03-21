@@ -1,24 +1,29 @@
 package de.sakpaas.backend.dto;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Repository;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
-@Repository("LocationApiSearchDAS")
+import static java.util.Collections.emptyList;
+
+@Component
 public class LocationApiSearchDAS {
 
-    WebClient client = WebClient.create("https://overpass-api.de/api/interpreter");
-
-    public ResponseEntity<List<LocationSearchOSMResultDto>> getLocationByCoordinates(Double latitude, Double longitude,
+    public List<LocationSearchOSMResultDto> getLocationByCoordinates(Double latitude, Double longitude,
             Double radius) {
-        return client.get()
-                .uri("?data=[out:json];node[shop=supermarket](around:" + radius.toString() + "," + latitude.toString() + "," + longitude
-                        .toString() + ");out;")
-                .retrieve()
-                .toEntityList(LocationSearchOSMResultDto.class)
-                .block();
 
+        final String url = "https://overpass-api.de/api/interpreter?data=[out:json];node[shop=supermarket](around:" + radius
+                .toString() + "," + latitude.toString() + "," + longitude.toString() + ");out;";
+
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<ApiResultDto> response = restTemplate.getForEntity(url, ApiResultDto.class);
+
+        if (response.getBody() == null) {
+            return emptyList();
+        }
+
+        return response.getBody().getElements();
     }
 }
