@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Getter;
 
-@JsonPropertyOrder({"name", "addr:street", "addr:housenumber", "addr:postcode", "addr:city", "addr:country"})
+@JsonPropertyOrder({"name", "addr:street", "addr:place", "addr:housenumber", "addr:postcode", "addr:city", "addr:country"})
 @Getter
 public class TagsDto {
     private String name;
@@ -18,9 +18,10 @@ public class TagsDto {
     @JsonCreator
     public TagsDto(@JsonProperty("name") String name, @JsonProperty("addr:street") String street,
                    @JsonProperty("addr:housenumber") String housenumber, @JsonProperty("addr:postcode") String postcode,
-                   @JsonProperty("addr:city") String city, @JsonProperty("addr:country") String country) {
+                   @JsonProperty("addr:city") String city, @JsonProperty("addr:country") String country,
+                   @JsonProperty("addr:place") String place) {
         this.name = name;
-        this.street = street;
+        this.street = street != null ? street : place;
         this.housenumber = housenumber;
         this.postcode = postcode;
         this.city = city;
