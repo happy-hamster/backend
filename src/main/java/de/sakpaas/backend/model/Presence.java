@@ -5,10 +5,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.NaturalId;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import java.util.Date;
+import javax.persistence.*;
+import java.time.ZonedDateTime;
 
 @Getter
 @Setter
@@ -19,15 +17,16 @@ public class Presence {
   @NaturalId
   @Id
   private String id;
-  @Column(name = "LOCATION_ID")
-  private String locationId;
+  @JoinColumn(name = "LOCATION_ID", referencedColumnName = "ID", nullable = false)
+  @ManyToOne(optional = false)
+  private Location location;
   @Column(name = "CHECK_IN_DATE")
-  private Date checkIn;
+  private ZonedDateTime checkIn;
   @Column(name = "CHECK_OUT_DATE")
-  private Date checkOut;
+  private ZonedDateTime checkOut;
 
-  public Presence(String locationId, Date checkIn, Date checkOut) {
-    this.locationId = locationId;
+  public Presence(Location location, ZonedDateTime checkIn, ZonedDateTime checkOut) {
+    this.location = location;
     this.checkIn = checkIn;
     this.checkOut = checkOut;
   }

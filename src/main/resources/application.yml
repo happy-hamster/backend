@@ -9,4 +9,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/postgres
     username: postgres
-    password: SAKPaaS
+    password: zuschwer
+app:
+  presence:
+    duration: 20
