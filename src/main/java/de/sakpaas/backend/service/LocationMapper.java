@@ -9,10 +9,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class LocationMapper {
     private final OccupancyService occupancyService;
+    private final LocationService locationService;
 
     @Autowired
-    public LocationMapper(OccupancyService occupancyService) {
+    public LocationMapper(OccupancyService occupancyService, LocationService locationService) {
         this.occupancyService = occupancyService;
+        this.locationService = locationService;
     }
 
     public LocationSearchOutputDto mapToOutputDto(Location location) {
@@ -33,5 +35,16 @@ public class LocationMapper {
         return new LocationSearchOutputDto(apiResult.getId(), apiResult.getName(), null, apiResult.getLat(),
                 apiResult.getLon(), apiResult.getStreet(), apiResult.getHousenumber(), apiResult.getPostcode(),
                 apiResult.getCity(), apiResult.getCountry());
+    }
+
+    public Location mapToLocation(LocationSearchOSMResultDto apiResult) {
+        if (apiResult == null) {
+            return null;
+        }
+
+        return locationService.getById(apiResult.getId())
+                .orElseGet(() -> locationService.save(
+                        new Location(apiResult.getId(), apiResult.getName(), apiResult.getLat(),
+                                apiResult.getLon())));
     }
 }

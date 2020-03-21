@@ -1,9 +1,19 @@
-FROM openjdk:8-jdk
+# Use maven to build jar
+FROM maven:3-jdk-8 as build
+# Maintainer
 MAINTAINER Robert Franzke (r.l.franzke@gmail.com)
-RUN apt-get update
-RUN apt-get install -y maven
-COPY pom.xml /usr/local/service/pom.xml
-COPY src /usr/local/service/src
-WORKDIR /usr/local/service
-RUN mvn package
-CMD ["java","-jar","target/backend-0.0.1-SNAPSHOT.jar"]
+# Copy files
+COPY src /home/app/src
+COPY pom.xml /home/app
+# Run maven
+RUN mvn -f /home/app/pom.xml package
+
+
+# Run spring in minimal container
+FROM openjdk:8-jre-alpine
+# Maintainer
+MAINTAINER Robert Franzke (r.l.franzke@gmail.com)
+# Copy jar file
+COPY --from=build /home/app/target/backend-*.jar /root/backend.jar
+# Execute
+CMD ["java","-jar","/root/backend.jar"]
