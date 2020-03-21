@@ -24,6 +24,7 @@ import static org.springframework.http.HttpStatus.OK;
 @RestController
 public class LocationController {
     private static final String MAPPING_POST_OCCUPANCY = "/{locationId}/occupancy";
+    private static final String MAPPING_BY_ID = "/{locationId}";
 
     private final LocationService locationService;
     private final LocationApiSearchDAS locationApiSearchDAS;
@@ -64,6 +65,18 @@ public class LocationController {
         });
 
         return new ResponseEntity<>(response, OK);
+    }
+
+    @GetMapping(value = MAPPING_BY_ID)
+    public ResponseEntity<LocationSearchOutputDto> getById(@PathVariable("locationId") Long locationId) {
+        Location location = locationService.getById(locationId).orElse(null);
+
+        if (location == null) {
+            return new ResponseEntity<>(locationMapper.mapToOutputDto(locationApiSearchDAS.getLocationById(locationId)),
+                    OK);
+        }
+
+        return new ResponseEntity<>(locationMapper.mapToOutputDto(location), OK);
     }
 
     @PostMapping(value = MAPPING_POST_OCCUPANCY)
