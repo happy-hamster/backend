@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.NaturalId;
 
 import javax.persistence.*;
 import java.time.ZonedDateTime;
@@ -17,7 +16,6 @@ import java.time.ZonedDateTime;
 public class Occupancy {
     @Id
     @Column(name = "ID")
-    @NaturalId
     private Long id;
 
     @ManyToOne(optional = false)

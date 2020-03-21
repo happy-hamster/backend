@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.NaturalId;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -16,9 +15,8 @@ import javax.persistence.Id;
 @NoArgsConstructor
 @Entity(name = "LOCATION")
 public class Location {
-    @Column(name = "ID", nullable = false)
-    @NaturalId
     @Id
+    @Column(name = "ID", nullable = false)
     private Long id;
 
     @Column(name = "NAME")
