@@ -6,7 +6,7 @@ MAINTAINER Robert Franzke (r.l.franzke@gmail.com)
 COPY src /home/app/src
 COPY pom.xml /home/app
 # Run maven
-RUN mvn -f /home/app/pom.xml package
+RUN mvn -Dmaven.test.skip=true -f /home/app/pom.xml package
 
 
 # Run spring in minimal container
