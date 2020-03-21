@@ -24,9 +24,6 @@ public class Location {
     @Column(name = "NAME")
     private String name;
 
-    @Column(name = "OCCUPANCY")
-    private Double occupancy;
-
     @Column(name = "LATITUDE", nullable = false)
     private Double latitude;
 
