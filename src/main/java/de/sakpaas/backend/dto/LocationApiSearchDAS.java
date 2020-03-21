@@ -14,8 +14,8 @@ public class LocationApiSearchDAS {
     public List<LocationSearchOSMResultDto> getLocationByCoordinates(Double latitude, Double longitude,
             Double radius) {
 
-        final String url = "https://overpass-api.de/api/interpreter?data=[out:json];node[shop](around:" + radius
-                .toString() + "," + latitude.toString() + "," + longitude.toString() + ");out;way[shop](around:" + radius
+        final String url = "https://overpass-api.de/api/interpreter?data=[out:json];node[shop=supermarket](around:" + radius
+                .toString() + "," + latitude.toString() + "," + longitude.toString() + ");out;way[shop=supermarket](around:" + radius
                 .toString() + "," + latitude.toString() + "," + longitude.toString() + ");out center;";
 
         RestTemplate restTemplate = new RestTemplate();
