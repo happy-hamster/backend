@@ -19,7 +19,6 @@ public class LocationController {
     @ResponseBody
     public List<Location> getLocation(@RequestParam Double latitude, @RequestParam Double longitude, @RequestParam(required = false) Double radius){
         if (radius==null){radius = 5000.0;}
-        System.out.println("get");
         return locationService.getLocationSearchResultsByCoordinates(latitude,longitude,radius);
     }
 }
