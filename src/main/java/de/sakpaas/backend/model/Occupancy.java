@@ -1,6 +1,5 @@
 package de.sakpaas.backend.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -10,12 +9,12 @@ import java.time.ZonedDateTime;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
 @Entity(name = "OCCUPANCY")
 public class Occupancy {
     @Id
     @Column(name = "ID")
+    @GeneratedValue
     private Long id;
 
     @ManyToOne(optional = false)
@@ -27,4 +26,10 @@ public class Occupancy {
 
     @Column(name = "TIMESTAMP")
     private ZonedDateTime timestamp;
+
+    public Occupancy(Location location, Double occupancy) {
+        this.location = location;
+        this.occupancy = occupancy;
+        this.timestamp = ZonedDateTime.now();
+    }
 }
