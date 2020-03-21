@@ -58,4 +58,8 @@ public class OccupancyService {
     public static double bellCurve(double x) {
         return FACTOR_B * Math.exp(-Math.pow(-x - 15, 2) / FACTOR_A);
     }
+
+    public Occupancy save(Occupancy occupancy) {
+        return occupancyRepository.save(occupancy);
+    }
 }

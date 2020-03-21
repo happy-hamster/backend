@@ -26,4 +26,17 @@ public class LocationApiSearchDAS {
 
         return response.getBody().getElements();
     }
+
+    public LocationSearchOSMResultDto getLocationById(Long id) {
+        final String url = "https://overpass-api.de/api/interpreter?data=[out:json];node(" + id + ");out;";
+
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<ApiResultDto> response = restTemplate.getForEntity(url, ApiResultDto.class);
+
+        if (response.getBody() == null) {
+            return null;
+        }
+
+        return response.getBody().getElements().get(0);
+    }
 }
