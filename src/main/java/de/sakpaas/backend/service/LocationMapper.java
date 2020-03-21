@@ -23,7 +23,8 @@ public class LocationMapper {
         }
 
         return new LocationSearchOutputDto(location.getId(), location.getName(),
-                occupancyService.getAverageOccupancy(location), location.getLatitude(), location.getLongitude(), location.getStreet(),
+                occupancyService.getAverageOccupancy(location), location.getLatitude(), location.getLongitude(),
+                location.getStreet(),
                 location.getHousenumber(), location.getPostcode(), location.getCity(), location.getCountry());
     }
 
@@ -45,6 +46,7 @@ public class LocationMapper {
         return locationService.getById(apiResult.getId())
                 .orElseGet(() -> locationService.save(
                         new Location(apiResult.getId(), apiResult.getName(), apiResult.getLat(),
-                                apiResult.getLon())));
+                                apiResult.getLon(), apiResult.getStreet(), apiResult.getHousenumber(),
+                                apiResult.getPostcode(), apiResult.getCity(), apiResult.getCountry())));
     }
 }
