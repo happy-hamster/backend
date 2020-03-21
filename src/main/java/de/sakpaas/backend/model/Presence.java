@@ -7,7 +7,6 @@ import org.hibernate.annotations.NaturalId;
 
 import javax.persistence.*;
 import java.time.ZonedDateTime;
-import java.util.Date;
 
 @Getter
 @Setter
@@ -26,8 +25,8 @@ public class Presence {
   @Column(name = "CHECK_OUT_DATE")
   private ZonedDateTime checkOut;
 
-  public Presence(String locationId, Date checkIn, Date checkOut) {
-    this.locationId = locationId;
+  public Presence(Location location, ZonedDateTime checkIn, ZonedDateTime checkOut) {
+    this.location = location;
     this.checkIn = checkIn;
     this.checkOut = checkOut;
   }
