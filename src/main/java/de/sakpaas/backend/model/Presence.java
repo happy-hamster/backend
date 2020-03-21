@@ -3,7 +3,6 @@ package de.sakpaas.backend.model;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.NaturalId;
 
 import javax.persistence.*;
 import java.time.ZonedDateTime;
@@ -14,9 +13,9 @@ import java.time.ZonedDateTime;
 @Entity(name = "PRESENCE")
 public class Presence {
   @Column(name = "ID", nullable = false)
-  @NaturalId
   @Id
-  private String id;
+  @GeneratedValue
+  private Long id;
   @JoinColumn(name = "LOCATION_ID", referencedColumnName = "ID", nullable = false)
   @ManyToOne(optional = false)
   private Location location;
