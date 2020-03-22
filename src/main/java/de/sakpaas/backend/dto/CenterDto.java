@@ -8,12 +8,12 @@ import lombok.Getter;
 @Getter
 @JsonPropertyOrder({ "lat", "lon" })
 public class CenterDto {
-    private Long lat;
-    private Long lon;
+    private double lat;
+    private double lon;
 
     @JsonCreator
-    public CenterDto(@JsonProperty("lat") Long lat,
-            @JsonProperty("lon") Long lon) {
+    public CenterDto(@JsonProperty("lat") double lat,
+            @JsonProperty("lon") double lon) {
         this.lat = lat;
         this.lon = lon;
     }
