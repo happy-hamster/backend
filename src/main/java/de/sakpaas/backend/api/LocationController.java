@@ -85,7 +85,7 @@ public class LocationController {
             return ResponseEntity.notFound().build();
         }
 
-        occupancyService.save(new Occupancy(location, occupancyDto.getOccupancy()));
+        occupancyService.save(new Occupancy(location, occupancyDto.getOccupancy(), occupancyDto.getClientType()));
 
         return new ResponseEntity<>(locationMapper.mapToOutputDto(location), CREATED);
     }
