@@ -7,4 +7,5 @@ import lombok.Setter;
 @Setter
 public class StatusDto {
   private boolean status;
+  private String version;
 }
