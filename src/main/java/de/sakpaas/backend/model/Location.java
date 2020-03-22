@@ -19,7 +19,7 @@ public class Location {
     @Column(name = "ID", nullable = false)
     private Long id;
 
-    @Column(name = "NAME")
+    @Column(name = "NAME", nullable = false)
     private String name;
 
     @Column(name = "LATITUDE", nullable = false)

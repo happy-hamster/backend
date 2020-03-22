@@ -31,7 +31,11 @@ public class LocationSearchOutputDto {
                                    @JsonProperty("city") String city,
                                    @JsonProperty("country") String country) {
         this.id = id;
-        this.name = name;
+        if (name == null) {
+            this.name = "Supermarkt";
+        } else {
+            this.name = name;
+        }
         this.occupancy = occupancy;
         this.lat = lat;
         this.lon = lon;
