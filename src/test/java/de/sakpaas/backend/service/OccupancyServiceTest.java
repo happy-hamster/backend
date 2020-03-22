@@ -33,7 +33,7 @@ class OccupancyServiceTest {
   }
 
   private static Occupancy buildOccupancy(Location location, double occupancy, ZonedDateTime time) {
-    Occupancy obj = new Occupancy(location, occupancy);
+    Occupancy obj = new Occupancy(location, occupancy,"test");
     obj.setTimestamp(time);
     return obj;
   }
