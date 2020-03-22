@@ -21,9 +21,13 @@ public class LocationSearchOSMResultDto {
             @JsonProperty("center") CenterDto centerDto,
             @JsonProperty("tags") TagsDto tags) {
         this.id = id;
-        this.lat = lat != 0 ? lat : centerDto.getLat();
-        this.lon = lon != 0 ? lon : centerDto.getLon();
+        this.lat = lat;
+        this.lon = lon;
         this.tags = tags;
+        if(centerDto != null){
+            this.lat = centerDto.getLat();
+            this.lon = centerDto.getLon();
+        }
     }
 
     public String getName() {
