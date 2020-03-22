@@ -12,3 +12,4 @@ spring:
 app:
   presence:
     duration: 20
+  version: 1.3.4
