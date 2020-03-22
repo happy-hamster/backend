@@ -15,6 +15,7 @@ import javassist.NotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -48,11 +49,11 @@ public class LocationController {
     @GetMapping
     @ResponseBody
     public ResponseEntity<List<LocationSearchOutputDto>> getLocation(@RequestParam Double latitude,
-            @RequestParam Double longitude) throws NotFoundException {
+            @RequestParam Double longitude)   {
         List<Location> searchResult = locationService.findByCoordinates(latitude, longitude);
 
         if (searchResult.isEmpty()) {
-            throw new NotFoundException("no locations found!");
+            return new ResponseEntity<>(new ArrayList<>(),OK);
         }
 
         List<LocationSearchOutputDto> response = searchResult.stream()
