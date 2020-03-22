@@ -27,9 +27,13 @@ public class Occupancy {
     @Column(name = "TIMESTAMP")
     private ZonedDateTime timestamp;
 
-    public Occupancy(Location location, Double occupancy) {
+    @Column(name = "CLIENT_TYPE")
+    private String clientType;
+
+    public Occupancy(Location location, Double occupancy, String clientType) {
         this.location = location;
         this.occupancy = occupancy;
         this.timestamp = ZonedDateTime.now();
+        this.clientType = clientType;
     }
 }
