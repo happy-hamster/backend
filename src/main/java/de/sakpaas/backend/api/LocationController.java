@@ -1,5 +1,6 @@
 package de.sakpaas.backend.api;
 
+import de.sakpaas.backend.BackendApplication;
 import de.sakpaas.backend.dto.LocationApiSearchDAS;
 import de.sakpaas.backend.dto.LocationSearchOSMResultDto;
 import de.sakpaas.backend.dto.LocationSearchOutputDto;
@@ -27,6 +28,7 @@ public class LocationController {
     private static final String MAPPING_POST_OCCUPANCY = "/{locationId}/occupancy";
     private static final String MAPPING_POST_CHECKIN = "/{locationId}/check-in";
     private static final String MAPPING_BY_ID = "/{locationId}";
+    private static final String MAPPING_START_DATABASE = "/generate/{key}";
 
     private LocationService locationService;
     private LocationApiSearchDAS locationApiSearchDAS;
@@ -118,6 +120,25 @@ public class LocationController {
         } else {
             throw new NotFoundException("Found no location to id: " + locationId);
         }
+    }
 
+    @GetMapping(value = MAPPING_START_DATABASE)
+    public ResponseEntity<String> startDatabase(@PathVariable("key") String key) {
+        if (!key.equals(BackendApplication.GENERATED)) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        List<LocationSearchOSMResultDto> results = locationApiSearchDAS.getLocationsForCountry("DE");
+        System.out.println("got result!");
+        for (int i = 0; i < results.size(); i++) {
+            locationService.save(locationMapper.mapToLocation(results.get(i)));
+            if (i % 100 == 0) {
+                System.out.println((i / results.size()) * 100 + "%");
+            }
+        }
+        results.forEach(result -> locationService.save(locationMapper.mapToLocation(result)));
+        System.out.println("finished!");
+
+        return ResponseEntity.ok().build();
     }
 }
