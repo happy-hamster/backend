@@ -15,9 +15,9 @@ import javassist.NotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import static java.util.stream.Collectors.toList;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 
@@ -48,27 +48,16 @@ public class LocationController {
     @GetMapping
     @ResponseBody
     public ResponseEntity<List<LocationSearchOutputDto>> getLocation(@RequestParam Double latitude,
-            @RequestParam Double longitude, @RequestParam(required = false) Double radius) throws NotFoundException {
-        if (radius == null) {
-            radius = 5000.0;
-        }
+            @RequestParam Double longitude) throws NotFoundException {
+        List<Location> searchResult = locationService.findByCoordinates(latitude, longitude);
 
-        List<LocationSearchOSMResultDto> apiResultLocationList = locationApiSearchDAS.getLocationByCoordinates(
-                latitude, longitude, radius);
-
-        if (apiResultLocationList == null) {
+        if (searchResult.isEmpty()) {
             throw new NotFoundException("no locations found!");
         }
 
-        List<LocationSearchOutputDto> response = new ArrayList<>();
-        apiResultLocationList.forEach(location -> {
-            Location existingLocation = locationService.getById(location.getId()).orElse(null);
-            if (existingLocation != null) {
-                response.add(locationMapper.mapToOutputDto(existingLocation));
-            } else {
-                response.add(locationMapper.mapToOutputDto(location));
-            }
-        });
+        List<LocationSearchOutputDto> response = searchResult.stream()
+                .map(locationMapper::mapToOutputDto)
+                .collect(toList());
 
         return new ResponseEntity<>(response, OK);
     }
@@ -78,8 +67,7 @@ public class LocationController {
         Location location = locationService.getById(locationId).orElse(null);
 
         if (location == null) {
-            return new ResponseEntity<>(locationMapper.mapToOutputDto(locationApiSearchDAS.getLocationById(locationId)),
-                    OK);
+            return ResponseEntity.notFound().build();
         }
 
         return new ResponseEntity<>(locationMapper.mapToOutputDto(location), OK);
@@ -87,18 +75,15 @@ public class LocationController {
 
     @PostMapping(value = MAPPING_POST_OCCUPANCY)
     public ResponseEntity<LocationSearchOutputDto> postNewOccupancy(@RequestBody OccupancyDto occupancyDto,
-            @PathVariable("locationId") Long locationId) throws NotFoundException {
+            @PathVariable("locationId") Long locationId) {
 
         occupancyDto.setLocationId(locationId);
-        LocationSearchOSMResultDto locationSearchOSMResultDto = locationApiSearchDAS.getLocationById(
-                occupancyDto.getLocationId());
 
-        if (locationSearchOSMResultDto == null) {
-            throw new NotFoundException("No Location with id: " + occupancyDto.getLocationId() + " found");
+        Location location = locationService.getById(locationId).orElse(null);
+
+        if (location == null) {
+            return ResponseEntity.notFound().build();
         }
-
-        Location location = locationMapper.mapToLocation(
-                locationApiSearchDAS.getLocationById(occupancyDto.getLocationId()));
 
         occupancyService.save(new Occupancy(location, occupancyDto.getOccupancy()));
 
@@ -106,19 +91,14 @@ public class LocationController {
     }
 
     @PostMapping(value = MAPPING_POST_CHECKIN)
-    public ResponseEntity<String> postNewCheckIn(@PathVariable("locationId") Long locationId) throws NotFoundException {
+    public ResponseEntity<String> postNewCheckIn(@PathVariable("locationId") Long locationId) {
         Location location = locationService.getById(locationId).orElse(null);
-
-        if (location == null) {
-            location = locationService.save(
-                    locationMapper.mapToLocation(locationApiSearchDAS.getLocationById(locationId)));
-        }
 
         if (location != null) {
             presenceService.addNewCheckin(location);
             return ResponseEntity.status(CREATED).build();
         } else {
-            throw new NotFoundException("Found no location to id: " + locationId);
+            return ResponseEntity.notFound().build();
         }
     }
 
@@ -128,15 +108,18 @@ public class LocationController {
             return ResponseEntity.badRequest().build();
         }
 
+        System.out.println("started request to API");
         List<LocationSearchOSMResultDto> results = locationApiSearchDAS.getLocationsForCountry("DE");
         System.out.println("got result!");
         for (int i = 0; i < results.size(); i++) {
-            locationService.save(locationMapper.mapToLocation(results.get(i)));
+            try {
+                locationService.save(locationMapper.mapToLocation(results.get(i)));
+            } catch (Exception ignored) {
+            }
             if (i % 100 == 0) {
                 System.out.println((i / results.size()) * 100 + "%");
             }
         }
-        results.forEach(result -> locationService.save(locationMapper.mapToLocation(result)));
         System.out.println("finished!");
 
         return ResponseEntity.ok().build();
