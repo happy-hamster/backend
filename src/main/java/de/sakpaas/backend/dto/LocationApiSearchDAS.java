@@ -28,6 +28,12 @@ public class LocationApiSearchDAS {
         return response.getBody().getElements();
     }
 
+    /**
+     * gets all Locations in a Country (currently only Germany)
+     *
+     * @param countryCode currently Dummy as lookup for area id is missing
+     * @return list of supermarkets in Country
+     */
     public List<LocationSearchOSMResultDto> getLocationsForCountry(String countryCode) {
         final String url = "https://overpass-api.de/api/interpreter?data=[out:json][timeout:2500];area(3600051477)->." +
                 "searchArea;(node[\"shop\"=\"supermarket\"](area.searchArea);way[\"shop\"=\"supermarket\"](area.searchArea););out center;";

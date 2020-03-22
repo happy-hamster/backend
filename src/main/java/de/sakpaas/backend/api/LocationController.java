@@ -117,7 +117,7 @@ public class LocationController {
             } catch (Exception ignored) {
             }
             if (i % 100 == 0) {
-                System.out.println((i / results.size()) * 100 + "%");
+                System.out.println(((double) i / (double) results.size()) * 100 + "%");
             }
         }
         System.out.println("finished!");

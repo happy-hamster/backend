@@ -45,7 +45,8 @@ public class LocationMapper {
 
         return locationService.getById(apiResult.getId())
                 .orElseGet(() -> locationService.save(
-                        new Location(apiResult.getId(), apiResult.getName(), apiResult.getLat(),
+                        new Location(apiResult.getId(),
+                                apiResult.getName() != null ? apiResult.getName() : "Supermarkt", apiResult.getLat(),
                                 apiResult.getLon(), apiResult.getStreet(), apiResult.getHousenumber(),
                                 apiResult.getPostcode(), apiResult.getCity(), apiResult.getCountry())));
     }
