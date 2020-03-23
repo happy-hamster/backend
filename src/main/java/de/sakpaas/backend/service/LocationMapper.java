@@ -25,7 +25,7 @@ public class LocationMapper {
         return new LocationSearchOutputDto(location.getId(), location.getName(),
                 occupancyService.getAverageOccupancy(location), location.getLatitude(), location.getLongitude(),
                 location.getStreet(),
-                location.getHousenumber(), location.getPostcode(), location.getCity(), location.getCountry());
+                location.getHousenumber(), location.getPostcode(), location.getCity(), location.getCountry(), location.getType());
     }
 
     public LocationSearchOutputDto mapToOutputDto(LocationSearchOSMResultDto apiResult) {
@@ -35,7 +35,7 @@ public class LocationMapper {
 
         return new LocationSearchOutputDto(apiResult.getId(), apiResult.getName(), null, apiResult.getLat(),
                 apiResult.getLon(), apiResult.getStreet(), apiResult.getHousenumber(), apiResult.getPostcode(),
-                apiResult.getCity(), apiResult.getCountry());
+                apiResult.getCity(), apiResult.getCountry(), apiResult.getType());
     }
 
     public Location mapToLocation(LocationSearchOSMResultDto apiResult) {
@@ -47,6 +47,6 @@ public class LocationMapper {
                 .orElseGet(() -> new Location(apiResult.getId(),
                         apiResult.getName() != null ? apiResult.getName() : "Supermarkt", apiResult.getLat(),
                         apiResult.getLon(), apiResult.getStreet(), apiResult.getHousenumber(),
-                        apiResult.getPostcode(), apiResult.getCity(), apiResult.getCountry()));
+                        apiResult.getPostcode(), apiResult.getCity(), apiResult.getCountry(), apiResult.getType()));
     }
 }

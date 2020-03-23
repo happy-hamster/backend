@@ -3,17 +3,14 @@ package de.sakpaas.backend.service;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.Occupancy;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @ComponentScan
@@ -21,7 +18,7 @@ class OccupancyServiceTest {
 
   @Test
   void getAverageOccupancy() {
-    Location location = new Location(1829487L, "LIDL", 42.0, 8.0, null, null, null, null, null);
+    Location location = new Location(1829487L, "LIDL", 42.0, 8.0, null, null, null, null, null, null);
     ZonedDateTime time = ZonedDateTime.now();
 
     List<Occupancy> occupancyList = new ArrayList<>();

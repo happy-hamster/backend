@@ -2,11 +2,10 @@ package de.sakpaas.backend.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Getter;
 
 @Getter
-@JsonPropertyOrder({"id", "name", "occupancy", "latitude", "longitude"})
+//@JsonPropertyOrder({"id", "name", "occupancy", "latitude", "longitude", "type"})
 public class LocationSearchOutputDto {
     private long id;
     private String name;
@@ -18,6 +17,7 @@ public class LocationSearchOutputDto {
     private String postcode;
     private String city;
     private String country;
+    private String type;
 
     @JsonCreator
     public LocationSearchOutputDto(@JsonProperty("id") long id,
@@ -29,7 +29,8 @@ public class LocationSearchOutputDto {
                                    @JsonProperty("housenumber") String housenumber,
                                    @JsonProperty("postcode") String postcode,
                                    @JsonProperty("city") String city,
-                                   @JsonProperty("country") String country) {
+                                   @JsonProperty("country") String country,
+                                   @JsonProperty("type") String type) {
         this.id = id;
         if (name == null) {
             this.name = "Supermarkt";
@@ -44,6 +45,7 @@ public class LocationSearchOutputDto {
         this.postcode = postcode;
         this.city = city;
         this.country = country;
+        this.type = type;
     }
 
 }
