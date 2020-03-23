@@ -13,3 +13,10 @@ app:
   presence:
     duration: 20
   version: 1.3.4
+management:
+  server:
+    port: 9000
+  endpoints:
+    web:
+      exposure:
+        include: "*"
