@@ -10,10 +10,8 @@ import de.sakpaas.backend.model.Occupancy;
 import de.sakpaas.backend.service.LocationMapper;
 import de.sakpaas.backend.service.LocationService;
 import de.sakpaas.backend.service.OccupancyService;
-import de.sakpaas.backend.service.PresenceService;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
-import javassist.NotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,7 +27,6 @@ import static org.springframework.http.HttpStatus.OK;
 @RestController
 public class LocationController {
     private static final String MAPPING_POST_OCCUPANCY = "/{locationId}/occupancy";
-    private static final String MAPPING_POST_CHECKIN = "/{locationId}/check-in";
     private static final String MAPPING_BY_ID = "/{locationId}";
     private static final String MAPPING_START_DATABASE = "/generate/{key}";
 
@@ -38,22 +35,19 @@ public class LocationController {
     private LocationApiSearchDAS locationApiSearchDAS;
     private LocationMapper locationMapper;
     private OccupancyService occupancyService;
-    private PresenceService presenceService;
     private final MeterRegistry meterRegistry;
 
     private Counter getCounter;
     private Counter getByIdCounter;
     private Counter postOccupancyCounter;
-    private Counter postCheckInCounter;
     private Counter getStartDatabaseCounter;
 
     public LocationController(LocationService locationService, LocationApiSearchDAS locationApiSearchDAS,
-                              LocationMapper locationMapper, OccupancyService occupancyService, PresenceService presenceService, MeterRegistry meterRegistry) {
+                              LocationMapper locationMapper, OccupancyService occupancyService, MeterRegistry meterRegistry) {
         this.locationService = locationService;
         this.locationApiSearchDAS = locationApiSearchDAS;
         this.locationMapper = locationMapper;
         this.occupancyService = occupancyService;
-        this.presenceService = presenceService;
         this.meterRegistry = meterRegistry;
 
         getCounter = Counter
@@ -70,11 +64,6 @@ public class LocationController {
             .builder("request")
             .description("Total Request since application start on a Endpoint")
             .tags("endpoint", "location", "method", "postOccupancy")
-            .register(meterRegistry);
-        postCheckInCounter = Counter
-            .builder("request")
-            .description("Total Request since application start on a Endpoint")
-            .tags("endpoint", "location", "method", "postCheckIn")
             .register(meterRegistry);
         getStartDatabaseCounter = Counter
             .builder("request")
@@ -131,19 +120,6 @@ public class LocationController {
         occupancyService.save(new Occupancy(location, occupancyDto.getOccupancy(), occupancyDto.getClientType()));
 
         return new ResponseEntity<>(locationMapper.mapToOutputDto(location), CREATED);
-    }
-
-    @PostMapping(value = MAPPING_POST_CHECKIN)
-    public ResponseEntity<String> postNewCheckIn(@PathVariable("locationId") Long locationId) {
-        postCheckInCounter.increment();
-        Location location = locationService.getById(locationId).orElse(null);
-
-        if (location != null) {
-            presenceService.addNewCheckin(location);
-            return ResponseEntity.status(CREATED).build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
     }
 
     @GetMapping(value = MAPPING_START_DATABASE)
