@@ -2,10 +2,11 @@ package de.sakpaas.backend.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Getter;
 
 @Getter
-//@JsonPropertyOrder({"id", "name", "occupancy", "latitude", "longitude", "type"})
+@JsonPropertyOrder({"id", "name", "occupancy", "lat", "lon", "street", "housenumber", "postcode", "city", "country", "type"})
 public class LocationSearchOutputDto {
     private long id;
     private String name;
