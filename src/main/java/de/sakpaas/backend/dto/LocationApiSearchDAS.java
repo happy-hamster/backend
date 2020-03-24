@@ -11,8 +11,8 @@ import static java.util.Collections.emptyList;
 @Component
 public class LocationApiSearchDAS {
 
-    public List<LocationSearchOSMResultDto> getLocationByCoordinates(Double latitude, Double longitude,
-            Double radius) {
+    public List<LocationOSMDto> getLocationByCoordinates(Double latitude, Double longitude,
+                                                         Double radius) {
 
         final String url = "https://overpass-api.de/api/interpreter?data=[out:json];node[shop=supermarket](around:" + radius
                 .toString() + "," + latitude.toString() + "," + longitude.toString() + ");out;way[shop=supermarket](around:" + radius
@@ -34,7 +34,7 @@ public class LocationApiSearchDAS {
      * @param countryCode currently Dummy as lookup for area id is missing
      * @return list of supermarkets in Country
      */
-    public List<LocationSearchOSMResultDto> getLocationsForCountry(String countryCode) {
+    public List<LocationOSMDto> getLocationsForCountry(String countryCode) {
         final String url = "https://overpass-api.de/api/interpreter?data=[out:json][timeout:2500];area(3600051477)->." +
                 "searchArea;(node[\"shop\"=\"supermarket\"](area.searchArea);way[\"shop\"=\"supermarket\"](area.searchArea););out center;";
         RestTemplate restTemplate = new RestTemplate();
@@ -47,7 +47,7 @@ public class LocationApiSearchDAS {
         return response.getBody().getElements();
     }
 
-    public LocationSearchOSMResultDto getLocationById(Long id) {
+    public LocationOSMDto getLocationById(Long id) {
         final String url = "https://overpass-api.de/api/interpreter?data=[out:json];node(" + id + ");out;";
 
         RestTemplate restTemplate = new RestTemplate();

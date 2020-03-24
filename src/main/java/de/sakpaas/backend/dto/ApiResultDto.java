@@ -10,10 +10,12 @@ import java.util.List;
 @JsonPropertyOrder({ "elements" })
 @Getter
 public class ApiResultDto {
-    private List<LocationSearchOSMResultDto> elements;
+
+    private List<LocationOSMDto> elements;
 
     @JsonCreator
-    public ApiResultDto(@JsonProperty("elements") List<LocationSearchOSMResultDto> elements) {
+    public ApiResultDto(@JsonProperty("elements") List<LocationOSMDto> elements) {
         this.elements = elements;
     }
+
 }

@@ -1,5 +1,7 @@
 package de.sakpaas.backend.service;
 
+import de.sakpaas.backend.dto.OccupancyCalculationDto;
+import de.sakpaas.backend.dto.OccupancyReportDto;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.Occupancy;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,14 @@ public class OccupancyService {
     @Autowired
     public OccupancyService(OccupancyRepository occupancyRepository) {
         this.occupancyRepository = occupancyRepository;
+    }
+
+    public OccupancyCalculationDto getOccupancyCalculation(Location location) {
+        return new OccupancyCalculationDto(
+            this.getAverageOccupancy(location),
+            // TODO: Add correct count
+            1
+        );
     }
 
     public Double getAverageOccupancy(Location location) {

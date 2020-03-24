@@ -14,11 +14,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @ComponentScan
-class OccupancyServiceTest {
+class OccupancyCalculationServiceTest {
 
   @Test
   void getAverageOccupancy() {
-    Location location = new Location(1829487L, "LIDL", 42.0, 8.0, null, null, null, null, null, null);
+    Location location = new Location(1L, "LIDL", 41.0D, 8.0D, null, null);
     ZonedDateTime time = ZonedDateTime.now();
 
     List<Occupancy> occupancyList = new ArrayList<>();

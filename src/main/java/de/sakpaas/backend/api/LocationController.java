@@ -2,9 +2,9 @@ package de.sakpaas.backend.api;
 
 import de.sakpaas.backend.BackendApplication;
 import de.sakpaas.backend.dto.LocationApiSearchDAS;
-import de.sakpaas.backend.dto.LocationSearchOSMResultDto;
-import de.sakpaas.backend.dto.LocationSearchOutputDto;
-import de.sakpaas.backend.dto.OccupancyDto;
+import de.sakpaas.backend.dto.LocationOSMDto;
+import de.sakpaas.backend.dto.LocationDto;
+import de.sakpaas.backend.dto.OccupancyReportDto;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.Occupancy;
 import de.sakpaas.backend.service.LocationMapper;
@@ -13,7 +13,6 @@ import de.sakpaas.backend.service.OccupancyService;
 import de.sakpaas.backend.service.PresenceService;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
-import javassist.NotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -87,8 +86,8 @@ public class LocationController {
 
     @GetMapping
     @ResponseBody
-    public ResponseEntity<List<LocationSearchOutputDto>> getLocation(@RequestParam Double latitude,
-            @RequestParam Double longitude) {
+    public ResponseEntity<List<LocationDto>> getLocation(@RequestParam Double latitude,
+                                                         @RequestParam Double longitude) {
         getCounter.increment();
         List<Location> searchResult = locationService.findByCoordinates(latitude, longitude);
 
@@ -96,7 +95,7 @@ public class LocationController {
             return new ResponseEntity<>(new ArrayList<>(),OK);
         }
 
-        List<LocationSearchOutputDto> response = searchResult.stream()
+        List<LocationDto> response = searchResult.stream()
                 .map(locationMapper::mapToOutputDto)
                 .collect(toList());
 
@@ -104,7 +103,7 @@ public class LocationController {
     }
 
     @GetMapping(value = MAPPING_BY_ID)
-    public ResponseEntity<LocationSearchOutputDto> getById(@PathVariable("locationId") Long locationId) {
+    public ResponseEntity<LocationDto> getById(@PathVariable("locationId") Long locationId) {
         getByIdCounter.increment();
         Location location = locationService.getById(locationId).orElse(null);
 
@@ -116,11 +115,11 @@ public class LocationController {
     }
 
     @PostMapping(value = MAPPING_POST_OCCUPANCY)
-    public ResponseEntity<LocationSearchOutputDto> postNewOccupancy(@RequestBody OccupancyDto occupancyDto,
-            @PathVariable("locationId") Long locationId) {
+    public ResponseEntity<LocationDto> postNewOccupancy(@RequestBody OccupancyReportDto occupancyReportDto,
+                                                        @PathVariable("locationId") Long locationId) {
         postOccupancyCounter.increment();
 
-        occupancyDto.setLocationId(locationId);
+        occupancyReportDto.setLocationId(locationId);
 
         Location location = locationService.getById(locationId).orElse(null);
 
@@ -128,7 +127,7 @@ public class LocationController {
             return ResponseEntity.notFound().build();
         }
 
-        occupancyService.save(new Occupancy(location, occupancyDto.getOccupancy(), occupancyDto.getClientType()));
+        occupancyService.save(new Occupancy(location, occupancyReportDto.getOccupancy(), occupancyReportDto.getClientType()));
 
         return new ResponseEntity<>(locationMapper.mapToOutputDto(location), CREATED);
     }
@@ -154,7 +153,7 @@ public class LocationController {
         }
 
         System.out.println("started request to API");
-        List<LocationSearchOSMResultDto> results = locationApiSearchDAS.getLocationsForCountry("DE");
+        List<LocationOSMDto> results = locationApiSearchDAS.getLocationsForCountry("DE");
         System.out.println("got result!");
         for (int i = 0; i < results.size(); i++) {
             try {

@@ -1,52 +1,72 @@
 package de.sakpaas.backend.service;
 
-import de.sakpaas.backend.dto.LocationSearchOSMResultDto;
-import de.sakpaas.backend.dto.LocationSearchOutputDto;
+import de.sakpaas.backend.dto.*;
+import de.sakpaas.backend.model.Address;
 import de.sakpaas.backend.model.Location;
+import de.sakpaas.backend.model.LocationDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class LocationMapper {
+
     private final OccupancyService occupancyService;
     private final LocationService locationService;
+    private final LocationDetailsService locationDetailsService;
+    private final AddressService addressService;
 
     @Autowired
-    public LocationMapper(OccupancyService occupancyService, LocationService locationService) {
+    public LocationMapper(OccupancyService occupancyService, LocationService locationService,
+                          LocationDetailsService locationDetailsService, AddressService addressService) {
         this.occupancyService = occupancyService;
         this.locationService = locationService;
+        this.locationDetailsService = locationDetailsService;
+        this.addressService = addressService;
     }
 
-    public LocationSearchOutputDto mapToOutputDto(Location location) {
+    public LocationDto mapToOutputDto(Location location) {
         if (location == null) {
             return null;
         }
 
-        return new LocationSearchOutputDto(location.getId(), location.getName(),
-                occupancyService.getAverageOccupancy(location), location.getLatitude(), location.getLongitude(),
-                location.getStreet(),
-                location.getHousenumber(), location.getPostcode(), location.getCity(), location.getCountry(), location.getType());
+        return new LocationDto(
+                location.getId(), location.getName(),
+                new LocationDetailsDto(location.getDetails()),
+                new CoordinatesDto(location.getLatitude(), location.getLongitude()),
+                occupancyService.getOccupancyCalculation(location),
+                new AddressDto(location.getAddress()));
     }
 
-    public LocationSearchOutputDto mapToOutputDto(LocationSearchOSMResultDto apiResult) {
-        if (apiResult == null) {
-            return null;
-        }
-
-        return new LocationSearchOutputDto(apiResult.getId(), apiResult.getName(), null, apiResult.getLat(),
-                apiResult.getLon(), apiResult.getStreet(), apiResult.getHousenumber(), apiResult.getPostcode(),
-                apiResult.getCity(), apiResult.getCountry(), apiResult.getType());
-    }
-
-    public Location mapToLocation(LocationSearchOSMResultDto apiResult) {
+    public Location mapToLocation(LocationOSMDto apiResult) {
         if (apiResult == null) {
             return null;
         }
 
         return locationService.getById(apiResult.getId())
-                .orElseGet(() -> new Location(apiResult.getId(),
-                        apiResult.getName() != null ? apiResult.getName() : "Supermarkt", apiResult.getLat(),
-                        apiResult.getLon(), apiResult.getStreet(), apiResult.getHousenumber(),
-                        apiResult.getPostcode(), apiResult.getCity(), apiResult.getCountry(), apiResult.getType()));
+                .orElseGet(() -> {
+                    LocationDetails details = new LocationDetails(
+                            apiResult.getType(),
+                            "Mo-Fr 07-22 Uhr, Sa-So 09-12 Uhr"
+                    );
+                    locationDetailsService.save(details);
+
+                    Address address = new Address(
+                            apiResult.getCountry(),
+                            apiResult.getCity(),
+                            apiResult.getPostcode(),
+                            apiResult.getStreet(),
+                            apiResult.getHousenumber()
+                    );
+                    addressService.save(address);
+
+                    Location location = new Location(
+                            apiResult.getId(),
+                            apiResult.getName() != null ? apiResult.getName() : "Supermarkt",
+                            apiResult.getCoordinates().getLatitude(),
+                            apiResult.getCoordinates().getLongitude(),
+                            details, address
+                    );
+                    return location;
+                });
     }
 }

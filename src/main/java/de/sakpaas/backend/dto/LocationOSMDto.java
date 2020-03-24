@@ -6,27 +6,26 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Getter;
 
 @Getter
-@JsonPropertyOrder({ "id", "lat", "lon", "tags" })
-public class LocationSearchOSMResultDto {
+@JsonPropertyOrder({ "id", "coordinates", "tags" })
+public class LocationOSMDto {
 
     private long id;
-    private double lat;
-    private double lon;
-    private TagsDto tags;
+    private CoordinatesDto coordinates;
+    private TagsOSMDto tags;
 
     @JsonCreator
-    public LocationSearchOSMResultDto(@JsonProperty("id") long id,
-            @JsonProperty("lat") double lat,
-            @JsonProperty("lon") double lon,
-            @JsonProperty("center") CenterDto centerDto,
-            @JsonProperty("tags") TagsDto tags) {
+    public LocationOSMDto(@JsonProperty("id") long id,
+                          @JsonProperty("lat") double lat,
+                          @JsonProperty("lon") double lon,
+                          @JsonProperty("center") CenterDto center,
+                          @JsonProperty("tags") TagsOSMDto tags) {
         this.id = id;
-        this.lat = lat;
-        this.lon = lon;
         this.tags = tags;
-        if(centerDto != null){
-            this.lat = centerDto.getLat();
-            this.lon = centerDto.getLon();
+        if(center == null){
+            this.coordinates = new CoordinatesDto(lat, lon);
+        }
+        else {
+            this.coordinates = new CoordinatesDto(center.getLat(), center.getLon());
         }
     }
 
