@@ -54,4 +54,8 @@ public class LocationSearchOSMResultDto {
         return tags.getCountry();
     }
 
+    public String getType() {
+        return tags.getType();
+    }
+
 }

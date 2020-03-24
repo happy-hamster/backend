@@ -42,4 +42,7 @@ public class Location {
 
     @Column(name = "COUNTRY")
     private String country;
+
+    @Column(name = "TYPE")
+    private String type;
 }
