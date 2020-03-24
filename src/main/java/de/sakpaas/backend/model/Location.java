@@ -45,6 +45,4 @@ public class Location {
 
     @Column(name = "TYPE")
     private String type;
-
-
 }
