@@ -20,13 +20,13 @@ jobs:
 
       - name: Build image
         if: success()
-        run: docker build -t ${GITHUB_REPOSITORY}:development .
+        run: docker build -t sakpaas/backend:development .
 
       - name: Push <image>:development
         if: success()
         uses: actions-hub/docker@master
         with:
-          args: push ${GITHUB_REPOSITORY}:development
+          args: push sakpaas/backend:development
 
 
   deploy:
