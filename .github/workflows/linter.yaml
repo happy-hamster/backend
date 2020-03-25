@@ -5,9 +5,12 @@ on: push
 
 jobs:
   lint:
+    name: Run Linter
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@master
+
       - name: Echo
         run: echo "Here a linter should be invoked"
 
@@ -18,7 +21,15 @@ jobs:
     steps:
       - uses: actions/checkout@master
 
-      - name: Push to docker hub :latest
+      - name: Login to registry
+        if: success()
+        uses: actions-hub/docker/login@master
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build image
+        if: success()
         uses: actions-hub/docker@master
         with:
           args: build .
