@@ -13,23 +13,3 @@ jobs:
 
       - name: Echo
         run: echo "Here a linter should be invoked"
-
-  build:
-    name: Build image
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@master
-
-      - name: Login to registry
-        if: success()
-        uses: actions-hub/docker/login@master
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Build image
-        if: success()
-        uses: actions-hub/docker@master
-        with:
-          args: build .
