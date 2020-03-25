@@ -1,0 +1,24 @@
+name: Linter
+
+# Trigger on push
+on: push
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Echo
+        run: echo "Here a linter should be invoked"
+
+  build:
+    name: Build image
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@master
+
+      - name: Push to docker hub :latest
+        uses: actions-hub/docker@master
+        with:
+          args: build .

@@ -1,0 +1,56 @@
+name: Release
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build:
+    name: Build+Publish image
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@master
+
+      - name: Login to registry
+        if: success()
+        uses: actions-hub/docker/login@master
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build image
+        if: success()
+        run: docker build -t ${GITHUB_REPOSITORY}:release-${GITHUB_REF} .
+
+      - name: Tag image
+        if: success()
+        run: docker tag ${GITHUB_REPOSITORY}:release-${GITHUB_REF} ${GITHUB_REPOSITORY}:latest
+
+      - name: Push <image>:release-<tag>
+        if: success()
+        uses: actions-hub/docker@master
+        with:
+          args: push ${GITHUB_REPOSITORY}:${GITHUB_REF}
+
+      - name: Push <image>:latest
+        if: success()
+        uses: actions-hub/docker@master
+        with:
+          args: push ${GITHUB_REPOSITORY}:release-${GITHUB_REF}
+
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          repository: 'SAKPaaS/deployment'
+
+      - uses: actions-hub/kubectl@master
+        env:
+          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+        with:
+          args: rolling-update sakpaas-backend --image=${GITHUB_REPOSITORY}:release-${GITHUB_REF}
