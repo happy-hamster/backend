@@ -12,7 +12,7 @@ spring:
 app:
   presence:
     duration: 20
-  version: 1.3.4
+  version: 1.3.8
 management:
   server:
     port: 9000
