@@ -1,12 +1,12 @@
-package de.sakpaas.backend.dto;
+package de.sakpaas.backend.dto.locationresult;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import de.sakpaas.backend.model.Address;
 import lombok.Data;
 
 @Data
-@JsonPropertyOrder({ "country", "city", "postcode", "street", "housenumber" })
-public class AddressDto {
+@JsonPropertyOrder({"country", "city", "postcode", "street", "housenumber"})
+public class LocationResultAddressDto {
 
   private String country = null;
   private String city = null;
@@ -14,7 +14,7 @@ public class AddressDto {
   private String street = null;
   private String housenumber = null;
 
-  public AddressDto(Address address) {
+  public LocationResultAddressDto(Address address) {
     this.country = address.getCountry();
     this.city = address.getCity();
     this.postcode = address.getPostcode();

@@ -1,4 +1,4 @@
-package de.sakpaas.backend.dto;
+package de.sakpaas.backend.dto.osmresult;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -7,14 +7,14 @@ import lombok.Getter;
 
 import java.util.List;
 
-@JsonPropertyOrder({ "elements" })
+@JsonPropertyOrder({"elements"})
 @Getter
-public class ApiResultDto {
+public class OSMResultLocationListDto {
 
-    private List<LocationOSMDto> elements;
+    private List<OMSResultLocationDto> elements;
 
     @JsonCreator
-    public ApiResultDto(@JsonProperty("elements") List<LocationOSMDto> elements) {
+    public OSMResultLocationListDto(@JsonProperty("elements") List<OMSResultLocationDto> elements) {
         this.elements = elements;
     }
 

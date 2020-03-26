@@ -1,6 +1,10 @@
 package de.sakpaas.backend.service;
 
-import de.sakpaas.backend.dto.*;
+import de.sakpaas.backend.dto.locationresult.LocationResultAddressDto;
+import de.sakpaas.backend.dto.locationresult.LocationResultCoordinatesDto;
+import de.sakpaas.backend.dto.locationresult.LocationResultLocationDetailsDto;
+import de.sakpaas.backend.dto.locationresult.LocationResultLocationDto;
+import de.sakpaas.backend.dto.osmresult.OMSResultLocationDto;
 import de.sakpaas.backend.model.Address;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.LocationDetails;
@@ -24,20 +28,20 @@ public class LocationMapper {
         this.addressService = addressService;
     }
 
-    public LocationDto mapToOutputDto(Location location) {
+    public LocationResultLocationDto mapToOutputDto(Location location) {
         if (location == null) {
             return null;
         }
 
-        return new LocationDto(
+        return new LocationResultLocationDto(
                 location.getId(), location.getName(),
-                new LocationDetailsDto(location.getDetails()),
-                new CoordinatesDto(location.getLatitude(), location.getLongitude()),
+                new LocationResultLocationDetailsDto(location.getDetails()),
+                new LocationResultCoordinatesDto(location.getLatitude(), location.getLongitude()),
                 occupancyService.getOccupancyCalculation(location),
-                new AddressDto(location.getAddress()));
+                new LocationResultAddressDto(location.getAddress()));
     }
 
-    public Location mapToLocation(LocationOSMDto apiResult) {
+    public Location mapToLocation(OMSResultLocationDto apiResult) {
         if (apiResult == null) {
             return null;
         }
@@ -46,7 +50,8 @@ public class LocationMapper {
                 .orElseGet(() -> {
                     LocationDetails details = new LocationDetails(
                             apiResult.getType(),
-                            "Mo-Fr 07-22 Uhr, Sa-So 09-12 Uhr"
+                            apiResult.getOpeningHours(),
+                            apiResult.getBrand()
                     );
                     locationDetailsService.save(details);
 
@@ -59,14 +64,13 @@ public class LocationMapper {
                     );
                     addressService.save(address);
 
-                    Location location = new Location(
+                    return new Location(
                             apiResult.getId(),
                             apiResult.getName() != null ? apiResult.getName() : "Supermarkt",
                             apiResult.getCoordinates().getLatitude(),
                             apiResult.getCoordinates().getLongitude(),
                             details, address
                     );
-                    return location;
                 });
     }
 }

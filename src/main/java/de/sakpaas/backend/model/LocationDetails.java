@@ -1,8 +1,13 @@
 package de.sakpaas.backend.model;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 
 @Data
 @AllArgsConstructor
@@ -21,9 +26,13 @@ public class LocationDetails {
     @Column(name = "OPENING_HOURS")
     private String openingHours = null;
 
-    public LocationDetails(String type, String openingHours) {
+    @Column(name = "BRAND")
+    private String brand = null;
+
+    public LocationDetails(String type, String openingHours, String brand) {
         this.type = type;
         this.openingHours = openingHours;
+        this.brand = brand;
     }
 
 }

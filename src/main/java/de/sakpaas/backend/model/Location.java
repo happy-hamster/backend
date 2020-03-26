@@ -1,7 +1,8 @@
 package de.sakpaas.backend.model;
 
-import de.sakpaas.backend.dto.CoordinatesDto;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
