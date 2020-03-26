@@ -1,11 +1,12 @@
-name: Integration
+name: Development
 
-# TODO: Change to push to "master"
-on: push
+on:
+  pull_request:
+    types: [closed]
 
 jobs:
   build:
-    name: Build+Publish image
+    name: Build+Push image
     runs-on: ubuntu-latest
 
     steps:
