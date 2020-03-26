@@ -31,13 +31,13 @@ jobs:
         if: success()
         uses: actions-hub/docker@master
         with:
-          args: push sakpaas/backend:${GITHUB_REF}
+          args: push sakpaas/backend:release-${GITHUB_REF}
 
       - name: Push <image>:latest
         if: success()
         uses: actions-hub/docker@master
         with:
-          args: push sakpaas/backend:release-${GITHUB_REF}
+          args: push sakpaas/backend:latest
 
 
   deploy:
