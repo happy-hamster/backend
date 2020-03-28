@@ -1,6 +1,6 @@
 package de.sakpaas.backend.service;
 
-import de.sakpaas.backend.dto.locationresult.LocationResultOccupancyDto;
+import de.sakpaas.backend.dto.LocationResultLocationDto;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.Occupancy;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,12 +54,12 @@ public class OccupancyService {
         return totalOccupancy / totalFactor;
     }
 
-    public LocationResultOccupancyDto getOccupancyCalculation(Location location) {
+    public LocationResultLocationDto.LocationResultOccupancyDto getOccupancyCalculation(Location location) {
         ZonedDateTime time = now();
         List<Occupancy> occupancies = occupancyRepository.findByLocationAndTimestampAfter(location,
                 now().minusHours(2));
 
-        return new LocationResultOccupancyDto(
+        return new LocationResultLocationDto.LocationResultOccupancyDto(
                 calculateAverage(occupancies, time),
                 occupancies.size(),
                 occupancies.stream().map(Occupancy::getTimestamp).max(Comparator.naturalOrder()).orElse(null)

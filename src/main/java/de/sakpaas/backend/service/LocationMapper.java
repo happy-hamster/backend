@@ -1,10 +1,7 @@
 package de.sakpaas.backend.service;
 
-import de.sakpaas.backend.dto.locationresult.LocationResultAddressDto;
-import de.sakpaas.backend.dto.locationresult.LocationResultCoordinatesDto;
-import de.sakpaas.backend.dto.locationresult.LocationResultLocationDetailsDto;
-import de.sakpaas.backend.dto.locationresult.LocationResultLocationDto;
-import de.sakpaas.backend.dto.osmresult.OMSResultLocationDto;
+import de.sakpaas.backend.dto.LocationResultLocationDto;
+import de.sakpaas.backend.dto.OSMResultLocationListDto;
 import de.sakpaas.backend.model.Address;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.LocationDetails;
@@ -35,13 +32,13 @@ public class LocationMapper {
 
         return new LocationResultLocationDto(
                 location.getId(), location.getName(),
-                new LocationResultLocationDetailsDto(location.getDetails()),
-                new LocationResultCoordinatesDto(location.getLatitude(), location.getLongitude()),
+                new LocationResultLocationDto.LocationResultLocationDetailsDto(location.getDetails()),
+                new LocationResultLocationDto.LocationResultCoordinatesDto(location.getLatitude(), location.getLongitude()),
                 occupancyService.getOccupancyCalculation(location),
-                new LocationResultAddressDto(location.getAddress()));
+                new LocationResultLocationDto.LocationResultAddressDto(location.getAddress()));
     }
 
-    public Location mapToLocation(OMSResultLocationDto apiResult) {
+    public Location mapToLocation(OSMResultLocationListDto.OMSResultLocationDto apiResult) {
         if (apiResult == null) {
             return null;
         }

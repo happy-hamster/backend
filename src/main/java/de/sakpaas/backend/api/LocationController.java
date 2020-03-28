@@ -1,9 +1,9 @@
 package de.sakpaas.backend.api;
 
 import de.sakpaas.backend.BackendApplication;
+import de.sakpaas.backend.dto.LocationResultLocationDto;
+import de.sakpaas.backend.dto.OSMResultLocationListDto;
 import de.sakpaas.backend.dto.OccupancyReportDto;
-import de.sakpaas.backend.dto.locationresult.LocationResultLocationDto;
-import de.sakpaas.backend.dto.osmresult.OMSResultLocationDto;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.Occupancy;
 import de.sakpaas.backend.service.*;
@@ -148,7 +148,7 @@ public class LocationController {
         }
 
         System.out.println("started request to API");
-        List<OMSResultLocationDto> results = locationApiSearchDAS.getLocationsForCountry("DE");
+        List<OSMResultLocationListDto.OMSResultLocationDto> results = locationApiSearchDAS.getLocationsForCountry("DE");
         System.out.println("got result!");
         for (int i = 0; i < results.size(); i++) {
             try {

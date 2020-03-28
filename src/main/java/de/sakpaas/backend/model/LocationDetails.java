@@ -18,16 +18,16 @@ public class LocationDetails {
     @Id
     @GeneratedValue
     @Column(name = "ID", nullable = false)
-    private Long id = null;
+    private Long id;
 
     @Column(name = "TYPE")
-    private String type = null;
+    private String type;
 
     @Column(name = "OPENING_HOURS")
-    private String openingHours = null;
+    private String openingHours;
 
     @Column(name = "BRAND")
-    private String brand = null;
+    private String brand;
 
     public LocationDetails(String type, String openingHours, String brand) {
         this.type = type;

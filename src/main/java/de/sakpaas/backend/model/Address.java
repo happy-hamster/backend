@@ -1,8 +1,12 @@
 package de.sakpaas.backend.model;
 
-import lombok.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 
 @Data
 @NoArgsConstructor
@@ -12,22 +16,22 @@ public class Address {
     @Id
     @GeneratedValue
     @Column(name = "ID", nullable = false)
-    private Long id = null;
+    private Long id;
 
     @Column(name = "COUNTRY")
-    private String country = null;
+    private String country;
 
     @Column(name = "CITY")
-    private String city = null;
+    private String city;
 
     @Column(name = "POSTCODE")
-    private String postcode = null;
+    private String postcode;
 
     @Column(name = "STREET")
-    private String street = null;
+    private String street;
 
     @Column(name = "HOUSENUMBER")
-    private String housenumber = null;
+    private String housenumber;
 
     public Address(String country, String city, String postcode, String street, String housenumber) {
         this.country = country;

@@ -14,7 +14,7 @@ public class Location   {
 
     @Id
     @Column(name = "ID", nullable = false)
-    private Long id = null;
+    private Long id;
 
     @Column(name = "NAME", nullable = false)
     private String name = null;
@@ -27,10 +27,10 @@ public class Location   {
 
     @OneToOne(optional = false)
     @JoinColumn(name = "LOCATION_DETAILS_ID", referencedColumnName = "ID", nullable = false)
-    private LocationDetails details = null;
+    private LocationDetails details;
 
     @OneToOne(optional = false)
     @JoinColumn(name = "ADDRESS_ID", referencedColumnName = "ID", nullable = false)
-    private Address address = null;
+    private Address address;
 
 }
