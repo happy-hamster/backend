@@ -20,7 +20,7 @@ import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 
 @CrossOrigin(origins = "*")
-@RequestMapping("/v1/locations")
+@RequestMapping("/v2/locations")
 @RestController
 public class LocationController {
     private static final String MAPPING_POST_OCCUPANCY = "/{locationId}/occupancy";
