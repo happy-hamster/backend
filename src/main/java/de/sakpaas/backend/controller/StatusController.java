@@ -13,6 +13,9 @@ public class StatusController {
     @Value("${app.version}")
     private String version;
 
+    @Value("${app.commit}")
+    private String commit;
+
     private final MeterRegistry meterRegistry;
 
     private Counter getCounter;
@@ -23,7 +26,7 @@ public class StatusController {
         getCounter = Counter
                 .builder("request")
                 .description("Total Request since application start on a Endpoint")
-                .tags("endpoint", "status", "method", "get")
+                .tags("version", "", "endpoint", "status", "method", "get")
                 .register(meterRegistry);
     }
 
