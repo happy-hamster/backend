@@ -37,6 +37,7 @@ public class StatusController {
         StatusDto status = new StatusDto();
         status.setStatus(true);
         status.setVersion(version);
+        status.setCommit(commit);
         return status;
     }
 }
