@@ -50,6 +50,7 @@ public class LocationController {
     private Counter postOccupancyCounter;
     private Counter postCheckInCounter;
     private Counter getStartDatabaseCounter;
+    private Counter importLocationCounter;
 
     public LocationController(LocationService locationService, LocationApiSearchDAS locationApiSearchDAS,
                               LocationMapper locationMapper, OccupancyService occupancyService, PresenceService presenceService, MeterRegistry meterRegistry) {
@@ -84,6 +85,11 @@ public class LocationController {
                 .builder("request")
                 .description("Total Request since application start on a Endpoint")
                 .tags("version", "v2", "endpoint", "location", "method", "getStartDatabase")
+                .register(meterRegistry);
+        importLocationCounter = Counter
+                .builder("import")
+                .description("Total number of OSM locations imported")
+                .tags("version", "v2", "endpoint", "location")
                 .register(meterRegistry);
     }
 
@@ -171,6 +177,7 @@ public class LocationController {
         for (int i = 0; i < results.size(); i++) {
             try {
                 locationService.importLocation(results.get(i));
+                importLocationCounter.increment();
             } catch (Exception ignored) { }
             if (i % 100 == 0) {
                 LOGGER.info("OSM Import: " + ((double) i / (double) results.size()) * 100.0 + " %");
