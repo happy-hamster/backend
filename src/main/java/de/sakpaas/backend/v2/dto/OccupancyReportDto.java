@@ -1,4 +1,4 @@
-package de.sakpaas.backend.dto;
+package de.sakpaas.backend.v2.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

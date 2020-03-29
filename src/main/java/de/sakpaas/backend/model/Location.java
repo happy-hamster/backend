@@ -10,7 +10,7 @@ import javax.persistence.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity(name = "LOCATION")
-public class Location   {
+public class Location {
 
     @Id
     @Column(name = "ID", nullable = false)

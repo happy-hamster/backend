@@ -1,8 +1,9 @@
-package de.sakpaas.backend.dto;
+package de.sakpaas.backend.v2.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import de.sakpaas.backend.model.AccumulatedOccupancy;
 import de.sakpaas.backend.model.Address;
 import de.sakpaas.backend.model.LocationDetails;
 import lombok.AllArgsConstructor;
@@ -49,7 +50,6 @@ public class LocationResultLocationDto {
             this.openingHours = locationDetails.getOpeningHours();
             this.brand = locationDetails.getBrand();
         }
-
     }
 
     @Data
@@ -68,7 +68,6 @@ public class LocationResultLocationDto {
             this.street = address.getStreet();
             this.housenumber = address.getHousenumber();
         }
-
     }
 
     @Data
@@ -86,8 +85,12 @@ public class LocationResultLocationDto {
 
         private Double value;
         private Integer count;
-        private ZonedDateTime lastestReport;
+        private ZonedDateTime latestReport;
 
+        public LocationResultOccupancyDto(AccumulatedOccupancy accumulatedOccupancy) {
+            this.value = accumulatedOccupancy.getValue();
+            this.count = accumulatedOccupancy.getCount();
+            this.latestReport = accumulatedOccupancy.getLatestReport();
+        }
     }
-
 }

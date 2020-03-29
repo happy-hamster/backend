@@ -23,22 +23,18 @@ public class OSMResultLocationListDto {
     public static class OMSResultLocationDto {
 
         private long id;
-        private LocationResultLocationDto.LocationResultCoordinatesDto coordinates;
+        private OSMResultCoordinatesDto coordinates;
         private OSMResultTagsDto tags;
 
         @JsonCreator
         public OMSResultLocationDto(@JsonProperty("id") long id,
                                     @JsonProperty("lat") double lat,
                                     @JsonProperty("lon") double lon,
-                                    @JsonProperty("center") OSMResultCenterDto center,
+                                    @JsonProperty("center") OSMResultCoordinatesDto center,
                                     @JsonProperty("tags") OSMResultTagsDto tags) {
             this.id = id;
             this.tags = tags;
-            if (center == null) {
-                this.coordinates = new LocationResultLocationDto.LocationResultCoordinatesDto(lat, lon);
-            } else {
-                this.coordinates = new LocationResultLocationDto.LocationResultCoordinatesDto(center.getLat(), center.getLon());
-            }
+            this.coordinates = (center != null) ? center : new OSMResultCoordinatesDto(lat, lon);
         }
 
         public String getName() {
@@ -81,13 +77,13 @@ public class OSMResultLocationListDto {
 
     @Getter
     @JsonPropertyOrder({"lat", "lon"})
-    public static class OSMResultCenterDto {
+    public static class OSMResultCoordinatesDto {
         private double lat;
         private double lon;
 
         @JsonCreator
-        public OSMResultCenterDto(@JsonProperty("lat") double lat,
-                                  @JsonProperty("lon") double lon) {
+        public OSMResultCoordinatesDto(@JsonProperty("lat") double lat,
+                                       @JsonProperty("lon") double lon) {
             this.lat = lat;
             this.lon = lon;
         }

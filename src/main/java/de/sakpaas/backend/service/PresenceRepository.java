@@ -7,6 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.time.ZonedDateTime;
 
 public interface PresenceRepository extends JpaRepository<Presence, Long> {
-  Long findByLocationAndCheckOutBeforeAndCheckInAfter(Location location, ZonedDateTime before,
-          ZonedDateTime after);
+    Long findByLocationAndCheckOutBeforeAndCheckInAfter(Location location, ZonedDateTime before,
+                                                        ZonedDateTime after);
 }

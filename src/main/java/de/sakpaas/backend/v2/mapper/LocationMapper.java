@@ -1,10 +1,14 @@
-package de.sakpaas.backend.service;
+package de.sakpaas.backend.v2.mapper;
 
-import de.sakpaas.backend.dto.LocationResultLocationDto;
 import de.sakpaas.backend.dto.OSMResultLocationListDto;
 import de.sakpaas.backend.model.Address;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.LocationDetails;
+import de.sakpaas.backend.service.AddressService;
+import de.sakpaas.backend.service.LocationDetailsService;
+import de.sakpaas.backend.service.LocationService;
+import de.sakpaas.backend.service.OccupancyService;
+import de.sakpaas.backend.v2.dto.LocationResultLocationDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -34,7 +38,7 @@ public class LocationMapper {
                 location.getId(), location.getName(),
                 new LocationResultLocationDto.LocationResultLocationDetailsDto(location.getDetails()),
                 new LocationResultLocationDto.LocationResultCoordinatesDto(location.getLatitude(), location.getLongitude()),
-                occupancyService.getOccupancyCalculation(location),
+                new LocationResultLocationDto.LocationResultOccupancyDto(occupancyService.getOccupancyCalculation(location)),
                 new LocationResultLocationDto.LocationResultAddressDto(location.getAddress()));
     }
 
@@ -64,8 +68,8 @@ public class LocationMapper {
                     return new Location(
                             apiResult.getId(),
                             apiResult.getName() != null ? apiResult.getName() : "Supermarkt",
-                            apiResult.getCoordinates().getLatitude(),
-                            apiResult.getCoordinates().getLongitude(),
+                            apiResult.getCoordinates().getLat(),
+                            apiResult.getCoordinates().getLon(),
                             details, address
                     );
                 });
