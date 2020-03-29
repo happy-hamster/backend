@@ -6,4 +6,5 @@ import lombok.Data;
 public class StatusDto {
     private boolean status;
     private String version;
+    private String commit;
 }
