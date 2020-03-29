@@ -1,5 +1,6 @@
 package de.sakpaas.backend.service;
 
+import de.sakpaas.backend.model.AccumulatedOccupancy;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.Occupancy;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Comparator;
 import java.util.List;
 
 import static java.time.ZonedDateTime.now;
@@ -24,16 +26,9 @@ public class OccupancyService {
         this.occupancyRepository = occupancyRepository;
     }
 
-    public Double getAverageOccupancy(Location location) {
-        ZonedDateTime time = now();
-        List<Occupancy> occupancies = occupancyRepository.findByLocationAndTimestampAfter(location,
-                now().minusHours(2));
-        return calculateAverage(occupancies, time);
-    }
-
     public static Double calculateAverage(List<Occupancy> occupancies, ZonedDateTime time) {
         // If there is no occupancy, we can't give an average
-        if(occupancies.isEmpty())
+        if (occupancies.isEmpty())
             return null;
 
         // After this deadline we have to factor in the bell curve
@@ -42,10 +37,10 @@ public class OccupancyService {
         // Collect all occupancies and factors
         double totalOccupancy = 0.0;
         double totalFactor = 0.0;
-        for(Occupancy occupancy : occupancies) {
+        for (Occupancy occupancy : occupancies) {
             double factor = 1.0;
             // Calculate factor if necessary
-            if(occupancy.getTimestamp().isBefore(deadline)) {
+            if (occupancy.getTimestamp().isBefore(deadline)) {
                 double minutes = ChronoUnit.MINUTES.between(time, occupancy.getTimestamp());
                 factor = bellCurve(minutes);
             }
@@ -59,9 +54,22 @@ public class OccupancyService {
         return totalOccupancy / totalFactor;
     }
 
+    public AccumulatedOccupancy getOccupancyCalculation(Location location) {
+        ZonedDateTime time = now();
+        List<Occupancy> occupancies = occupancyRepository.findByLocationAndTimestampAfter(location,
+                now().minusHours(2));
+
+        return new AccumulatedOccupancy(
+                calculateAverage(occupancies, time),
+                occupancies.size(),
+                occupancies.stream().map(Occupancy::getTimestamp).max(Comparator.naturalOrder()).orElse(null)
+        );
+    }
+
     public static double bellCurve(double x) {
         return FACTOR_B * Math.exp(-Math.pow(-x - 15, 2) / FACTOR_A);
     }
+
     // KI
     public Occupancy save(Occupancy occupancy) {
         return occupancyRepository.save(occupancy);

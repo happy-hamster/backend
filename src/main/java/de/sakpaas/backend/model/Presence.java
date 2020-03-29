@@ -12,21 +12,25 @@ import java.time.ZonedDateTime;
 @NoArgsConstructor
 @Entity(name = "PRESENCE")
 public class Presence {
-  @Column(name = "ID", nullable = false)
-  @Id
-  @GeneratedValue
-  private Long id;
-  @JoinColumn(name = "LOCATION_ID", referencedColumnName = "ID", nullable = false)
-  @ManyToOne(optional = false)
-  private Location location;
-  @Column(name = "CHECK_IN_DATE")
-  private ZonedDateTime checkIn;
-  @Column(name = "CHECK_OUT_DATE")
-  private ZonedDateTime checkOut;
 
-  public Presence(Location location, ZonedDateTime checkIn, ZonedDateTime checkOut) {
-    this.location = location;
-    this.checkIn = checkIn;
-    this.checkOut = checkOut;
-  }
+    @Id
+    @GeneratedValue
+    @Column(name = "ID", nullable = false)
+    private Long id;
+
+    @JoinColumn(name = "LOCATION_ID", referencedColumnName = "ID", nullable = false)
+    @ManyToOne(optional = false)
+    private Location location;
+
+    @Column(name = "CHECK_IN_DATE")
+    private ZonedDateTime checkIn;
+
+    @Column(name = "CHECK_OUT_DATE")
+    private ZonedDateTime checkOut;
+
+    public Presence(Location location, ZonedDateTime checkIn, ZonedDateTime checkOut) {
+        this.location = location;
+        this.checkIn = checkIn;
+        this.checkOut = checkOut;
+    }
 }

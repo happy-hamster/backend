@@ -1,11 +1,9 @@
 package de.sakpaas.backend.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 public class StatusDto {
-  private boolean status;
-  private String version;
+    private boolean status;
+    private String version;
 }

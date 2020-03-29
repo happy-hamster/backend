@@ -1,19 +1,16 @@
-package de.sakpaas.backend.api;
+package de.sakpaas.backend.v1.controller;
 
-import de.sakpaas.backend.BackendApplication;
-import de.sakpaas.backend.dto.LocationApiSearchDAS;
-import de.sakpaas.backend.dto.LocationSearchOSMResultDto;
-import de.sakpaas.backend.dto.LocationSearchOutputDto;
-import de.sakpaas.backend.dto.OccupancyDto;
+import de.sakpaas.backend.exception.UnsupportedEndpointException;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.Occupancy;
-import de.sakpaas.backend.service.LocationMapper;
 import de.sakpaas.backend.service.LocationService;
 import de.sakpaas.backend.service.OccupancyService;
 import de.sakpaas.backend.service.PresenceService;
+import de.sakpaas.backend.v1.dto.LocationDto;
+import de.sakpaas.backend.v1.dto.OccupancyReportDto;
+import de.sakpaas.backend.v1.mapper.LocationMapper;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
-import javassist.NotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,7 +32,6 @@ public class LocationController {
 
 
     private LocationService locationService;
-    private LocationApiSearchDAS locationApiSearchDAS;
     private LocationMapper locationMapper;
     private OccupancyService occupancyService;
     private PresenceService presenceService;
@@ -47,56 +43,55 @@ public class LocationController {
     private Counter postCheckInCounter;
     private Counter getStartDatabaseCounter;
 
-    public LocationController(LocationService locationService, LocationApiSearchDAS locationApiSearchDAS,
-                              LocationMapper locationMapper, OccupancyService occupancyService, PresenceService presenceService, MeterRegistry meterRegistry) {
+    public LocationController(LocationService locationService, LocationMapper locationMapper,
+                              OccupancyService occupancyService, PresenceService presenceService,
+                              MeterRegistry meterRegistry) {
         this.locationService = locationService;
-        this.locationApiSearchDAS = locationApiSearchDAS;
         this.locationMapper = locationMapper;
         this.occupancyService = occupancyService;
         this.presenceService = presenceService;
         this.meterRegistry = meterRegistry;
 
         getCounter = Counter
-            .builder("request")
-            .description("Total Request since application start on a Endpoint")
-            .tags("endpoint", "location", "method", "get")
-            .register(meterRegistry);
+                .builder("request")
+                .description("Total Request since application start on a Endpoint")
+                .tags("version", "v1", "endpoint", "location", "method", "get")
+                .register(meterRegistry);
         getByIdCounter = Counter
-            .builder("request")
-            .description("Total Request since application start on a Endpoint")
-            .tags("endpoint", "location", "method", "getById")
-            .register(meterRegistry);
+                .builder("request")
+                .description("Total Request since application start on a Endpoint")
+                .tags("version", "v1", "endpoint", "location", "method", "getById")
+                .register(meterRegistry);
         postOccupancyCounter = Counter
-            .builder("request")
-            .description("Total Request since application start on a Endpoint")
-            .tags("endpoint", "location", "method", "postOccupancy")
-            .register(meterRegistry);
+                .builder("request")
+                .description("Total Request since application start on a Endpoint")
+                .tags("version", "v1", "endpoint", "location", "method", "postOccupancy")
+                .register(meterRegistry);
         postCheckInCounter = Counter
-            .builder("request")
-            .description("Total Request since application start on a Endpoint")
-            .tags("endpoint", "location", "method", "postCheckIn")
-            .register(meterRegistry);
+                .builder("request")
+                .description("Total Request since application start on a Endpoint")
+                .tags("version", "v1", "endpoint", "location", "method", "postCheckIn")
+                .register(meterRegistry);
         getStartDatabaseCounter = Counter
-            .builder("request")
-            .description("Total Request since application start on a Endpoint")
-            .tags("endpoint", "location", "method", "getStartDatabase")
-            .register(meterRegistry);
+                .builder("request")
+                .description("Total Request since application start on a Endpoint")
+                .tags("version", "v1", "endpoint", "location", "method", "getStartDatabase")
+                .register(meterRegistry);
     }
-
 
 
     @GetMapping
     @ResponseBody
-    public ResponseEntity<List<LocationSearchOutputDto>> getLocation(@RequestParam Double latitude,
-            @RequestParam Double longitude) {
+    public ResponseEntity<List<LocationDto>> getLocation(@RequestParam Double latitude,
+                                                         @RequestParam Double longitude) {
         getCounter.increment();
         List<Location> searchResult = locationService.findByCoordinates(latitude, longitude);
 
         if (searchResult.isEmpty()) {
-            return new ResponseEntity<>(new ArrayList<>(),OK);
+            return new ResponseEntity<>(new ArrayList<>(), OK);
         }
 
-        List<LocationSearchOutputDto> response = searchResult.stream()
+        List<LocationDto> response = searchResult.stream()
                 .map(locationMapper::mapToOutputDto)
                 .collect(toList());
 
@@ -104,7 +99,7 @@ public class LocationController {
     }
 
     @GetMapping(value = MAPPING_BY_ID)
-    public ResponseEntity<LocationSearchOutputDto> getById(@PathVariable("locationId") Long locationId) {
+    public ResponseEntity<LocationDto> getById(@PathVariable("locationId") Long locationId) {
         getByIdCounter.increment();
         Location location = locationService.getById(locationId).orElse(null);
 
@@ -116,8 +111,8 @@ public class LocationController {
     }
 
     @PostMapping(value = MAPPING_POST_OCCUPANCY)
-    public ResponseEntity<LocationSearchOutputDto> postNewOccupancy(@RequestBody OccupancyDto occupancyDto,
-            @PathVariable("locationId") Long locationId) {
+    public ResponseEntity<LocationDto> postNewOccupancy(@RequestBody OccupancyReportDto occupancyDto,
+                                                        @PathVariable("locationId") Long locationId) {
         postOccupancyCounter.increment();
 
         occupancyDto.setLocationId(locationId);
@@ -149,24 +144,6 @@ public class LocationController {
     @GetMapping(value = MAPPING_START_DATABASE)
     public ResponseEntity<String> startDatabase(@PathVariable("key") String key) {
         getStartDatabaseCounter.increment();
-        if (!key.equals(BackendApplication.GENERATED)) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        System.out.println("started request to API");
-        List<LocationSearchOSMResultDto> results = locationApiSearchDAS.getLocationsForCountry("DE");
-        System.out.println("got result!");
-        for (int i = 0; i < results.size(); i++) {
-            try {
-                locationService.save(locationMapper.mapToLocation(results.get(i)));
-            } catch (Exception ignored) {
-            }
-            if (i % 100 == 0) {
-                System.out.println(((double) i / (double) results.size()) * 100 + "%");
-            }
-        }
-        System.out.println("finished!");
-
-        return ResponseEntity.ok().build();
+        throw new UnsupportedEndpointException();
     }
 }

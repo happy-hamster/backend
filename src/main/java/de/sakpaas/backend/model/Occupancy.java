@@ -12,9 +12,10 @@ import java.time.ZonedDateTime;
 @NoArgsConstructor
 @Entity(name = "OCCUPANCY")
 public class Occupancy {
+
     @Id
-    @Column(name = "ID")
     @GeneratedValue
+    @Column(name = "ID")
     private Long id;
 
     @ManyToOne(optional = false)
@@ -36,4 +37,5 @@ public class Occupancy {
         this.timestamp = ZonedDateTime.now();
         this.clientType = clientType;
     }
+
 }

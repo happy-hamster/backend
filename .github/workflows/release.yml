@@ -21,7 +21,7 @@ jobs:
 
       - name: Build image
         if: success()
-        run: docker build -t sakpaas/backend:release-${GITHUB_REF##*/} .
+        run: docker build --build-arg VERSION=${GITHUB_REF##*/} --build-arg COMMIT=${GITHUB_SHA} -t sakpaas/backend:release-${GITHUB_REF##*/} .
 
       - name: Tag image
         if: success()

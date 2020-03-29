@@ -7,13 +7,13 @@ import org.springframework.stereotype.Service;
 @Service
 public class RequestService {
 
-  private final RequestRepository requestRepository;
+    private final RequestRepository requestRepository;
 
-  public RequestService(RequestRepository requestRepository) {
-    this.requestRepository = requestRepository;
-  }
+    public RequestService(RequestRepository requestRepository) {
+        this.requestRepository = requestRepository;
+    }
 
-  public void addRequest(Request request){
-    requestRepository.save(request);
-  }
+    public void addRequest(Request request) {
+        requestRepository.save(request);
+    }
 }
