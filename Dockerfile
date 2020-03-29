@@ -13,7 +13,7 @@ FROM openjdk:8-jre-alpine
 ARG VERSION=unkown
 ENV app.version=$VERSION
 ARG COMMIT=unkown
-ENV app.commit=$VERSION
+ENV app.commit=$COMMIT
 # Copy jar file
 COPY --from=build /home/app/target/backend-*.jar /root/backend.jar
 # Execute
