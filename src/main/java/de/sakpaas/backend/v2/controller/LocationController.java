@@ -13,10 +13,14 @@ import de.sakpaas.backend.v2.dto.OccupancyReportDto;
 import de.sakpaas.backend.v2.mapper.LocationMapper;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -32,6 +36,7 @@ public class LocationController {
     private static final String MAPPING_BY_ID = "/{locationId}";
     private static final String MAPPING_START_DATABASE = "/generate/{key}";
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(LocationController.class);
 
     private LocationService locationService;
     private LocationApiSearchDAS locationApiSearchDAS;
@@ -148,22 +153,30 @@ public class LocationController {
     public ResponseEntity<String> startDatabase(@PathVariable("key") String key) {
         getStartDatabaseCounter.increment();
         if (!key.equals(BackendApplication.GENERATED)) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        System.out.println("started request to API");
+        // Download data from OSM
+        LOGGER.warn("Starting OSM import... (1/3)");
         List<OSMResultLocationListDto.OMSResultLocationDto> results = locationApiSearchDAS.getLocationsForCountry("DE");
-        System.out.println("got result!");
+        LOGGER.info("Finished receiving data from OSM! (1/3)");
+
+        // Sort data by id before import, inserts should be faster for sorted ids
+        LOGGER.warn("Sorting OSM data... (2/3)");
+        results.sort(Comparator.comparingLong(OSMResultLocationListDto.OMSResultLocationDto::getId));
+        LOGGER.info("Finished sorting OSM data! (2/3)");
+
+        // Insert or update data one by one in the table
+        LOGGER.warn("Importing OSM data to database... (3/3)");
         for (int i = 0; i < results.size(); i++) {
             try {
-                locationService.save(locationMapper.mapToLocation(results.get(i)));
-            } catch (Exception ignored) {
-            }
+                locationService.importLocation(results.get(i));
+            } catch (Exception ignored) { }
             if (i % 100 == 0) {
-                System.out.println(((double) i / (double) results.size()) * 100 + "%");
+                LOGGER.info("OSM Import: " + ((double) i / (double) results.size()) * 100.0 + " %");
             }
         }
-        System.out.println("finished!");
+        LOGGER.info("Finished data import from OSM! (3/3)");
 
         return ResponseEntity.ok().build();
     }
