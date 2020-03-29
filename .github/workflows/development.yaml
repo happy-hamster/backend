@@ -22,13 +22,23 @@ jobs:
 
       - name: Build image
         if: success()
-        run: docker build -t sakpaas/backend:dev-${GITHUB_SHA} .
+        run: docker build --build-arg VERSION=dev-${GITHUB_SHA} --build-arg COMMIT=${GITHUB_SHA} -t sakpaas/backend:dev-${GITHUB_SHA} .
+
+      - name: Tag image
+        if: success()
+        run: docker tag sakpaas/backend:dev-${GITHUB_SHA} sakpaas/backend:development
 
       - name: Push <image>:development
         if: success()
         uses: actions-hub/docker@master
         with:
           args: push sakpaas/backend:dev-${GITHUB_SHA}
+
+      - name: Push <image>:development
+        if: success()
+        uses: actions-hub/docker@master
+        with:
+          args: push sakpaas/backend:development
 
 
   deploy:

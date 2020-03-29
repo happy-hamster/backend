@@ -14,6 +14,6 @@ public class BackendApplication {
         new SpringApplicationBuilder(BackendApplication.class)
                 .beanNameGenerator(new VersionedBeanNameGenerator())
                 .run(args);
-		System.out.println("Database Generation Key: " + GENERATED);
+        System.out.println("Database Generation Key: " + GENERATED);
     }
 }

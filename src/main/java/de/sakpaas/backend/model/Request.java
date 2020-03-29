@@ -13,16 +13,16 @@ import java.time.ZonedDateTime;
 @Getter
 @Entity(name = "REQUEST")
 public class Request {
-  @Column(name = "ID", nullable = false)
-  @Id
-  @GeneratedValue
-  Long id;
-  @Column(name = "TIMESTAMP")
-  ZonedDateTime date;
-  @Column(name = "ADDRESS")
-  String address;
-  @Column(name = "METHOD")
-  String method;
-  @Column(name = "URI")
-  String requestUri;
+    @Column(name = "ID", nullable = false)
+    @Id
+    @GeneratedValue
+    Long id;
+    @Column(name = "TIMESTAMP")
+    ZonedDateTime date;
+    @Column(name = "ADDRESS")
+    String address;
+    @Column(name = "METHOD")
+    String method;
+    @Column(name = "URI")
+    String requestUri;
 }
