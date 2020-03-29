@@ -1,0 +1,15 @@
+name: Linter
+
+# Trigger on push
+on: push
+
+jobs:
+  lint:
+    name: Run Linter
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@master
+
+      - name: Echo
+        run: echo "Here a linter should be invoked"

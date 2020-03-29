@@ -1,0 +1,65 @@
+name: Release
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build:
+    name: Build+Push image
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@master
+
+      - name: Login to registry
+        if: success()
+        uses: actions-hub/docker/login@master
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build image
+        if: success()
+        run: docker build -t sakpaas/backend:release-${GITHUB_REF##*/} .
+
+      - name: Tag image
+        if: success()
+        run: docker tag sakpaas/backend:release-${GITHUB_REF##*/} sakpaas/backend:latest
+
+      - name: Push <image>:release-<tag>
+        if: success()
+        uses: actions-hub/docker@master
+        with:
+          args: push sakpaas/backend:release-${GITHUB_REF##*/}
+
+      - name: Push <image>:latest
+        if: success()
+        uses: actions-hub/docker@master
+        with:
+          args: push sakpaas/backend:latest
+
+
+  deploy:
+    name: Deployment
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          repository: 'SAKPaaS/deployment'
+
+      - name: Kustomize
+        uses: stefanprodan/kube-tools@v1
+        with:
+          kustomize: 3.4.0
+          command: "cd backend/production && kustomize edit set image sakpaas/backend=sakpaas/backend:release-${GITHUB_REF##*/}"
+
+      - name: Deploy
+        uses: actions-hub/kubectl@master
+        env:
+          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+        with:
+          args: apply -k backend/production
