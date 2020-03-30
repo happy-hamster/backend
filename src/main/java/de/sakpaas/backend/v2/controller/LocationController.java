@@ -1,5 +1,6 @@
 package de.sakpaas.backend.v2.controller;
 
+import com.google.common.util.concurrent.AtomicDouble;
 import de.sakpaas.backend.BackendApplication;
 import de.sakpaas.backend.dto.OSMResultLocationListDto;
 import de.sakpaas.backend.model.Location;
@@ -12,6 +13,7 @@ import de.sakpaas.backend.v2.dto.LocationResultLocationDto;
 import de.sakpaas.backend.v2.dto.OccupancyReportDto;
 import de.sakpaas.backend.v2.mapper.LocationMapper;
 import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +52,8 @@ public class LocationController {
     private Counter postOccupancyCounter;
     private Counter postCheckInCounter;
     private Counter getStartDatabaseCounter;
-    private Counter importLocationCounter;
+    private AtomicDouble importLocationProgress;
+    private Gauge importLocationGauge;
 
     public LocationController(LocationService locationService, LocationApiSearchDAS locationApiSearchDAS,
                               LocationMapper locationMapper, OccupancyService occupancyService, PresenceService presenceService, MeterRegistry meterRegistry) {
@@ -86,9 +89,10 @@ public class LocationController {
                 .description("Total Request since application start on a Endpoint")
                 .tags("version", "v2", "endpoint", "location", "method", "getStartDatabase")
                 .register(meterRegistry);
-        importLocationCounter = Counter
-                .builder("import")
-                .description("Total number of OSM locations imported")
+        importLocationProgress = new AtomicDouble(0.0);
+        importLocationGauge = Gauge
+                .builder("import_progress", () -> this.importLocationProgress.get())
+                .description("Percentage of OSM locations imported (0.0 to 1.0)")
                 .tags("version", "v2", "endpoint", "location")
                 .register(meterRegistry);
     }
@@ -174,15 +178,20 @@ public class LocationController {
 
         // Insert or update data one by one in the table
         LOGGER.warn("Importing OSM data to database... (3/3)");
+        importLocationProgress.set(0.0);
         for (int i = 0; i < results.size(); i++) {
             try {
                 locationService.importLocation(results.get(i));
-                importLocationCounter.increment();
             } catch (Exception ignored) { }
+
+            // Report
+            double progress = ((double) i) / results.size();
+            importLocationProgress.set(progress);
             if (i % 100 == 0) {
-                LOGGER.info("OSM Import: " + ((double) i / (double) results.size()) * 100.0 + " %");
+                LOGGER.info("OSM Import: " + progress * 100.0 + " %");
             }
         }
+        importLocationProgress.set(1.0);
         LOGGER.info("Finished data import from OSM! (3/3)");
 
         return ResponseEntity.ok().build();
