@@ -4,6 +4,8 @@ import de.sakpaas.backend.dto.OSMResultLocationListDto;
 import de.sakpaas.backend.model.Address;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.LocationDetails;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,14 +19,31 @@ public class LocationService {
     private final LocationRepository locationRepository;
     private final LocationDetailsService locationDetailsService;
     private final AddressService addressService;
+    private final MeterRegistry meterRegistry;
+
+    private Counter importLocationInsertCounter;
+    private Counter importLocationUpdateCounter;
 
     @Autowired
     public LocationService(LocationRepository locationRepository,
                            LocationDetailsService locationDetailsService,
-                           AddressService addressService) {
+                           AddressService addressService,
+                           MeterRegistry meterRegistry) {
         this.locationRepository = locationRepository;
         this.locationDetailsService = locationDetailsService;
         this.addressService = addressService;
+        this.meterRegistry = meterRegistry;
+
+        importLocationInsertCounter = Counter
+                .builder("import")
+                .description("Total number of OSM locations imported and newly inserted")
+                .tags("type", "location", "action", "insert")
+                .register(meterRegistry);
+        importLocationUpdateCounter = Counter
+                .builder("import")
+                .description("Total number of OSM locations imported and updated")
+                .tags("type", "location", "action", "update")
+                .register(meterRegistry);
     }
 
     public Optional<Location> getById(long id) {
@@ -84,6 +103,8 @@ public class LocationService {
             location.setLatitude(osmLocation.getCoordinates().getLat());
             location.setLongitude(osmLocation.getCoordinates().getLon());
             this.save(location);
+
+            importLocationUpdateCounter.increment();
         } else {
             LocationDetails details = new LocationDetails(
                     osmLocation.getType(),
@@ -110,6 +131,8 @@ public class LocationService {
                     address
             );
             this.save(location);
+
+            importLocationInsertCounter.increment();
         }
     }
 }
