@@ -19,7 +19,9 @@ public class LocationApiSearchDAS {
                 "node[shop=supermarket](around:" + radius.toString() + "," + latitude.toString() + "," + longitude.toString() + ");out;" +
                 "way[shop=supermarket](around:" + radius.toString() + "," + latitude.toString() + "," + longitude.toString() + ");out center;" +
                 "node[shop=chemist](around:" + radius.toString() + "," + latitude.toString() + "," + longitude.toString() + ");out;" +
-                "way[shop=chemist](around:" + radius.toString() + "," + latitude.toString() + "," + longitude.toString() + ");out center;";
+                "way[shop=chemist](around:" + radius.toString() + "," + latitude.toString() + "," + longitude.toString() + ");out center;" +
+                "node[shop=beverages](around:" + radius.toString() + "," + latitude.toString() + "," + longitude.toString() + ");out;" +
+                "way[shop=beverages](around:" + radius.toString() + "," + latitude.toString() + "," + longitude.toString() + ");out center;";
 
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<OSMResultLocationListDto> response = restTemplate.getForEntity(url, OSMResultLocationListDto.class);
@@ -40,7 +42,8 @@ public class LocationApiSearchDAS {
     public List<OSMResultLocationListDto.OMSResultLocationDto> getLocationsForCountry(String countryCode) {
         final String url = "https://overpass-api.de/api/interpreter?data=[out:json][timeout:2500];area(3600051477)->." +
                 "searchArea;(node[shop=supermarket](area.searchArea);way[shop=supermarket](area.searchArea);" +
-                "node[shop=chemist](area.searchArea);way[shop=chemist](area.searchArea););out center;";
+                "node[shop=chemist](area.searchArea);way[shop=chemist](area.searchArea););out center;" +
+                "node[shop=beverages](area.searchArea);way[shop=beverages](area.searchArea););out center;";
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<OSMResultLocationListDto> response = restTemplate.getForEntity(url, OSMResultLocationListDto.class);
 
