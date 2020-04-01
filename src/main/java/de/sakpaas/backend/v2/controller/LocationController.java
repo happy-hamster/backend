@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.util.stream.Collectors.toList;
 import static org.springframework.http.HttpStatus.CREATED;
@@ -46,6 +47,7 @@ public class LocationController {
     private OccupancyService occupancyService;
     private PresenceService presenceService;
     private final MeterRegistry meterRegistry;
+    private AtomicBoolean importState;
 
     private Counter getCounter;
     private Counter getByIdCounter;
@@ -63,6 +65,7 @@ public class LocationController {
         this.occupancyService = occupancyService;
         this.presenceService = presenceService;
         this.meterRegistry = meterRegistry;
+        this.importState = new AtomicBoolean(false);
 
         getCounter = Counter
                 .builder("request")
@@ -163,8 +166,15 @@ public class LocationController {
     public ResponseEntity<String> startDatabase(@PathVariable("key") String key) {
         getStartDatabaseCounter.increment();
         if (!key.equals(BackendApplication.GENERATED)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Permission denied");
         }
+
+        if(importState.get()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Already running");
+        }
+
+        // Lock database import
+        importState.set(true);
 
         // Download data from OSM
         LOGGER.warn("Starting OSM import... (1/3)");
@@ -194,6 +204,9 @@ public class LocationController {
         importLocationProgress.set(1.0);
         LOGGER.info("Finished data import from OSM! (3/3)");
 
-        return ResponseEntity.ok().build();
+        // Unlock database import
+        importState.set(false);
+
+        return ResponseEntity.ok("Success");
     }
 }
