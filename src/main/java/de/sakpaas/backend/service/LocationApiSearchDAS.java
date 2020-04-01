@@ -42,8 +42,9 @@ public class LocationApiSearchDAS {
     public List<OSMResultLocationListDto.OMSResultLocationDto> getLocationsForCountry(String countryCode) {
         final String url = "https://overpass-api.de/api/interpreter?data=[out:json][timeout:2500];area(3600051477)->." +
                 "searchArea;(node[shop=supermarket](area.searchArea);way[shop=supermarket](area.searchArea);" +
-                "node[shop=chemist](area.searchArea);way[shop=chemist](area.searchArea););out center;" +
+                "node[shop=chemist](area.searchArea);way[shop=chemist](area.searchArea);" +
                 "node[shop=beverages](area.searchArea);way[shop=beverages](area.searchArea););out center;";
+        System.out.println(url);
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<OSMResultLocationListDto> response = restTemplate.getForEntity(url, OSMResultLocationListDto.class);
 
