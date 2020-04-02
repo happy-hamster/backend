@@ -13,7 +13,7 @@ app:
   presence:
     duration: 20
   occupancy:
-    duration: 5
+    duration: 300
   version: dev
   commit: dev
 management:

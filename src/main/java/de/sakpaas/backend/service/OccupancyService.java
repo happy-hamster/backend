@@ -61,7 +61,7 @@ public class OccupancyService {
     public AccumulatedOccupancy getOccupancyCalculation(Location location) {
         ZonedDateTime time = now();
         List<Occupancy> occupancies = occupancyRepository.findByLocationAndTimestampAfter(location,
-                now().minusHours(confDuration));
+                now().minusMinutes(confDuration));
 
         return new AccumulatedOccupancy(
                 calculateAverage(occupancies, time),
