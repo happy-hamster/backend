@@ -4,6 +4,7 @@ import de.sakpaas.backend.model.AccumulatedOccupancy;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.Occupancy;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
@@ -20,6 +21,9 @@ public class OccupancyService {
     public static final double FACTOR_B = 1.0 / Math.sqrt(2.0 * Math.PI * Math.pow(0.4, 2));
 
     private final OccupancyRepository occupancyRepository;
+
+    @Value("${app.occupancy.duration}")
+    private int confDuration;
 
     @Autowired
     public OccupancyService(OccupancyRepository occupancyRepository) {
@@ -57,7 +61,7 @@ public class OccupancyService {
     public AccumulatedOccupancy getOccupancyCalculation(Location location) {
         ZonedDateTime time = now();
         List<Occupancy> occupancies = occupancyRepository.findByLocationAndTimestampAfter(location,
-                now().minusHours(2));
+                now().minusMinutes(confDuration));
 
         return new AccumulatedOccupancy(
                 calculateAverage(occupancies, time),
