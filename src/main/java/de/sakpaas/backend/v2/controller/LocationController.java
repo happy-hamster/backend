@@ -1,11 +1,8 @@
 package de.sakpaas.backend.v2.controller;
 
-import com.google.common.util.concurrent.AtomicDouble;
 import de.sakpaas.backend.BackendApplication;
-import de.sakpaas.backend.dto.OSMResultLocationListDto;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.Occupancy;
-import de.sakpaas.backend.service.LocationApiSearchDAS;
 import de.sakpaas.backend.service.LocationService;
 import de.sakpaas.backend.service.OccupancyService;
 import de.sakpaas.backend.service.PresenceService;
@@ -13,16 +10,12 @@ import de.sakpaas.backend.v2.dto.LocationResultLocationDto;
 import de.sakpaas.backend.v2.dto.OccupancyReportDto;
 import de.sakpaas.backend.v2.mapper.LocationMapper;
 import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -40,7 +33,6 @@ public class LocationController {
     private static final String MAPPING_START_DATABASE = "/generate/{key}";
 
     private LocationService locationService;
-
     private LocationMapper locationMapper;
     private OccupancyService occupancyService;
     private PresenceService presenceService;
