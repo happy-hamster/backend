@@ -58,6 +58,10 @@ public class OccupancyService {
         return totalOccupancy / totalFactor;
     }
 
+    public static double bellCurve(double x) {
+        return FACTOR_B * Math.exp(-Math.pow(-x - 15, 2) / FACTOR_A);
+    }
+
     public AccumulatedOccupancy getOccupancyCalculation(Location location) {
         ZonedDateTime time = now();
         List<Occupancy> occupancies = occupancyRepository.findByLocationAndTimestampAfter(location,
@@ -70,11 +74,6 @@ public class OccupancyService {
         );
     }
 
-    public static double bellCurve(double x) {
-        return FACTOR_B * Math.exp(-Math.pow(-x - 15, 2) / FACTOR_A);
-    }
-
-    // KI
     public Occupancy save(Occupancy occupancy) {
         return occupancyRepository.save(occupancy);
     }

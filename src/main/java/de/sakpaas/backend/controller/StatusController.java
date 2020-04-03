@@ -10,14 +10,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class StatusController {
 
+    private final MeterRegistry meterRegistry;
     @Value("${app.version}")
     private String version;
-
     @Value("${app.commit}")
     private String commit;
-
-    private final MeterRegistry meterRegistry;
-
     private Counter getCounter;
 
     public StatusController(MeterRegistry meterRegistry) {

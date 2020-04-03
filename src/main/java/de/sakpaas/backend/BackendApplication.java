@@ -12,8 +12,8 @@ import org.springframework.context.annotation.ComponentScan;
 @ComponentScan(nameGenerator = VersionedBeanNameGenerator.class)
 public class BackendApplication {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BackendApplication.class);
     public static final String GENERATED = RandomString.make(64);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BackendApplication.class);
 
     public static void main(String[] args) {
         new SpringApplicationBuilder(BackendApplication.class).run(args);
