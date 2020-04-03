@@ -11,6 +11,8 @@ public interface LocationRepository extends JpaRepository<Location, Long> {
     Optional<Location> findById(Long id);
 
     List<Location> findByLatitudeBetweenAndLongitudeBetween(Double latMin, Double latMax, Double lonMin, Double lonMax);
-    @Query("SELECT ID FROM LOCATION")
+
+
+    @Query(value="SELECT ID FROM LOCATION", nativeQuery = true)
     List<Long> getAllIds();
 }

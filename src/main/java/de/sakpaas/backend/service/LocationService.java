@@ -30,7 +30,9 @@ public class LocationService {
     private Counter importLocationUpdateCounter;
     private Counter importLocationDeleteCounter;
     private Gauge importLocationGauge;
+    private Gauge deleteLocationGauge;
     private AtomicDouble importLocationProgress;
+    private AtomicDouble deleteLocationProgress;
 
 
     @Autowired
@@ -42,6 +44,8 @@ public class LocationService {
         this.locationDetailsService = locationDetailsService;
         this.addressService = addressService;
         this.meterRegistry = meterRegistry;
+        this.importLocationProgress = new AtomicDouble();
+        this.deleteLocationProgress = new AtomicDouble();
 
         importLocationInsertCounter = Counter
                 .builder("import")
@@ -58,10 +62,13 @@ public class LocationService {
             .description("Total number of OSM locations imported and updated")
             .tags("type", "location", "action", "delete")
             .register(meterRegistry);
-        importLocationGauge = Gauge
-            .builder("import_progress", () -> this.importLocationProgress.get())
+        Gauge.builder("import_progress", () -> this.importLocationProgress.get())
             .description("Percentage of OSM locations imported (0.0 to 1.0)")
-            .tags("version", "v2", "endpoint", "location")
+            .tags("version", "v2")
+            .register(meterRegistry);
+        Gauge.builder("delete_progress", () -> this.deleteLocationProgress.get())
+            .description("Percentage of OSM locations deleted (0.0 to 1.0)")
+            .tags("version", "v2")
             .register(meterRegistry);
         this.locationApiSearchDAS = locationApiSearchDAS;
     }
@@ -102,6 +109,12 @@ public class LocationService {
         LOGGER.warn("Starting OSM import... (1/4)");
         List<OSMResultLocationListDto.OMSResultLocationDto> results = locationApiSearchDAS.getLocationsForCountry("DE");
         LOGGER.info("Finished receiving data from OSM! (1/4)");
+        // Checking if API Call has a legit result
+        if(results.size() < 1000){
+            LOGGER.error("API returns to less results!");
+            throw new IllegalStateException("API returns to few results!");
+        }
+
         // Getting IDs stored in the Database right now
         List<Long> locationIds = locationRepository.getAllIds();
         LOGGER.info("Pre Update Location Count: " + locationIds.size());
@@ -128,7 +141,6 @@ public class LocationService {
                     importLocationInsertCounter.increment();
                 }
             } catch (Exception ignored) { }
-
             // Report
             double progress = ((double) i) / results.size();
             importLocationProgress.set(progress);
@@ -139,11 +151,17 @@ public class LocationService {
         importLocationProgress.set(1.0);
 
         LOGGER.warn("Delete not existing Locations... (3/4)");
-        for (Long locationId:locationIds) {
-            locationRepository.deleteById(locationId);
+        for (int i = 0; i < locationIds.size(); i++) {
+            locationRepository.deleteById(locationIds.get(i));
             importLocationDeleteCounter.increment();
+
+            double progress = ((double) i) / locationIds.size();
+            deleteLocationProgress.set(progress);
+            if (i % 100 == 0) {
+                LOGGER.info("Location deletion: " + progress * 100.0 + " %");
+            }
         }
-        LOGGER.info("Finished deleting not existing Locations! (3/4)");
+        LOGGER.info("Finished deleting " + locationIds.size() + " not existing Locations! (3/4)");
 
         LOGGER.info("Finished data import from OSM! (4/4)");
     }
