@@ -1,11 +1,15 @@
 package de.sakpaas.backend.service;
 
+import com.google.common.util.concurrent.AtomicDouble;
 import de.sakpaas.backend.dto.OSMResultLocationListDto;
 import de.sakpaas.backend.model.Address;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.LocationDetails;
 import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,19 +20,24 @@ import java.util.stream.Collectors;
 
 @Service
 public class LocationService {
+    private Logger LOGGER = LoggerFactory.getLogger(LocationService.class);
     private final LocationRepository locationRepository;
     private final LocationDetailsService locationDetailsService;
     private final AddressService addressService;
     private final MeterRegistry meterRegistry;
-
+    private final LocationApiSearchDAS locationApiSearchDAS;
     private Counter importLocationInsertCounter;
     private Counter importLocationUpdateCounter;
+    private Counter importLocationDeleteCounter;
+    private Gauge importLocationGauge;
+    private AtomicDouble importLocationProgress;
+
 
     @Autowired
     public LocationService(LocationRepository locationRepository,
                            LocationDetailsService locationDetailsService,
                            AddressService addressService,
-                           MeterRegistry meterRegistry) {
+                           MeterRegistry meterRegistry, LocationApiSearchDAS locationApiSearchDAS) {
         this.locationRepository = locationRepository;
         this.locationDetailsService = locationDetailsService;
         this.addressService = addressService;
@@ -44,6 +53,17 @@ public class LocationService {
                 .description("Total number of OSM locations imported and updated")
                 .tags("type", "location", "action", "update")
                 .register(meterRegistry);
+        importLocationDeleteCounter = Counter
+            .builder("import")
+            .description("Total number of OSM locations imported and updated")
+            .tags("type", "location", "action", "delete")
+            .register(meterRegistry);
+        importLocationGauge = Gauge
+            .builder("import_progress", () -> this.importLocationProgress.get())
+            .description("Percentage of OSM locations imported (0.0 to 1.0)")
+            .tags("version", "v2", "endpoint", "location")
+            .register(meterRegistry);
+        this.locationApiSearchDAS = locationApiSearchDAS;
     }
 
     public Optional<Location> getById(long id) {
@@ -73,17 +93,70 @@ public class LocationService {
         return locationRepository.save(location);
     }
 
-    /**
-     * Inserts or updates an OSM-Location in the database.
-     *
-     * @param osmLocation the OSM-Location to be inserted or updated
+
+    /***
+     * Making an Request to the OverpassAPI, insert or update the Locations in the Database, deleting the unused locations
      */
-    public void importLocation(OSMResultLocationListDto.OMSResultLocationDto osmLocation) {
+    public void updateDatabase(){
+        // Download data from OSM
+        LOGGER.warn("Starting OSM import... (1/4)");
+        List<OSMResultLocationListDto.OMSResultLocationDto> results = locationApiSearchDAS.getLocationsForCountry("DE");
+        LOGGER.info("Finished receiving data from OSM! (1/4)");
+        // Getting IDs stored in the Database right now
+        List<Long> locationIds = locationRepository.getAllIds();
+        LOGGER.info("Pre Update Location Count: " + locationIds.size());
+        // Sort data by id before import, inserts should be faster for sorted ids
+        LOGGER.warn("Sorting OSM data... (2/4)");
+        results.sort(Comparator.comparingLong(OSMResultLocationListDto.OMSResultLocationDto::getId));
+        LOGGER.info("Finished sorting OSM data! (2/4)");
+
+        // Insert or update data one by one in the table
+        LOGGER.warn("Importing OSM data to database... (3/4)");
+        importLocationProgress.set(0.0);
+        for (int i = 0; i < results.size(); i++) {
+            try {
+                OSMResultLocationListDto.OMSResultLocationDto osmLocation = results.get(i);
+                if (locationIds.contains(osmLocation.getId())) {
+                    // Updating an existing Location
+                    updateLocation(osmLocation);
+                    importLocationUpdateCounter.increment();
+                    // Removing still existing database Ids from List
+                    locationIds.remove(results.get(i).getId());
+                } else {
+                    // Creating a Database Entry for a new Location
+                    createNewLocation(osmLocation);
+                    importLocationInsertCounter.increment();
+                }
+            } catch (Exception ignored) { }
+
+            // Report
+            double progress = ((double) i) / results.size();
+            importLocationProgress.set(progress);
+            if (i % 100 == 0) {
+                LOGGER.info("OSM Import: " + progress * 100.0 + " %");
+            }
+        }
+        importLocationProgress.set(1.0);
+
+        LOGGER.warn("Delete not existing Locations... (3/4)");
+        for (Long locationId:locationIds) {
+            locationRepository.deleteById(locationId);
+            importLocationDeleteCounter.increment();
+        }
+        LOGGER.info("Finished deleting not existing Locations! (3/4)");
+
+        LOGGER.info("Finished data import from OSM! (4/4)");
+    }
+
+
+    /***
+     * Updating an existing Database Entry
+     * @param osmLocation New Location
+     */
+    private void updateLocation(OSMResultLocationListDto.OMSResultLocationDto osmLocation){
         Optional<Location> optionalLocation = locationRepository.findById(osmLocation.getId());
-
-        if (optionalLocation.isPresent()) {
+        if(optionalLocation.isPresent()){
             Location location = optionalLocation.get();
-
             LocationDetails details = location.getDetails();
             details.setType(osmLocation.getType());
             details.setOpeningHours(osmLocation.getOpeningHours());
@@ -103,36 +176,40 @@ public class LocationService {
             location.setLatitude(osmLocation.getCoordinates().getLat());
             location.setLongitude(osmLocation.getCoordinates().getLon());
             this.save(location);
-
-            importLocationUpdateCounter.increment();
         } else {
-            LocationDetails details = new LocationDetails(
-                    osmLocation.getType(),
-                    osmLocation.getOpeningHours(),
-                    osmLocation.getBrand()
-            );
-            locationDetailsService.save(details);
-
-            Address address = new Address(
-                    osmLocation.getCountry(),
-                    osmLocation.getCity(),
-                    osmLocation.getPostcode(),
-                    osmLocation.getStreet(),
-                    osmLocation.getHousenumber()
-            );
-            addressService.save(address);
-
-            Location location = new Location(
-                    osmLocation.getId(),
-                    osmLocation.getName() != null ? osmLocation.getName() : "Supermarkt",
-                    osmLocation.getCoordinates().getLat(),
-                    osmLocation.getCoordinates().getLon(),
-                    details,
-                    address
-            );
-            this.save(location);
-
-            importLocationInsertCounter.increment();
+            LOGGER.error("Unable to find Location with ID=" + osmLocation.getId() + ". Maybe removed during DatabaseUpdate?");
         }
+    }
+
+    /***
+     * Creating a new Location Entry in the Database
+     * @param osmLocation Location that will be added to the Database
+     */
+    private void createNewLocation(OSMResultLocationListDto.OMSResultLocationDto osmLocation){
+        LocationDetails details = new LocationDetails(
+            osmLocation.getType(),
+            osmLocation.getOpeningHours(),
+            osmLocation.getBrand()
+        );
+        locationDetailsService.save(details);
+
+        Address address = new Address(
+            osmLocation.getCountry(),
+            osmLocation.getCity(),
+            osmLocation.getPostcode(),
+            osmLocation.getStreet(),
+            osmLocation.getHousenumber()
+        );
+        addressService.save(address);
+
+        Location location = new Location(
+            osmLocation.getId(),
+            osmLocation.getName() != null ? osmLocation.getName() : "Supermarkt",
+            osmLocation.getCoordinates().getLat(),
+            osmLocation.getCoordinates().getLon(),
+            details,
+            address
+        );
+        this.save(location);
     }
 }

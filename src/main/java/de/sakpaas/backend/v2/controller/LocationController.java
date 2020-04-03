@@ -39,10 +39,8 @@ public class LocationController {
     private static final String MAPPING_BY_ID = "/{locationId}";
     private static final String MAPPING_START_DATABASE = "/generate/{key}";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LocationController.class);
-
     private LocationService locationService;
-    private LocationApiSearchDAS locationApiSearchDAS;
+
     private LocationMapper locationMapper;
     private OccupancyService occupancyService;
     private PresenceService presenceService;
@@ -54,13 +52,11 @@ public class LocationController {
     private Counter postOccupancyCounter;
     private Counter postCheckInCounter;
     private Counter getStartDatabaseCounter;
-    private AtomicDouble importLocationProgress;
-    private Gauge importLocationGauge;
 
-    public LocationController(LocationService locationService, LocationApiSearchDAS locationApiSearchDAS,
+
+    public LocationController(LocationService locationService,
                               LocationMapper locationMapper, OccupancyService occupancyService, PresenceService presenceService, MeterRegistry meterRegistry) {
         this.locationService = locationService;
-        this.locationApiSearchDAS = locationApiSearchDAS;
         this.locationMapper = locationMapper;
         this.occupancyService = occupancyService;
         this.presenceService = presenceService;
@@ -68,38 +64,32 @@ public class LocationController {
         this.importState = new AtomicBoolean(false);
 
         getCounter = Counter
-                .builder("request")
-                .description("Total Request since application start on a Endpoint")
-                .tags("version", "v2", "endpoint", "location", "method", "get")
-                .register(meterRegistry);
+            .builder("request")
+            .description("Total Request since application start on a Endpoint")
+            .tags("version", "v2", "endpoint", "location", "method", "get")
+            .register(meterRegistry);
         getByIdCounter = Counter
-                .builder("request")
-                .description("Total Request since application start on a Endpoint")
-                .tags("version", "v2", "endpoint", "location", "method", "getById")
-                .register(meterRegistry);
+            .builder("request")
+            .description("Total Request since application start on a Endpoint")
+            .tags("version", "v2", "endpoint", "location", "method", "getById")
+            .register(meterRegistry);
         postOccupancyCounter = Counter
-                .builder("request")
-                .description("Total Request since application start on a Endpoint")
-                .tags("version", "v2", "endpoint", "location", "method", "postOccupancy")
-                .register(meterRegistry);
+            .builder("request")
+            .description("Total Request since application start on a Endpoint")
+            .tags("version", "v2", "endpoint", "location", "method", "postOccupancy")
+            .register(meterRegistry);
         postCheckInCounter = Counter
-                .builder("request")
-                .description("Total Request since application start on a Endpoint")
-                .tags("version", "v2", "endpoint", "location", "method", "postCheckIn")
-                .register(meterRegistry);
+            .builder("request")
+            .description("Total Request since application start on a Endpoint")
+            .tags("version", "v2", "endpoint", "location", "method", "postCheckIn")
+            .register(meterRegistry);
         getStartDatabaseCounter = Counter
-                .builder("request")
-                .description("Total Request since application start on a Endpoint")
-                .tags("version", "v2", "endpoint", "location", "method", "getStartDatabase")
-                .register(meterRegistry);
-        importLocationProgress = new AtomicDouble(0.0);
-        importLocationGauge = Gauge
-                .builder("import_progress", () -> this.importLocationProgress.get())
-                .description("Percentage of OSM locations imported (0.0 to 1.0)")
-                .tags("version", "v2", "endpoint", "location")
-                .register(meterRegistry);
-    }
+            .builder("request")
+            .description("Total Request since application start on a Endpoint")
+            .tags("version", "v2", "endpoint", "location", "method", "getStartDatabase")
+            .register(meterRegistry);
 
+    }
 
     @GetMapping
     @ResponseBody
@@ -166,44 +156,17 @@ public class LocationController {
     public ResponseEntity<String> startDatabase(@PathVariable("key") String key) {
         getStartDatabaseCounter.increment();
         if (!key.equals(BackendApplication.GENERATED)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Permission denied");
-        }
 
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Permission denied");
+
+        }
         if(importState.get()) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Already running");
         }
-
         // Lock database import
         importState.set(true);
-
-        // Download data from OSM
-        LOGGER.warn("Starting OSM import... (1/3)");
-        List<OSMResultLocationListDto.OMSResultLocationDto> results = locationApiSearchDAS.getLocationsForCountry("DE");
-        LOGGER.info("Finished receiving data from OSM! (1/3)");
-
-        // Sort data by id before import, inserts should be faster for sorted ids
-        LOGGER.warn("Sorting OSM data... (2/3)");
-        results.sort(Comparator.comparingLong(OSMResultLocationListDto.OMSResultLocationDto::getId));
-        LOGGER.info("Finished sorting OSM data! (2/3)");
-
-        // Insert or update data one by one in the table
-        LOGGER.warn("Importing OSM data to database... (3/3)");
-        importLocationProgress.set(0.0);
-        for (int i = 0; i < results.size(); i++) {
-            try {
-                locationService.importLocation(results.get(i));
-            } catch (Exception ignored) { }
-
-            // Report
-            double progress = ((double) i) / results.size();
-            importLocationProgress.set(progress);
-            if (i % 100 == 0) {
-                LOGGER.info("OSM Import: " + progress * 100.0 + " %");
-            }
-        }
-        importLocationProgress.set(1.0);
-        LOGGER.info("Finished data import from OSM! (3/3)");
-
+        // Making the Database import
+        locationService.updateDatabase();
         // Unlock database import
         importState.set(false);
 
