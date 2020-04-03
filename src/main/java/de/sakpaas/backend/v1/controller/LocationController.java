@@ -29,14 +29,11 @@ public class LocationController {
     private static final String MAPPING_POST_CHECKIN = "/{locationId}/check-in";
     private static final String MAPPING_BY_ID = "/{locationId}";
     private static final String MAPPING_START_DATABASE = "/generate/{key}";
-
-
+    private final MeterRegistry meterRegistry;
     private LocationService locationService;
     private LocationMapper locationMapper;
     private OccupancyService occupancyService;
     private PresenceService presenceService;
-    private final MeterRegistry meterRegistry;
-
     private Counter getCounter;
     private Counter getByIdCounter;
     private Counter postOccupancyCounter;

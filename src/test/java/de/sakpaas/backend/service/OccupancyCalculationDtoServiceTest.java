@@ -16,6 +16,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ComponentScan
 class OccupancyCalculationServiceTest {
 
+    private static Occupancy buildOccupancy(Location location, double occupancy, ZonedDateTime time) {
+        Occupancy obj = new Occupancy(location, occupancy, "test");
+        obj.setTimestamp(time);
+        return obj;
+    }
+
     @Test
     void getAverageOccupancy() {
         Location location = new Location(1L, "LIDL", 41.0D, 8.0D, null, null);
@@ -27,12 +33,6 @@ class OccupancyCalculationServiceTest {
         occupancyList.add(buildOccupancy(location, 1.0, time.minusMinutes(45)));
 
         assertTrue(1.0 > OccupancyService.calculateAverage(occupancyList, time));
-    }
-
-    private static Occupancy buildOccupancy(Location location, double occupancy, ZonedDateTime time) {
-        Occupancy obj = new Occupancy(location, occupancy, "test");
-        obj.setTimestamp(time);
-        return obj;
     }
 
     @Test

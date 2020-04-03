@@ -31,12 +31,11 @@ public class LocationController {
     private static final String MAPPING_POST_CHECKIN = "/{locationId}/check-in";
     private static final String MAPPING_BY_ID = "/{locationId}";
     private static final String MAPPING_START_DATABASE = "/generate/{key}";
-
+    private final MeterRegistry meterRegistry;
     private LocationService locationService;
     private LocationMapper locationMapper;
     private OccupancyService occupancyService;
     private PresenceService presenceService;
-    private final MeterRegistry meterRegistry;
     private AtomicBoolean importState;
 
     private Counter getCounter;
@@ -56,31 +55,30 @@ public class LocationController {
         this.importState = new AtomicBoolean(false);
 
         getCounter = Counter
-            .builder("request")
-            .description("Total Request since application start on a Endpoint")
-            .tags("version", "v2", "endpoint", "location", "method", "get")
-            .register(meterRegistry);
+                .builder("request")
+                .description("Total Request since application start on a Endpoint")
+                .tags("version", "v2", "endpoint", "location", "method", "get")
+                .register(meterRegistry);
         getByIdCounter = Counter
-            .builder("request")
-            .description("Total Request since application start on a Endpoint")
-            .tags("version", "v2", "endpoint", "location", "method", "getById")
-            .register(meterRegistry);
+                .builder("request")
+                .description("Total Request since application start on a Endpoint")
+                .tags("version", "v2", "endpoint", "location", "method", "getById")
+                .register(meterRegistry);
         postOccupancyCounter = Counter
-            .builder("request")
-            .description("Total Request since application start on a Endpoint")
-            .tags("version", "v2", "endpoint", "location", "method", "postOccupancy")
-            .register(meterRegistry);
+                .builder("request")
+                .description("Total Request since application start on a Endpoint")
+                .tags("version", "v2", "endpoint", "location", "method", "postOccupancy")
+                .register(meterRegistry);
         postCheckInCounter = Counter
-            .builder("request")
-            .description("Total Request since application start on a Endpoint")
-            .tags("version", "v2", "endpoint", "location", "method", "postCheckIn")
-            .register(meterRegistry);
+                .builder("request")
+                .description("Total Request since application start on a Endpoint")
+                .tags("version", "v2", "endpoint", "location", "method", "postCheckIn")
+                .register(meterRegistry);
         getStartDatabaseCounter = Counter
-            .builder("request")
-            .description("Total Request since application start on a Endpoint")
-            .tags("version", "v2", "endpoint", "location", "method", "getStartDatabase")
-            .register(meterRegistry);
-
+                .builder("request")
+                .description("Total Request since application start on a Endpoint")
+                .tags("version", "v2", "endpoint", "location", "method", "getStartDatabase")
+                .register(meterRegistry);
     }
 
     @GetMapping
@@ -147,14 +145,16 @@ public class LocationController {
     @GetMapping(value = MAPPING_START_DATABASE)
     public ResponseEntity<String> startDatabase(@PathVariable("key") String key) {
         getStartDatabaseCounter.increment();
+        // Check key
         if (!key.equals(BackendApplication.GENERATED)) {
-
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Permission denied");
-
         }
-        if(importState.get()) {
+
+        // Check if it is the only query running
+        if (importState.get()) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Already running");
         }
+
         // Lock database import
         importState.set(true);
         // Making the Database import
