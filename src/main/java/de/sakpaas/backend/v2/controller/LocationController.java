@@ -9,7 +9,6 @@ import de.sakpaas.backend.service.PresenceService;
 import de.sakpaas.backend.v2.dto.LocationResultLocationDto;
 import de.sakpaas.backend.v2.dto.OccupancyReportDto;
 import de.sakpaas.backend.v2.mapper.LocationMapper;
-import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +29,6 @@ public class LocationController {
     private static final String MAPPING_POST_CHECKIN = "/{locationId}/check-in";
     private static final String MAPPING_BY_ID = "/{locationId}";
     private static final String MAPPING_START_DATABASE = "/generate/{key}";
-    private final MeterRegistry meterRegistry;
     private LocationService locationService;
     private LocationMapper locationMapper;
     private OccupancyService occupancyService;
@@ -38,12 +36,11 @@ public class LocationController {
     private AtomicBoolean importState;
 
     public LocationController(LocationService locationService,
-                              LocationMapper locationMapper, OccupancyService occupancyService, PresenceService presenceService, MeterRegistry meterRegistry) {
+                              LocationMapper locationMapper, OccupancyService occupancyService, PresenceService presenceService) {
         this.locationService = locationService;
         this.locationMapper = locationMapper;
         this.occupancyService = occupancyService;
         this.presenceService = presenceService;
-        this.meterRegistry = meterRegistry;
         this.importState = new AtomicBoolean(false);
     }
 
