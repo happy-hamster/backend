@@ -105,6 +105,10 @@ public class LocationService {
      * Making an Request to the OverpassAPI, insert or update the Locations in the Database, deleting the unused locations
      */
     public void updateDatabase() {
+        // Reset import progress
+        importLocationProgress.set(0.0);
+        deleteLocationProgress.set(0.0);
+
         // Download data from OSM
         LOGGER.warn("Starting OSM import... (1/4)");
         List<OSMResultLocationListDto.OMSResultLocationDto> results = locationApiSearchDAS.getLocationsForCountry("DE");
@@ -124,7 +128,6 @@ public class LocationService {
 
         // Insert or update data one by one in the table
         LOGGER.warn("Importing OSM data to database... (3/4)");
-        importLocationProgress.set(0.0);
         for (int i = 0; i < results.size(); i++) {
             OSMResultLocationListDto.OMSResultLocationDto osmLocation = results.get(i);
             if (locationIds.contains(osmLocation.getId())) {
@@ -159,6 +162,7 @@ public class LocationService {
                 LOGGER.info("Location deletion: " + progress * 100.0 + " %");
             }
         }
+        deleteLocationProgress.set(1.0);
         LOGGER.info("Finished deleting " + locationIds.size() + " not existing Locations! (3/4)");
 
         LOGGER.info("Finished data import from OSM! (4/4)");
