@@ -5,12 +5,21 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Data;
 
+import javax.validation.constraints.DecimalMax;
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.NotNull;
+
 @Data
 @JsonPropertyOrder({"locationId", "occupancy", "clientType"})
 public class OccupancyReportDto {
 
     private Long locationId;
+
+    @NotNull(message = "'occupancy' can not be null.")
+    @DecimalMin(value = "0.0", message = "'occupancy' has to be between 0.0 and 1.0.")
+    @DecimalMax(value = "1.0", message = "'occupancy' has to be between 0.0 and 1.0.")
     private Double occupancy;
+
     private String clientType;
 
     @JsonCreator

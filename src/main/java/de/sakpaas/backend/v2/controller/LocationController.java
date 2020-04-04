@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -112,7 +113,7 @@ public class LocationController {
     }
 
     @PostMapping(value = MAPPING_POST_OCCUPANCY)
-    public ResponseEntity<LocationResultLocationDto> postNewOccupancy(@RequestBody OccupancyReportDto occupancyReportDto,
+    public ResponseEntity<LocationResultLocationDto> postNewOccupancy(@Valid @RequestBody OccupancyReportDto occupancyReportDto,
                                                                       @PathVariable("locationId") Long locationId) {
         postOccupancyCounter.increment();
 
