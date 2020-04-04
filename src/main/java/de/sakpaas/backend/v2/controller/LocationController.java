@@ -9,8 +9,6 @@ import de.sakpaas.backend.service.PresenceService;
 import de.sakpaas.backend.v2.dto.LocationResultLocationDto;
 import de.sakpaas.backend.v2.dto.OccupancyReportDto;
 import de.sakpaas.backend.v2.mapper.LocationMapper;
-import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,61 +29,25 @@ public class LocationController {
     private static final String MAPPING_POST_CHECKIN = "/{locationId}/check-in";
     private static final String MAPPING_BY_ID = "/{locationId}";
     private static final String MAPPING_START_DATABASE = "/generate/{key}";
-    private final MeterRegistry meterRegistry;
     private LocationService locationService;
     private LocationMapper locationMapper;
     private OccupancyService occupancyService;
     private PresenceService presenceService;
     private AtomicBoolean importState;
 
-    private Counter getCounter;
-    private Counter getByIdCounter;
-    private Counter postOccupancyCounter;
-    private Counter postCheckInCounter;
-    private Counter getStartDatabaseCounter;
-
-
     public LocationController(LocationService locationService,
-                              LocationMapper locationMapper, OccupancyService occupancyService, PresenceService presenceService, MeterRegistry meterRegistry) {
+                              LocationMapper locationMapper, OccupancyService occupancyService, PresenceService presenceService) {
         this.locationService = locationService;
         this.locationMapper = locationMapper;
         this.occupancyService = occupancyService;
         this.presenceService = presenceService;
-        this.meterRegistry = meterRegistry;
         this.importState = new AtomicBoolean(false);
-
-        getCounter = Counter
-                .builder("request")
-                .description("Total Request since application start on a Endpoint")
-                .tags("version", "v2", "endpoint", "location", "method", "get")
-                .register(meterRegistry);
-        getByIdCounter = Counter
-                .builder("request")
-                .description("Total Request since application start on a Endpoint")
-                .tags("version", "v2", "endpoint", "location", "method", "getById")
-                .register(meterRegistry);
-        postOccupancyCounter = Counter
-                .builder("request")
-                .description("Total Request since application start on a Endpoint")
-                .tags("version", "v2", "endpoint", "location", "method", "postOccupancy")
-                .register(meterRegistry);
-        postCheckInCounter = Counter
-                .builder("request")
-                .description("Total Request since application start on a Endpoint")
-                .tags("version", "v2", "endpoint", "location", "method", "postCheckIn")
-                .register(meterRegistry);
-        getStartDatabaseCounter = Counter
-                .builder("request")
-                .description("Total Request since application start on a Endpoint")
-                .tags("version", "v2", "endpoint", "location", "method", "getStartDatabase")
-                .register(meterRegistry);
     }
 
     @GetMapping
     @ResponseBody
     public ResponseEntity<List<LocationResultLocationDto>> getLocation(@RequestParam Double latitude,
                                                                        @RequestParam Double longitude) {
-        getCounter.increment();
         List<Location> searchResult = locationService.findByCoordinates(latitude, longitude);
 
         if (searchResult.isEmpty()) {
@@ -101,7 +63,6 @@ public class LocationController {
 
     @GetMapping(value = MAPPING_BY_ID)
     public ResponseEntity<LocationResultLocationDto> getById(@PathVariable("locationId") Long locationId) {
-        getByIdCounter.increment();
         Location location = locationService.getById(locationId).orElse(null);
 
         if (location == null) {
@@ -114,10 +75,7 @@ public class LocationController {
     @PostMapping(value = MAPPING_POST_OCCUPANCY)
     public ResponseEntity<LocationResultLocationDto> postNewOccupancy(@RequestBody OccupancyReportDto occupancyReportDto,
                                                                       @PathVariable("locationId") Long locationId) {
-        postOccupancyCounter.increment();
-
         occupancyReportDto.setLocationId(locationId);
-
         Location location = locationService.getById(locationId).orElse(null);
 
         if (location == null) {
@@ -131,7 +89,6 @@ public class LocationController {
 
     @PostMapping(value = MAPPING_POST_CHECKIN)
     public ResponseEntity<String> postNewCheckIn(@PathVariable("locationId") Long locationId) {
-        postCheckInCounter.increment();
         Location location = locationService.getById(locationId).orElse(null);
 
         if (location != null) {
@@ -144,7 +101,6 @@ public class LocationController {
 
     @GetMapping(value = MAPPING_START_DATABASE)
     public ResponseEntity<String> startDatabase(@PathVariable("key") String key) {
-        getStartDatabaseCounter.increment();
         // Check key
         if (!key.equals(BackendApplication.GENERATED)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Permission denied");
