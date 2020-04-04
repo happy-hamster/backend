@@ -12,6 +12,7 @@ import de.sakpaas.backend.v1.mapper.LocationMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -70,7 +71,7 @@ public class LocationController {
     }
 
     @PostMapping(value = MAPPING_POST_OCCUPANCY)
-    public ResponseEntity<LocationDto> postNewOccupancy(@RequestBody OccupancyReportDto occupancyDto,
+    public ResponseEntity<LocationDto> postNewOccupancy(@Valid @RequestBody OccupancyReportDto occupancyDto,
                                                         @PathVariable("locationId") Long locationId) {
         occupancyDto.setLocationId(locationId);
 
