@@ -9,7 +9,9 @@ import java.util.List;
 public class Error400Dto {
 
     private Date timestamp;
-    private int status;
-    private List<String> messages;
+    private final int status = 400;
+    private final String error = "Bad Request";
+    private String message;
+    private String path;
 
 }

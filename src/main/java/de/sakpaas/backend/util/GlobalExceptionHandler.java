@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
@@ -26,15 +27,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                                                                   HttpStatus status, WebRequest request) {
         Error400Dto error = new Error400Dto();
         error.setTimestamp(new Date());
-        error.setStatus(status.value());
+        error.setPath(((ServletWebRequest) request).getRequest().getServletPath());
 
         // Iterate over all errors and get the messages
-        List<String> messages = exception.getBindingResult()
+        String message = exception.getBindingResult()
                 .getFieldErrors()
                 .stream()
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                .collect(Collectors.toList());
-        error.setMessages(messages);
+                .collect(Collectors.joining(", "));
+        error.setMessage(message);
 
         return new ResponseEntity<>(error, headers, status);
     }
