@@ -1,11 +1,15 @@
 package de.sakpaas.backend.model;
 
+import java.time.ZonedDateTime;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import javax.persistence.*;
-import java.time.ZonedDateTime;
 
 @Getter
 @Setter
@@ -13,29 +17,29 @@ import java.time.ZonedDateTime;
 @Entity(name = "OCCUPANCY")
 public class Occupancy {
 
-    @Id
-    @GeneratedValue
-    @Column(name = "ID")
-    private Long id;
+  @Id
+  @GeneratedValue
+  @Column(name = "ID")
+  private Long id;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "LOCATION_ID", referencedColumnName = "ID", nullable = false)
-    private Location location;
+  @ManyToOne(optional = false)
+  @JoinColumn(name = "LOCATION_ID", referencedColumnName = "ID", nullable = false)
+  private Location location;
 
-    @Column(name = "OCCUPANCY", nullable = false)
-    private Double occupancy;
+  @Column(name = "OCCUPANCY", nullable = false)
+  private Double occupancy;
 
-    @Column(name = "TIMESTAMP")
-    private ZonedDateTime timestamp;
+  @Column(name = "TIMESTAMP")
+  private ZonedDateTime timestamp;
 
-    @Column(name = "CLIENT_TYPE")
-    private String clientType;
+  @Column(name = "CLIENT_TYPE")
+  private String clientType;
 
-    public Occupancy(Location location, Double occupancy, String clientType) {
-        this.location = location;
-        this.occupancy = occupancy;
-        this.timestamp = ZonedDateTime.now();
-        this.clientType = clientType;
-    }
+  public Occupancy(Location location, Double occupancy, String clientType) {
+    this.location = location;
+    this.occupancy = occupancy;
+    this.timestamp = ZonedDateTime.now();
+    this.clientType = clientType;
+  }
 
 }

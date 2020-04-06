@@ -1,5 +1,9 @@
 package de.sakpaas.backend.v2.controller;
 
+import static java.util.stream.Collectors.toList;
+import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.OK;
+
 import de.sakpaas.backend.BackendApplication;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.Occupancy;
@@ -9,116 +13,124 @@ import de.sakpaas.backend.service.PresenceService;
 import de.sakpaas.backend.v2.dto.LocationResultLocationDto;
 import de.sakpaas.backend.v2.dto.OccupancyReportDto;
 import de.sakpaas.backend.v2.mapper.LocationMapper;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import static java.util.stream.Collectors.toList;
-import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.HttpStatus.OK;
+import javax.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 @CrossOrigin(origins = "*")
 @RequestMapping("/v2/locations")
 @RestController
 public class LocationController {
-    private static final String MAPPING_POST_OCCUPANCY = "/{locationId}/occupancy";
-    private static final String MAPPING_POST_CHECKIN = "/{locationId}/check-in";
-    private static final String MAPPING_BY_ID = "/{locationId}";
-    private static final String MAPPING_START_DATABASE = "/generate/{key}";
-    private LocationService locationService;
-    private LocationMapper locationMapper;
-    private OccupancyService occupancyService;
-    private PresenceService presenceService;
-    private AtomicBoolean importState;
+  private static final String MAPPING_POST_OCCUPANCY = "/{locationId}/occupancy";
+  private static final String MAPPING_POST_CHECKIN = "/{locationId}/check-in";
+  private static final String MAPPING_BY_ID = "/{locationId}";
+  private static final String MAPPING_START_DATABASE = "/generate/{key}";
+  private LocationService locationService;
+  private LocationMapper locationMapper;
+  private OccupancyService occupancyService;
+  private PresenceService presenceService;
+  private AtomicBoolean importState;
 
-    public LocationController(LocationService locationService,
-                              LocationMapper locationMapper, OccupancyService occupancyService, PresenceService presenceService) {
-        this.locationService = locationService;
-        this.locationMapper = locationMapper;
-        this.occupancyService = occupancyService;
-        this.presenceService = presenceService;
-        this.importState = new AtomicBoolean(false);
+  public LocationController(LocationService locationService,
+                            LocationMapper locationMapper, OccupancyService occupancyService,
+                            PresenceService presenceService) {
+    this.locationService = locationService;
+    this.locationMapper = locationMapper;
+    this.occupancyService = occupancyService;
+    this.presenceService = presenceService;
+    this.importState = new AtomicBoolean(false);
+  }
+
+  @GetMapping
+  @ResponseBody
+  public ResponseEntity<List<LocationResultLocationDto>> getLocation(@RequestParam Double latitude,
+                                                                     @RequestParam
+                                                                         Double longitude) {
+    List<Location> searchResult = locationService.findByCoordinates(latitude, longitude);
+
+    if (searchResult.isEmpty()) {
+      return new ResponseEntity<>(new ArrayList<>(), OK);
     }
 
-    @GetMapping
-    @ResponseBody
-    public ResponseEntity<List<LocationResultLocationDto>> getLocation(@RequestParam Double latitude,
-                                                                       @RequestParam Double longitude) {
-        List<Location> searchResult = locationService.findByCoordinates(latitude, longitude);
+    List<LocationResultLocationDto> response = searchResult.stream()
+        .map(locationMapper::mapToOutputDto)
+        .collect(toList());
 
-        if (searchResult.isEmpty()) {
-            return new ResponseEntity<>(new ArrayList<>(), OK);
-        }
+    return new ResponseEntity<>(response, OK);
+  }
 
-        List<LocationResultLocationDto> response = searchResult.stream()
-                .map(locationMapper::mapToOutputDto)
-                .collect(toList());
+  @GetMapping(value = MAPPING_BY_ID)
+  public ResponseEntity<LocationResultLocationDto> getById(
+      @PathVariable("locationId") Long locationId) {
+    Location location = locationService.getById(locationId).orElse(null);
 
-        return new ResponseEntity<>(response, OK);
+    if (location == null) {
+      return ResponseEntity.notFound().build();
     }
 
-    @GetMapping(value = MAPPING_BY_ID)
-    public ResponseEntity<LocationResultLocationDto> getById(@PathVariable("locationId") Long locationId) {
-        Location location = locationService.getById(locationId).orElse(null);
+    return new ResponseEntity<>(locationMapper.mapToOutputDto(location), OK);
+  }
 
-        if (location == null) {
-            return ResponseEntity.notFound().build();
-        }
+  @PostMapping(value = MAPPING_POST_OCCUPANCY)
+  public ResponseEntity<LocationResultLocationDto> postNewOccupancy(
+      @Valid @RequestBody OccupancyReportDto occupancyReportDto,
+      @PathVariable("locationId") Long locationId) {
+    occupancyReportDto.setLocationId(locationId);
+    Location location = locationService.getById(locationId).orElse(null);
 
-        return new ResponseEntity<>(locationMapper.mapToOutputDto(location), OK);
+    if (location == null) {
+      return ResponseEntity.notFound().build();
     }
 
-    @PostMapping(value = MAPPING_POST_OCCUPANCY)
-    public ResponseEntity<LocationResultLocationDto> postNewOccupancy(@Valid @RequestBody OccupancyReportDto occupancyReportDto,
-                                                                      @PathVariable("locationId") Long locationId) {
-        occupancyReportDto.setLocationId(locationId);
-        Location location = locationService.getById(locationId).orElse(null);
+    occupancyService.save(new Occupancy(location, occupancyReportDto.getOccupancy(),
+        occupancyReportDto.getClientType()));
 
-        if (location == null) {
-            return ResponseEntity.notFound().build();
-        }
+    return new ResponseEntity<>(locationMapper.mapToOutputDto(location), CREATED);
+  }
 
-        occupancyService.save(new Occupancy(location, occupancyReportDto.getOccupancy(), occupancyReportDto.getClientType()));
+  @PostMapping(value = MAPPING_POST_CHECKIN)
+  public ResponseEntity<String> postNewCheckIn(@PathVariable("locationId") Long locationId) {
+    Location location = locationService.getById(locationId).orElse(null);
 
-        return new ResponseEntity<>(locationMapper.mapToOutputDto(location), CREATED);
+    if (location != null) {
+      presenceService.addNewCheckin(location);
+      return ResponseEntity.status(CREATED).build();
+    } else {
+      return ResponseEntity.notFound().build();
+    }
+  }
+
+  @GetMapping(value = MAPPING_START_DATABASE)
+  public ResponseEntity<String> startDatabase(@PathVariable("key") String key) {
+    // Check key
+    if (!key.equals(BackendApplication.GENERATED)) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Permission denied");
     }
 
-    @PostMapping(value = MAPPING_POST_CHECKIN)
-    public ResponseEntity<String> postNewCheckIn(@PathVariable("locationId") Long locationId) {
-        Location location = locationService.getById(locationId).orElse(null);
-
-        if (location != null) {
-            presenceService.addNewCheckin(location);
-            return ResponseEntity.status(CREATED).build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    // Check if it is the only query running
+    if (importState.get()) {
+      return ResponseEntity.status(HttpStatus.CONFLICT).body("Already running");
     }
 
-    @GetMapping(value = MAPPING_START_DATABASE)
-    public ResponseEntity<String> startDatabase(@PathVariable("key") String key) {
-        // Check key
-        if (!key.equals(BackendApplication.GENERATED)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Permission denied");
-        }
+    // Lock database import
+    importState.set(true);
+    // Making the Database import
+    locationService.updateDatabase();
+    // Unlock database import
+    importState.set(false);
 
-        // Check if it is the only query running
-        if (importState.get()) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Already running");
-        }
-
-        // Lock database import
-        importState.set(true);
-        // Making the Database import
-        locationService.updateDatabase();
-        // Unlock database import
-        importState.set(false);
-
-        return ResponseEntity.ok("Success");
-    }
+    return ResponseEntity.ok("Success");
+  }
 }

@@ -8,20 +8,21 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class StatusController {
 
-    @Value("${app.version}")
-    private String version;
-    @Value("${app.commit}")
-    private String commit;
+  @Value("${app.version}")
+  private String version;
+  @Value("${app.commit}")
+  private String commit;
 
-    public StatusController() { }
+  public StatusController() {
+  }
 
 
-    @RequestMapping("/")
-    public StatusDto getApplicationStatus() {
-        StatusDto status = new StatusDto();
-        status.setStatus(true);
-        status.setVersion(version);
-        status.setCommit(commit);
-        return status;
-    }
+  @RequestMapping("/")
+  public StatusDto getApplicationStatus() {
+    StatusDto status = new StatusDto();
+    status.setStatus(true);
+    status.setVersion(version);
+    status.setCommit(commit);
+    return status;
+  }
 }

@@ -2,44 +2,47 @@ package de.sakpaas.backend.service;
 
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.Presence;
+import java.time.ZonedDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.time.ZonedDateTime;
-
 @Service
 public class PresenceService {
 
-    private final PresenceRepository presenceRepository;
+  private final PresenceRepository presenceRepository;
 
-    @Value("${app.presence.duration}")
-    private int confDuration;
+  @Value("${app.presence.duration}")
+  private int confDuration;
 
-    @Autowired
-    public PresenceService(PresenceRepository presenceRepository) {
-        this.presenceRepository = presenceRepository;
-    }
+  @Autowired
+  public PresenceService(PresenceRepository presenceRepository) {
+    this.presenceRepository = presenceRepository;
+  }
 
-    /***
-     * Creats a new Presence instance based on a Checkin event
-     * @param location Duration of the presence in Minutes
-     */
-    public void addNewCheckin(Location location) {
-        addNewCheckin(location, confDuration);
-    }
+  /**
+   * Creates a new Presence instance based on a Check-In event.
+   *
+   * @param location Duration of the presence in Minutes
+   */
+  public void addNewCheckin(Location location) {
+    addNewCheckin(location, confDuration);
+  }
 
-    /***
-     * Creats a new Presence instance based on a Checkin event
-     * @param location The Location the presence is linked to
-     * @param duration Duration of the presence in Minutes
-     */
-    public void addNewCheckin(Location location, int duration) {
-        presenceRepository.save(new Presence(location, ZonedDateTime.now(), ZonedDateTime.now().plusMinutes(duration)));
-    }
+  /**
+   * Creates a new Presence instance based on a Check-In event.
+   *
+   * @param location The Location the presence is linked to
+   * @param duration Duration of the presence in Minutes
+   */
+  public void addNewCheckin(Location location, int duration) {
+    presenceRepository.save(
+        new Presence(location, ZonedDateTime.now(), ZonedDateTime.now().plusMinutes(duration)));
+  }
 
-    public Long getActiveCheckIns(Location location) {
-        return presenceRepository.findByLocationAndCheckOutBeforeAndCheckInAfter(location, ZonedDateTime.now(),
-                ZonedDateTime.now());
-    }
+  public Long getActiveCheckIns(Location location) {
+    return presenceRepository
+        .findByLocationAndCheckOutBeforeAndCheckInAfter(location, ZonedDateTime.now(),
+            ZonedDateTime.now());
+  }
 }
