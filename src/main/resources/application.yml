@@ -24,7 +24,7 @@ management:
       exposure:
         include: "*"
 keycloak:
-  auth-server-url: https://auth.happyhamster.org/auth/
+  auth-server-url: <Address of the cool Keycloak instance (ask Robert)>
   realm: <super cool realm (ask Robert)>
   resource: <mega cool resource (ask Robert)>
   ssl-required: external
