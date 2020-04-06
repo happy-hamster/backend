@@ -25,11 +25,11 @@ management:
         include: "*"
 keycloak:
   auth-server-url: https://auth.happyhamster.org/auth/
-  realm: dev
-  resource: backend
+  realm: <super cool realm (ask Robert)>
+  resource: <mega cool resource (ask Robert)>
   ssl-required: external
   credentials:
-    secret: ad345d06-301d-49ab-b1d1-5de0eeb20eb3
+    secret: <Super Secret Client Secret (ask Robert)>
   bearer-only: true
   securityConstraints:
     - authRoles:
