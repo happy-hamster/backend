@@ -8,4 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface OccupancyRepository extends JpaRepository<Occupancy, Long> {
   List<Occupancy> findByLocationAndTimestampAfter(Location location, ZonedDateTime after);
+
+  List<Occupancy> deleteByLocation(Location location);
 }

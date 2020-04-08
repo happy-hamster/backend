@@ -24,6 +24,8 @@ public class LocationService {
   private final LocationDetailsService locationDetailsService;
   private final AddressService addressService;
   private final LocationApiSearchDas locationApiSearchDas;
+  private final OccupancyRepository occupancyRepository;
+  private final PresenceRepository presenceRepository;
   private Counter importLocationInsertCounter;
   private Counter importLocationUpdateCounter;
   private Counter importLocationDeleteCounter;
@@ -39,17 +41,23 @@ public class LocationService {
    * @param addressService         The Address Service
    * @param meterRegistry          The Meter Registry
    * @param locationApiSearchDas   The LocationApiSearchDas
+   * @param occupancyRepository    The Occupancy Repository
+   * @param presenceRepository     The Presence Repository
    */
   @Autowired
   public LocationService(LocationRepository locationRepository,
                          LocationDetailsService locationDetailsService,
                          AddressService addressService,
-                         MeterRegistry meterRegistry, LocationApiSearchDas locationApiSearchDas) {
+                         MeterRegistry meterRegistry, LocationApiSearchDas locationApiSearchDas,
+                         OccupancyRepository occupancyRepository,
+                         PresenceRepository presenceRepository) {
     this.locationRepository = locationRepository;
     this.locationDetailsService = locationDetailsService;
     this.addressService = addressService;
     this.importLocationProgress = new AtomicDouble();
     this.deleteLocationProgress = new AtomicDouble();
+    this.occupancyRepository = occupancyRepository;
+    this.presenceRepository = presenceRepository;
 
     importLocationInsertCounter = Counter
         .builder("import")
@@ -191,8 +199,14 @@ public class LocationService {
 
     LOGGER.warn("Delete not existing Locations... (3/4)");
     for (int i = 0; i < locationIds.size(); i++) {
-      locationRepository.deleteById(locationIds.get(i));
-      importLocationDeleteCounter.increment();
+      try {
+        delete(locationRepository.findById(locationIds.get(i)).orElse(null));
+        importLocationDeleteCounter.increment();
+      } catch (Exception e) {
+        LOGGER.warn("An unknown error occurred while deleting Location with Id ({})",
+            locationIds.get(i), e);
+      }
+
 
       double progress = ((double) i) / locationIds.size();
       deleteLocationProgress.set(progress);
@@ -272,5 +286,20 @@ public class LocationService {
         address
     );
     this.save(location);
+  }
+
+  /**
+   * Deletes the given Location and all depending entities.
+   *
+   * @param location Location that needs to be deleted
+   */
+  private void delete(Location location) {
+    if (location == null) {
+      return;
+    }
+
+    occupancyRepository.deleteByLocation(location);
+    presenceRepository.deleteByLocation(location);
+    locationRepository.delete(location);
   }
 }
