@@ -8,14 +8,15 @@ import de.sakpaas.backend.model.LocationDetails;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class LocationService {
@@ -35,6 +36,15 @@ public class LocationService {
   private AtomicDouble deleteLocationProgress;
 
 
+  /**
+   * Default Constructor. Handles the Dependency Injection and Meter Initialisation and Registering
+   *
+   * @param locationRepository     The Location Repository
+   * @param locationDetailsService The Location Details Service
+   * @param addressService         The Address Service
+   * @param meterRegistry          The Meter Registry
+   * @param locationApiSearchDas   The LocationApiSearchDas
+   */
   @Autowired
   public LocationService(LocationRepository locationRepository,
                          LocationDetailsService locationDetailsService,
@@ -73,6 +83,15 @@ public class LocationService {
     this.locationApiSearchDas = locationApiSearchDas;
   }
 
+  /**
+   * Calculates the distance between two given coordinates.
+   *
+   * @param lat1 Latitude of the first coordinate
+   * @param lon1 Longitude of the first coordinate
+   * @param lat2 Latitude of the second coordinate
+   * @param lon2 Longitude of the second coordinate
+   * @return Distance between the two coordinates in kilometres
+   */
   public static double distanceInKm(double lat1, double lon1, double lat2, double lon2) {
     // https://www.daniel-braun.com/technik/distanz-zwischen-zwei-gps-koordinaten-in-java-berchenen/
     int radius = 6371;
@@ -86,10 +105,23 @@ public class LocationService {
     return Math.abs(d);
   }
 
+  /**
+   * Gets a Location by its ID from the Database.
+   *
+   * @param id Id of the requested location
+   * @return Location from the Database
+   */
   public Optional<Location> getById(long id) {
     return locationRepository.findById(id);
   }
 
+  /**
+   * Gets all Locations in a specific Coordinate.
+   *
+   * @param lat Latitude of the Location.
+   * @param lon Longitude of the Location.
+   * @return List of max 100 Locations around the given coordinates.
+   */
   public List<Location> findByCoordinates(Double lat, Double lon) {
     List<Location> list = locationRepository
         .findByLatitudeBetweenAndLongitudeBetween(lat - 0.1, lat + 0.1, lon - 0.1, lon + 0.1);
@@ -100,6 +132,12 @@ public class LocationService {
         .collect(Collectors.toList());
   }
 
+  /**
+   * Saves a Location to the Database.
+   *
+   * @param location Location that will be saved
+   * @return The inserted Location Object
+   */
   public Location save(Location location) {
     return locationRepository.save(location);
   }
@@ -177,7 +215,6 @@ public class LocationService {
 
   /**
    * Updating an existing Database Entry.
-   *
    * @param osmLocation New Location
    */
   private void updateLocation(OsmResultLocationListDto.OsmResultLocationDto osmLocation) {
@@ -211,7 +248,6 @@ public class LocationService {
 
   /**
    * Creating a new Location Entry in the Database.
-   *
    * @param osmLocation Location that will be added to the Database
    */
   private void createNewLocation(OsmResultLocationListDto.OsmResultLocationDto osmLocation) {
