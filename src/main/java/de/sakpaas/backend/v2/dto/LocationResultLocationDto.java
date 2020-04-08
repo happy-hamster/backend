@@ -6,91 +6,117 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import de.sakpaas.backend.model.AccumulatedOccupancy;
 import de.sakpaas.backend.model.Address;
 import de.sakpaas.backend.model.LocationDetails;
+import java.time.ZonedDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
-
-import java.time.ZonedDateTime;
 
 @Getter
 @JsonPropertyOrder({"id", "name", "details", "coordinates", "occupancy", "address"})
 public class LocationResultLocationDto {
 
-    private long id;
-    private String name;
-    private LocationResultLocationDetailsDto details;
-    private LocationResultCoordinatesDto coordinates;
-    private LocationResultOccupancyDto occupancy;
-    private LocationResultAddressDto address;
+  private long id;
+  private String name;
+  private LocationResultLocationDetailsDto details;
+  private LocationResultCoordinatesDto coordinates;
+  private LocationResultOccupancyDto occupancy;
+  private LocationResultAddressDto address;
 
-    @JsonCreator
-    public LocationResultLocationDto(@JsonProperty("id") long id,
-                                     @JsonProperty("name") String name,
-                                     @JsonProperty("details") LocationResultLocationDetailsDto details,
-                                     @JsonProperty("coordinates") LocationResultCoordinatesDto coordinates,
-                                     @JsonProperty("occupancy") LocationResultOccupancyDto occupancy,
-                                     @JsonProperty("address") LocationResultAddressDto address) {
-        this.id = id;
-        this.name = (name != null) ? name : "Supermarkt";
-        this.details = details;
-        this.coordinates = coordinates;
-        this.occupancy = occupancy;
-        this.address = address;
+  /**
+   * Creates a v2 LocationResultLocationDto from JSON.
+   *
+   * @param id the id
+   * @param name the name
+   * @param details the LocationResultLocationDetailsDto
+   * @param coordinates the LocationResultCoordinatesDto
+   * @param occupancy the LocationResultOccupancyDto
+   * @param address the LocationResultAddressDto
+   */
+  @JsonCreator
+  public LocationResultLocationDto(@JsonProperty("id") long id,
+                                   @JsonProperty("name") String name,
+                                   @JsonProperty("details")
+                                       LocationResultLocationDetailsDto details,
+                                   @JsonProperty("coordinates")
+                                       LocationResultCoordinatesDto coordinates,
+                                   @JsonProperty("occupancy") LocationResultOccupancyDto occupancy,
+                                   @JsonProperty("address") LocationResultAddressDto address) {
+    this.id = id;
+    this.name = (name != null) ? name : "Supermarkt";
+    this.details = details;
+    this.coordinates = coordinates;
+    this.occupancy = occupancy;
+    this.address = address;
+  }
+
+  @Data
+  public static class LocationResultLocationDetailsDto {
+
+    private String type;
+    private String openingHours;
+    private String brand;
+
+    /**
+     * Creates a v2 {@link LocationResultCoordinatesDto} from a {@link LocationDetails}.
+     *
+     * @param locationDetails the {@link LocationDetails} to be referenced
+     */
+    public LocationResultLocationDetailsDto(LocationDetails locationDetails) {
+      this.type = locationDetails.getType();
+      this.openingHours = locationDetails.getOpeningHours();
+      this.brand = locationDetails.getBrand();
     }
+  }
 
-    @Data
-    public static class LocationResultLocationDetailsDto {
+  @Data
+  public static class LocationResultAddressDto {
 
-        private String type;
-        private String openingHours;
-        private String brand;
+    private String country;
+    private String city;
+    private String postcode;
+    private String street;
+    private String housenumber;
 
-        public LocationResultLocationDetailsDto(LocationDetails locationDetails) {
-            this.type = locationDetails.getType();
-            this.openingHours = locationDetails.getOpeningHours();
-            this.brand = locationDetails.getBrand();
-        }
+    /**
+     * Creates a v2 {@link LocationResultAddressDto} from an {@link Address}.
+     *
+     * @param address the {@link Address} to be referenced
+     */
+    public LocationResultAddressDto(Address address) {
+      this.country = address.getCountry();
+      this.city = address.getCity();
+      this.postcode = address.getPostcode();
+      this.street = address.getStreet();
+      this.housenumber = address.getHousenumber();
     }
+  }
 
-    @Data
-    public static class LocationResultAddressDto {
+  @Data
+  @AllArgsConstructor
+  public static class LocationResultCoordinatesDto {
 
-        private String country;
-        private String city;
-        private String postcode;
-        private String street;
-        private String housenumber;
+    private double latitude;
+    private double longitude;
 
-        public LocationResultAddressDto(Address address) {
-            this.country = address.getCountry();
-            this.city = address.getCity();
-            this.postcode = address.getPostcode();
-            this.street = address.getStreet();
-            this.housenumber = address.getHousenumber();
-        }
+  }
+
+  @Data
+  @AllArgsConstructor
+  public static class LocationResultOccupancyDto {
+
+    private Double value;
+    private Integer count;
+    private ZonedDateTime latestReport;
+
+    /**
+     * Creates a v2 {@link LocationResultOccupancyDto} from a {@link AccumulatedOccupancy}.
+     *
+     * @param accumulatedOccupancy the {@link AccumulatedOccupancy} to be referenced
+     */
+    public LocationResultOccupancyDto(AccumulatedOccupancy accumulatedOccupancy) {
+      this.value = accumulatedOccupancy.getValue();
+      this.count = accumulatedOccupancy.getCount();
+      this.latestReport = accumulatedOccupancy.getLatestReport();
     }
-
-    @Data
-    @AllArgsConstructor
-    public static class LocationResultCoordinatesDto {
-
-        private double latitude;
-        private double longitude;
-
-    }
-
-    @Data
-    @AllArgsConstructor
-    public static class LocationResultOccupancyDto {
-
-        private Double value;
-        private Integer count;
-        private ZonedDateTime latestReport;
-
-        public LocationResultOccupancyDto(AccumulatedOccupancy accumulatedOccupancy) {
-            this.value = accumulatedOccupancy.getValue();
-            this.count = accumulatedOccupancy.getCount();
-            this.latestReport = accumulatedOccupancy.getLatestReport();
-        }
-    }
+  }
 }
