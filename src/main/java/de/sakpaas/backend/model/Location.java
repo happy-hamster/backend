@@ -1,10 +1,13 @@
 package de.sakpaas.backend.model;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import javax.persistence.*;
 
 @Data
 @AllArgsConstructor
@@ -12,25 +15,25 @@ import javax.persistence.*;
 @Entity(name = "LOCATION")
 public class Location {
 
-    @Id
-    @Column(name = "ID", nullable = false)
-    private Long id;
+  @Id
+  @Column(name = "ID", nullable = false)
+  private Long id;
 
-    @Column(name = "NAME", nullable = false)
-    private String name = null;
+  @Column(name = "NAME", nullable = false)
+  private String name = null;
 
-    @Column(name = "LATITUDE", nullable = false)
-    private Double latitude;
+  @Column(name = "LATITUDE", nullable = false)
+  private Double latitude;
 
-    @Column(name = "LONGITUDE", nullable = false)
-    private Double longitude;
+  @Column(name = "LONGITUDE", nullable = false)
+  private Double longitude;
 
-    @OneToOne(optional = false)
-    @JoinColumn(name = "LOCATION_DETAILS_ID", referencedColumnName = "ID", nullable = false)
-    private LocationDetails details;
+  @OneToOne(optional = false)
+  @JoinColumn(name = "LOCATION_DETAILS_ID", referencedColumnName = "ID", nullable = false)
+  private LocationDetails details;
 
-    @OneToOne(optional = false)
-    @JoinColumn(name = "ADDRESS_ID", referencedColumnName = "ID", nullable = false)
-    private Address address;
+  @OneToOne(optional = false)
+  @JoinColumn(name = "ADDRESS_ID", referencedColumnName = "ID", nullable = false)
+  private Address address;
 
 }
