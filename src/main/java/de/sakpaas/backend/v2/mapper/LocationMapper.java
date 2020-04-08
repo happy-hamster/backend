@@ -16,6 +16,12 @@ public class LocationMapper {
     this.occupancyService = occupancyService;
   }
 
+  /**
+   * Maps the given Location to a v2 LocationDto.
+   *
+   * @param location the Location to be mapped
+   * @return the mapped LocationDto
+   */
   public LocationResultLocationDto mapToOutputDto(Location location) {
     if (location == null) {
       return null;

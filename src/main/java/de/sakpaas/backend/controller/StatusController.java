@@ -13,10 +13,16 @@ public class StatusController {
   @Value("${app.commit}")
   private String commit;
 
-  public StatusController() {
-  }
-
-
+  /**
+   * Request endpoint to receive the status and version of the application.
+   *
+   * <p>
+   * This endpoint ("/") has to return a 200 code, as the Google Cloud Engine load balancer needs
+   * this answer to rout traffic to this instance.
+   * </p>
+   *
+   * @return the {@link StatusDto}
+   */
   @RequestMapping("/")
   public StatusDto getApplicationStatus() {
     StatusDto status = new StatusDto();

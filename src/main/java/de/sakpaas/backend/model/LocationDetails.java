@@ -28,6 +28,13 @@ public class LocationDetails {
   @Column(name = "BRAND")
   private String brand;
 
+  /**
+   * Constructor for creating a new LocationDetails Entity without id.
+   *
+   * @param type the type (eg. supermarket)
+   * @param openingHours the openingHours in human readable format
+   * @param brand the brand (eg. LIDL, ALDI, ...)
+   */
   public LocationDetails(String type, String openingHours, String brand) {
     this.type = type;
     this.openingHours = openingHours;

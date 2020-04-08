@@ -22,6 +22,16 @@ public class LocationResultLocationDto {
   private LocationResultOccupancyDto occupancy;
   private LocationResultAddressDto address;
 
+  /**
+   * Creates a v2 LocationResultLocationDto from JSON.
+   *
+   * @param id the id
+   * @param name the name
+   * @param details the LocationResultLocationDetailsDto
+   * @param coordinates the LocationResultCoordinatesDto
+   * @param occupancy the LocationResultOccupancyDto
+   * @param address the LocationResultAddressDto
+   */
   @JsonCreator
   public LocationResultLocationDto(@JsonProperty("id") long id,
                                    @JsonProperty("name") String name,
@@ -46,6 +56,11 @@ public class LocationResultLocationDto {
     private String openingHours;
     private String brand;
 
+    /**
+     * Creates a v2 {@link LocationResultCoordinatesDto} from a {@link LocationDetails}.
+     *
+     * @param locationDetails the {@link LocationDetails} to be referenced
+     */
     public LocationResultLocationDetailsDto(LocationDetails locationDetails) {
       this.type = locationDetails.getType();
       this.openingHours = locationDetails.getOpeningHours();
@@ -62,6 +77,11 @@ public class LocationResultLocationDto {
     private String street;
     private String housenumber;
 
+    /**
+     * Creates a v2 {@link LocationResultAddressDto} from an {@link Address}.
+     *
+     * @param address the {@link Address} to be referenced
+     */
     public LocationResultAddressDto(Address address) {
       this.country = address.getCountry();
       this.city = address.getCity();
@@ -88,6 +108,11 @@ public class LocationResultLocationDto {
     private Integer count;
     private ZonedDateTime latestReport;
 
+    /**
+     * Creates a v2 {@link LocationResultOccupancyDto} from a {@link AccumulatedOccupancy}.
+     *
+     * @param accumulatedOccupancy the {@link AccumulatedOccupancy} to be referenced
+     */
     public LocationResultOccupancyDto(AccumulatedOccupancy accumulatedOccupancy) {
       this.value = accumulatedOccupancy.getValue();
       this.count = accumulatedOccupancy.getCount();

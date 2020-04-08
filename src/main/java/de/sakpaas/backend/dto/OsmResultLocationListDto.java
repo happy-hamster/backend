@@ -25,6 +25,15 @@ public class OsmResultLocationListDto {
     private OsmResultCoordinatesDto coordinates;
     private OsmResultTagsDto tags;
 
+    /**
+     * Creates a {@link OsmResultLocationDto} from JSON.
+     *
+     * @param id the id
+     * @param lat the latitude
+     * @param lon the longitude
+     * @param center the center location, can be null, the lat and lon will be used
+     * @param tags the tags of this OSM Location
+     */
     @JsonCreator
     public OsmResultLocationDto(@JsonProperty("id") long id,
                                 @JsonProperty("lat") double lat,
@@ -102,6 +111,20 @@ public class OsmResultLocationListDto {
     private String brand;
     private String openingHours;
 
+    /**
+     * Creates a {@link OsmResultTagsDto} from JSON.
+     *
+     * @param name the location name
+     * @param street the street of the address
+     * @param housenumber the house number of the address
+     * @param postcode the post code of the address
+     * @param city the city of the address
+     * @param country the country of the address
+     * @param place currently unused
+     * @param type the type of the location (eg. supermarket)
+     * @param brand the brand of the location (eg. LIDL, ALDI)
+     * @param openingHours the opening hours in human readable format
+     */
     @JsonCreator
     public OsmResultTagsDto(@JsonProperty("name") String name,
                             @JsonProperty("addr:street") String street,

@@ -35,6 +35,13 @@ public class Occupancy {
   @Column(name = "CLIENT_TYPE")
   private String clientType;
 
+  /**
+   * Creates a new {@link Occupancy} for a {@link Location}.
+   *
+   * @param location the {@link Location}
+   * @param occupancy the occupancy (from 0.0 to 1.0)
+   * @param clientType the client type (eg. IOT, WEB_CLIENT)
+   */
   public Occupancy(Location location, Double occupancy, String clientType) {
     this.location = location;
     this.occupancy = occupancy;

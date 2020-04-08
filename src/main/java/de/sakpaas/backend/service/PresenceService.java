@@ -39,10 +39,4 @@ public class PresenceService {
     presenceRepository.save(
         new Presence(location, ZonedDateTime.now(), ZonedDateTime.now().plusMinutes(duration)));
   }
-
-  public Long getActiveCheckIns(Location location) {
-    return presenceRepository
-        .findByLocationAndCheckOutBeforeAndCheckInAfter(location, ZonedDateTime.now(),
-            ZonedDateTime.now());
-  }
 }

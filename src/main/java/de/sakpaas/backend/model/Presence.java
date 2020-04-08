@@ -32,6 +32,13 @@ public class Presence {
   @Column(name = "CHECK_OUT_DATE")
   private ZonedDateTime checkOut;
 
+  /**
+   * Creates a new {@link Presence} from a {@link Location}.
+   *
+   * @param location the {@link Location}
+   * @param checkIn the check in time
+   * @param checkOut the check out time
+   */
   public Presence(Location location, ZonedDateTime checkIn, ZonedDateTime checkOut) {
     this.location = location;
     this.checkIn = checkIn;
