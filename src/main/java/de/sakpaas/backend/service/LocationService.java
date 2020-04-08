@@ -8,6 +8,7 @@ import de.sakpaas.backend.model.LocationDetails;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -15,10 +16,14 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 @Service
 public class LocationService {
+
   private static Logger LOGGER = LoggerFactory.getLogger(LocationService.class);
   private final LocationRepository locationRepository;
   private final LocationDetailsService locationDetailsService;
@@ -31,6 +36,9 @@ public class LocationService {
   private AtomicDouble deleteLocationProgress;
 
 
+  @Value("${app.search-api-url}")
+  private String searchApiUrl;
+
   /**
    * Default Constructor. Handles the Dependency Injection and Meter Initialisation and Registering
    *
@@ -42,9 +50,9 @@ public class LocationService {
    */
   @Autowired
   public LocationService(LocationRepository locationRepository,
-                         LocationDetailsService locationDetailsService,
-                         AddressService addressService,
-                         MeterRegistry meterRegistry, LocationApiSearchDas locationApiSearchDas) {
+      LocationDetailsService locationDetailsService,
+      AddressService addressService,
+      MeterRegistry meterRegistry, LocationApiSearchDas locationApiSearchDas) {
     this.locationRepository = locationRepository;
     this.locationDetailsService = locationDetailsService;
     this.addressService = addressService;
@@ -138,8 +146,8 @@ public class LocationService {
 
 
   /**
-   * Making an Request to the OverpassAPI, insert or update the Locations in the Database,
-   * deleting the unused locations.
+   * Making an Request to the OverpassAPI, insert or update the Locations in the Database, deleting
+   * the unused locations.
    */
   public void updateDatabase() {
     // Reset import progress
@@ -272,5 +280,28 @@ public class LocationService {
         address
     );
     this.save(location);
+  }
+
+  public List<Location> search(String key) {
+    // Makes a request to the nominatim Microservice
+    final String url = this.searchApiUrl + key + "?format=json";
+    LOGGER.info("URL:" + url);
+    RestTemplate restTemplate = new RestTemplate();
+    ResponseEntity<OsmResultLocationListDto> response =
+        restTemplate.getForEntity(url, OsmResultLocationListDto.class);
+
+    if (response.getBody() == null) {
+      // TODO: Handle this case
+    }
+
+    List<OsmResultLocationListDto.OsmResultLocationDto> list = response.getBody().getElements();
+    List<Location> responseList = new ArrayList<>();
+
+    for (OsmResultLocationListDto.OsmResultLocationDto element : list) {
+      // Check if the ID is valid (is in database)
+      Optional<Location> location = this.getById(element.getId());
+      location.ifPresent(responseList::add);
+    }
+    return responseList;
   }
 }

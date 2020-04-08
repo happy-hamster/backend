@@ -3,6 +3,8 @@ package de.sakpaas.backend.v2.mapper;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.service.OccupancyService;
 import de.sakpaas.backend.v2.dto.LocationResultLocationDto;
+import java.util.ArrayList;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -35,5 +37,13 @@ public class LocationMapper {
         new LocationResultLocationDto.LocationResultOccupancyDto(
             occupancyService.getOccupancyCalculation(location)),
         new LocationResultLocationDto.LocationResultAddressDto(location.getAddress()));
+  }
+
+  public List<LocationResultLocationDto> mapToOutputDto(List<Location> locations) {
+    List<LocationResultLocationDto> resultLocationDtoList = new ArrayList<>();
+    for (Location location : locations) {
+      resultLocationDtoList.add(mapToOutputDto(location));
+    }
+    return resultLocationDtoList;
   }
 }
