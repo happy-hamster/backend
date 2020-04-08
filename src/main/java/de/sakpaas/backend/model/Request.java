@@ -12,16 +12,20 @@ import lombok.Setter;
 @Getter
 @Entity(name = "REQUEST")
 public class Request {
-  @Column(name = "ID", nullable = false)
   @Id
   @GeneratedValue
+  @Column(name = "ID", nullable = false)
   Long id;
+
   @Column(name = "TIMESTAMP")
   ZonedDateTime date;
+
   @Column(name = "ADDRESS")
   String address;
+
   @Column(name = "METHOD")
   String method;
+
   @Column(name = "URI")
   String requestUri;
 }
