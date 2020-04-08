@@ -5,10 +5,14 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
+/**
+ * @Data beinhaltet verschiedene Annotationen (z.B. @Getter, @Setter)
+ * 
+ *       Da diese Annotation auch die @RequiredArgsConstructor beinhaltet ist hier
+ *       kein @NoArgsConstructor mehr nötig
+ */
 @Data
-@NoArgsConstructor
 @Entity(name = "ADDRESS")
 public class Address {
 

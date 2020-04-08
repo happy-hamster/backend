@@ -8,9 +8,15 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * @Data beinhaltet verschiedene Annotationen (z.B. @Getter, @Setter)
+ * 
+ *       Da diese Annotation auch die @RequiredArgsConstructor beinhaltet ist hier
+ *       kein @NoArgsConstructor mehr nötig
+ */
+
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
 @Entity(name = "LOCATION_DETAILS")
 public class LocationDetails {
 
