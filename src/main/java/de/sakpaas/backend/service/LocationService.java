@@ -8,20 +8,18 @@ import de.sakpaas.backend.model.LocationDetails;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 @Service
 public class LocationService {
   private static Logger LOGGER = LoggerFactory.getLogger(LocationService.class);
-
   private final LocationRepository locationRepository;
   private final LocationDetailsService locationDetailsService;
   private final AddressService addressService;
@@ -215,6 +213,7 @@ public class LocationService {
 
   /**
    * Updating an existing Database Entry.
+   *
    * @param osmLocation New Location
    */
   private void updateLocation(OsmResultLocationListDto.OsmResultLocationDto osmLocation) {
@@ -248,6 +247,7 @@ public class LocationService {
 
   /**
    * Creating a new Location Entry in the Database.
+   *
    * @param osmLocation Location that will be added to the Database
    */
   private void createNewLocation(OsmResultLocationListDto.OsmResultLocationDto osmLocation) {
