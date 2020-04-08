@@ -33,7 +33,7 @@ public class OccupancyService {
    * Calculates the average occupancy based on the given reports.
    *
    * @param occupancies the occupancies to calculate with
-   * @param time the time to calculate with
+   * @param time        the time to calculate with
    * @return the average occupancy
    */
   public static Double calculateAverage(List<Occupancy> occupancies, ZonedDateTime time) {
