@@ -23,13 +23,10 @@ public class LocationService {
   private final LocationRepository locationRepository;
   private final LocationDetailsService locationDetailsService;
   private final AddressService addressService;
-  private final MeterRegistry meterRegistry;
   private final LocationApiSearchDas locationApiSearchDas;
   private Counter importLocationInsertCounter;
   private Counter importLocationUpdateCounter;
   private Counter importLocationDeleteCounter;
-  private Gauge importLocationGauge;
-  private Gauge deleteLocationGauge;
   private AtomicDouble importLocationProgress;
   private AtomicDouble deleteLocationProgress;
 
@@ -51,7 +48,6 @@ public class LocationService {
     this.locationRepository = locationRepository;
     this.locationDetailsService = locationDetailsService;
     this.addressService = addressService;
-    this.meterRegistry = meterRegistry;
     this.importLocationProgress = new AtomicDouble();
     this.deleteLocationProgress = new AtomicDouble();
 
