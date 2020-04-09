@@ -308,7 +308,7 @@ public class LocationService {
 
     // Check if the ID is valid (is in database)
     for (NominatimResultLocationDto element : list) {
-      Optional<Location> optionalLocation = this.getById(element.getOsm_id());
+      Optional<Location> optionalLocation = this.getById(element.getOsmId());
       optionalLocation.ifPresent(responseList::add);
     }
     return responseList;

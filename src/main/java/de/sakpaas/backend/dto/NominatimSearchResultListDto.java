@@ -22,24 +22,17 @@ public class NominatimSearchResultListDto {
       "display_name", "class", "type", "importance", "icon"})
   public static class NominatimResultLocationDto {
 
-    private long osm_id;
+    private long osmId;
 
     @JsonCreator
     public NominatimResultLocationDto(
-        @JsonProperty("osm_id") long osm_id
+        @JsonProperty("osm_id") long osmId
     ) {
-      this.osm_id = osm_id;
+      this.osmId = osmId;
     }
 
-    public long getOsm_id() {
-      return osm_id;
-    }
-
-    @Override
-    public String toString() {
-      return "NominatimResultLocationDto{" +
-          "osm_id=" + osm_id +
-          '}';
+    public long getOsmId() {
+      return osmId;
     }
   }
 }
