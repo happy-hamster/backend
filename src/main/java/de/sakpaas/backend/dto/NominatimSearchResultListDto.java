@@ -18,8 +18,6 @@ public class NominatimSearchResultListDto {
   }
 
   @Getter
-  @JsonPropertyOrder({"place_id", "licence", "osm_type", "osm_id", "boundingbox", "lat", "lon",
-      "display_name", "class", "type", "importance", "icon"})
   public static class NominatimResultLocationDto {
 
     private long osmId;
