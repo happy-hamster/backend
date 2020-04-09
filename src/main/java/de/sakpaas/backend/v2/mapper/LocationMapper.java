@@ -39,6 +39,12 @@ public class LocationMapper {
         new LocationResultLocationDto.LocationResultAddressDto(location.getAddress()));
   }
 
+  /**
+   * Maps the given List of Locations to a List of v2 LocationDto.
+   *
+   * @param locations the Location List to be mapped
+   * @return the mapped LocationDto List
+   */
   public List<LocationResultLocationDto> mapToOutputDto(List<Location> locations) {
     List<LocationResultLocationDto> resultLocationDtoList = new ArrayList<>();
     for (Location location : locations) {
