@@ -284,10 +284,16 @@ public class LocationService {
     this.save(location);
   }
 
+  /**
+   * Searches in the Nominatim Microservice for the given key
+   *
+   * @param key The search parameter. Multiple words are separated with %20.
+   * @return The list of Locations in our database
+   */
   public List<Location> search(String key) {
     // Makes a request to the Nominatim Microservice
     final String url = this.searchApiUrl + "/search/" + key + "?format=json";
-//    LOGGER.info("URL:" + url);
+    LOGGER.info("URL:" + url);
     RestTemplate restTemplate = new RestTemplate();
     ResponseEntity<NominatemSearchResultListDto> response =
         restTemplate.getForEntity(url, NominatemSearchResultListDto.class);
