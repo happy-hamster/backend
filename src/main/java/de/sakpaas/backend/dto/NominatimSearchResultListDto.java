@@ -2,11 +2,9 @@ package de.sakpaas.backend.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.util.List;
 import lombok.Getter;
 
-@JsonPropertyOrder({"elements"})
 @Getter
 public class NominatimSearchResultListDto {
 
