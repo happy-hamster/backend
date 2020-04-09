@@ -308,12 +308,8 @@ public class LocationService {
 
     // Check if the ID is valid (is in database)
     for (NominatemResultLocationDto element : list) {
-      LOGGER.info("Element: " + element.toString());
-      Optional<Location> location = this.getById(element.getId());
       Optional<Location> optionalLocation = this.getById(element.getOsm_id());
-      LOGGER.info("Location_ID: " + location);
-      LOGGER.info("OSM_ID: " + optionalLocation);
-      location.ifPresent(responseList::add);
+      optionalLocation.ifPresent(responseList::add);
     }
     return responseList;
   }
