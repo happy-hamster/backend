@@ -1,8 +1,8 @@
 package de.sakpaas.backend.service;
 
 import com.google.common.util.concurrent.AtomicDouble;
-import de.sakpaas.backend.dto.NominatemSearchResultListDto;
-import de.sakpaas.backend.dto.NominatemSearchResultListDto.NominatemResultLocationDto;
+import de.sakpaas.backend.dto.NominatimSearchResultListDto;
+import de.sakpaas.backend.dto.NominatimSearchResultListDto.NominatimResultLocationDto;
 import de.sakpaas.backend.dto.OsmResultLocationListDto;
 import de.sakpaas.backend.model.Address;
 import de.sakpaas.backend.model.Location;
@@ -295,8 +295,8 @@ public class LocationService {
     final String url = this.searchApiUrl + "/search/" + key + "?format=json";
     LOGGER.info("URL:" + url);
     RestTemplate restTemplate = new RestTemplate();
-    ResponseEntity<NominatemSearchResultListDto> response =
-        restTemplate.getForEntity(url, NominatemSearchResultListDto.class);
+    ResponseEntity<NominatimSearchResultListDto> response =
+        restTemplate.getForEntity(url, NominatimSearchResultListDto.class);
 
     List<Location> responseList = new ArrayList<>();
 
@@ -304,10 +304,10 @@ public class LocationService {
       return responseList;
     }
 
-    List<NominatemResultLocationDto> list = response.getBody().getElements();
+    List<NominatimResultLocationDto> list = response.getBody().getElements();
 
     // Check if the ID is valid (is in database)
-    for (NominatemResultLocationDto element : list) {
+    for (NominatimResultLocationDto element : list) {
       Optional<Location> optionalLocation = this.getById(element.getOsm_id());
       optionalLocation.ifPresent(responseList::add);
     }
