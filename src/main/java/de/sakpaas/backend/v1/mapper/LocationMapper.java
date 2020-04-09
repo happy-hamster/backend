@@ -9,29 +9,35 @@ import org.springframework.stereotype.Component;
 @Component
 public class LocationMapper {
 
-    private final OccupancyService occupancyService;
+  private final OccupancyService occupancyService;
 
-    @Autowired
-    public LocationMapper(OccupancyService occupancyService) {
-        this.occupancyService = occupancyService;
+  @Autowired
+  public LocationMapper(OccupancyService occupancyService) {
+    this.occupancyService = occupancyService;
+  }
+
+  /**
+   * Maps the given Location to a v1 LocationDto.
+   *
+   * @param location the Location to be mapped
+   * @return the mapped LocationDto
+   */
+  public LocationDto mapToOutputDto(Location location) {
+    if (location == null) {
+      return null;
     }
 
-    public LocationDto mapToOutputDto(Location location) {
-        if (location == null) {
-            return null;
-        }
-
-        return new LocationDto(
-                location.getId(),
-                location.getName(),
-                location.getAddress().getCountry(),
-                location.getAddress().getCity(),
-                location.getAddress().getPostcode(),
-                location.getAddress().getStreet(),
-                location.getAddress().getHousenumber(),
-                occupancyService.getOccupancyCalculation(location).getValue(),
-                location.getLatitude(),
-                location.getLongitude()
-        );
-    }
+    return new LocationDto(
+        location.getId(),
+        location.getName(),
+        location.getAddress().getCountry(),
+        location.getAddress().getCity(),
+        location.getAddress().getPostcode(),
+        location.getAddress().getStreet(),
+        location.getAddress().getHousenumber(),
+        occupancyService.getOccupancyCalculation(location).getValue(),
+        location.getLatitude(),
+        location.getLongitude()
+    );
+  }
 }

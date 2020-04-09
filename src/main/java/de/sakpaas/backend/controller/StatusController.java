@@ -8,34 +8,41 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class StatusController {
 
-    @Value("${app.version}")
-    private String version;
-    @Value("${app.commit}")
-    private String commit;
+  @Value("${app.version}")
+  private String version;
+  @Value("${app.commit}")
+  private String commit;
+  
+  /**
+   * Request endpoint to receive the status and version of the application.
+   *
+   * <p>
+   * This endpoint ("/") has to return a 200 code, as the Google Cloud Engine load balancer needs
+   * this answer to rout traffic to this instance.
+   * </p>
+   *
+   * @return the {@link StatusDto}
+   */
+  @RequestMapping("/")
+  public StatusDto getApplicationStatus() {
+    StatusDto status = new StatusDto();
+    status.setStatus(true);
+    status.setVersion(version);
+    status.setCommit(commit);
+    return status;
+  }
+    
+  /**
+  * Request to test the Authentication Feature. This Request should be configured to only acessible by an authenticated user.
+  * @return Status Response
+  */
+  @RequestMapping("/auth/test")
+  public StatusDto getApplicationStatusAuth() {
+      StatusDto status = new StatusDto();
+      status.setStatus(true);
+      status.setVersion(version);
+      status.setCommit(commit);
+      return status;
+  }
 
-    public StatusController() { }
-
-
-    @RequestMapping("/")
-    public StatusDto getApplicationStatus() {
-        StatusDto status = new StatusDto();
-        status.setStatus(true);
-        status.setVersion(version);
-        status.setCommit(commit);
-        return status;
-    }
-
-    /**
-     * Request to test the Authentication Feature. This Request should be configured to only acessible by an authenticated user.
-     *
-     * @return Status Response
-     */
-    @RequestMapping("/auth/test")
-    public StatusDto getApplicationStatusAuth() {
-        StatusDto status = new StatusDto();
-        status.setStatus(true);
-        status.setVersion(version);
-        status.setCommit(commit);
-        return status;
-    }
 }
