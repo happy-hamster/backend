@@ -36,6 +36,7 @@ keycloak:
         - uma_authorization
       securityCollections:
         - patterns: /auth/*
+        - patterns: /v2/user/*
     - securityCollections:
         - patterns: /v1/*
         - patterns: /v2/*
