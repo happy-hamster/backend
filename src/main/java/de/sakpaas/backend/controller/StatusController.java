@@ -33,16 +33,18 @@ public class StatusController {
   }
     
   /**
-  * Request to test the Authentication Feature. This Request should be configured to only acessible by an authenticated user.
-  * @return Status Response
-  */
+   * Request to test the Authentication Feature. This Request should be configured to only acessible
+   * by an authenticated user.
+   *
+   * @return Status Response
+   */
   @RequestMapping("/auth/test")
   public StatusDto getApplicationStatusAuth() {
-      StatusDto status = new StatusDto();
-      status.setStatus(true);
-      status.setVersion(version);
-      status.setCommit(commit);
-      return status;
+    StatusDto status = new StatusDto();
+    status.setStatus(true);
+    status.setVersion(version);
+    status.setCommit(commit);
+    return status;
   }
 
 }
