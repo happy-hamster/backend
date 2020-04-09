@@ -285,7 +285,7 @@ public class LocationService {
   }
 
   /**
-   * Searches in the Nominatim Microservice for the given key
+   * Searches in the Nominatim Microservice for the given key.
    *
    * @param key The search parameter. Multiple words are separated with %20.
    * @return The list of Locations in our database
