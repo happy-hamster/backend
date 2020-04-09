@@ -1,6 +1,8 @@
 package de.sakpaas.backend.service;
 
 import com.google.common.util.concurrent.AtomicDouble;
+import de.sakpaas.backend.dto.NominatemSearchResultListDto;
+import de.sakpaas.backend.dto.NominatemSearchResultListDto.NominatemResultLocationDto;
 import de.sakpaas.backend.dto.OsmResultLocationListDto;
 import de.sakpaas.backend.model.Address;
 import de.sakpaas.backend.model.Location;
@@ -283,23 +285,28 @@ public class LocationService {
   }
 
   public List<Location> search(String key) {
-    // Makes a request to the nominatim Microservice
-    final String url = this.searchApiUrl + key + "?format=json";
-    LOGGER.info("URL:" + url);
+    // Makes a request to the Nominatim Microservice
+    final String url = this.searchApiUrl + "/search/" + key + "?format=json";
+//    LOGGER.info("URL:" + url);
     RestTemplate restTemplate = new RestTemplate();
-    ResponseEntity<OsmResultLocationListDto> response =
-        restTemplate.getForEntity(url, OsmResultLocationListDto.class);
+    ResponseEntity<NominatemSearchResultListDto> response =
+        restTemplate.getForEntity(url, NominatemSearchResultListDto.class);
 
-    if (response.getBody() == null) {
-      // TODO: Handle this case
-    }
-
-    List<OsmResultLocationListDto.OsmResultLocationDto> list = response.getBody().getElements();
     List<Location> responseList = new ArrayList<>();
 
-    for (OsmResultLocationListDto.OsmResultLocationDto element : list) {
-      // Check if the ID is valid (is in database)
+    if (response.getBody() == null) {
+      return responseList;
+    }
+
+    List<NominatemResultLocationDto> list = response.getBody().getElements();
+
+    // Check if the ID is valid (is in database)
+    for (NominatemResultLocationDto element : list) {
+      LOGGER.info("Element: " + element.toString());
       Optional<Location> location = this.getById(element.getId());
+      Optional<Location> optionalLocation = this.getById(element.getOsm_id());
+      LOGGER.info("Location_ID: " + location);
+      LOGGER.info("OSM_ID: " + optionalLocation);
       location.ifPresent(responseList::add);
     }
     return responseList;

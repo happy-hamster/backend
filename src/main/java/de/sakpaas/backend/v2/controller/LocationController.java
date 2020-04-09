@@ -47,7 +47,7 @@ public class LocationController {
 
 
   /**
-   * Constuctor that injects the needed dependencies.
+   * Constructor that injects the needed dependencies.
    *
    * @param locationService  The Location Service
    * @param locationMapper   An OSM Location to Location Mapper
