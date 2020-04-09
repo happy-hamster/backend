@@ -293,7 +293,6 @@ public class LocationService {
   public List<Location> search(String key) {
     // Makes a request to the Nominatim Microservice
     final String url = this.searchApiUrl + "/search/" + key + "?format=json";
-    LOGGER.info("URL:" + url);
     RestTemplate restTemplate = new RestTemplate();
     ResponseEntity<NominatimSearchResultListDto> response =
         restTemplate.getForEntity(url, NominatimSearchResultListDto.class);
