@@ -24,3 +24,21 @@ management:
     web:
       exposure:
         include: "*"
+keycloak:
+  auth-server-url: <Address of the cool Keycloak instance (ask Robert)>
+  realm: <super cool realm (ask Robert)>
+  resource: <mega cool resource (ask Robert)>
+  ssl-required: external
+  credentials:
+    secret: <Super Secret Client Secret (ask Robert)>
+  bearer-only: true
+  securityConstraints:
+    - authRoles:
+        - uma_authorization
+      securityCollections:
+        - patterns: /auth/*
+    - securityCollections:
+        - patterns: /v1/*
+        - patterns: /v2/*
+        - patterns: /
+  enabled: false
