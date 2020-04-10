@@ -1,5 +1,6 @@
 package de.sakpaas.backend.service;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.util.concurrent.AtomicDouble;
 import de.sakpaas.backend.dto.OsmResultLocationListDto;
 import de.sakpaas.backend.model.Address;
@@ -16,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class LocationService {
@@ -149,6 +151,7 @@ public class LocationService {
    * Making an Request to the OverpassAPI, insert or update the Locations in the Database,
    * deleting the unused locations.
    */
+  @Transactional
   public void updateDatabase() {
     // Reset import progress
     importLocationProgress.set(0.0);
@@ -301,9 +304,10 @@ public class LocationService {
    *
    * @param location Location that needs to be deleted
    */
-  private void delete(Location location) {
-    occupancyRepository.deleteByLocation(location);
-    presenceRepository.deleteByLocation(location);
+  @VisibleForTesting
+  protected void delete(Location location) {
+    occupancyRepository.findByLocation(location).forEach(occupancyRepository::delete);
+    presenceRepository.findByLocation(location).forEach(presenceRepository::delete);
     locationRepository.delete(location);
   }
 }
