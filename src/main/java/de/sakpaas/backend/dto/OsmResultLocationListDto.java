@@ -81,6 +81,9 @@ public class OsmResultLocationListDto {
       return tags.getOpeningHours();
     }
 
+    public void setCountry(String country) {
+      tags.setCountry(country);
+    }
   }
 
   @Getter
@@ -147,6 +150,9 @@ public class OsmResultLocationListDto {
       this.openingHours = openingHours;
     }
 
+    public void setCountry(String country) {
+      this.country = country;
+    }
   }
 
 

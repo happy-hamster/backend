@@ -1,5 +1,7 @@
 package de.sakpaas.backend.service;
 
+import static java.util.stream.Collectors.toList;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.util.concurrent.AtomicDouble;
 import de.sakpaas.backend.dto.OsmResultLocationListDto;
@@ -12,10 +14,11 @@ import io.micrometer.core.instrument.MeterRegistry;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +37,8 @@ public class LocationService {
   private AtomicDouble importLocationProgress;
   private AtomicDouble deleteLocationProgress;
 
+  @Value("${app.import.country}")
+  private String country;
 
   /**
    * Default Constructor. Handles the Dependency Injection and Meter Initialisation and Registering
@@ -133,7 +138,7 @@ public class LocationService {
         .sorted(Comparator
             .comparingDouble(l -> distanceInKm(l.getLatitude(), l.getLongitude(), lat, lon)))
         .limit(100)
-        .collect(Collectors.toList());
+        .collect(toList());
   }
 
   /**
@@ -157,21 +162,20 @@ public class LocationService {
     importLocationProgress.set(0.0);
     deleteLocationProgress.set(0.0);
 
-    LOGGER.warn("Starting OSM import...");
-
     // Download data from OSM
-    LOGGER.info("Requesting data from OSM... (1/4)");
+    LOGGER.warn("Starting OSM import... (1/4)");
     List<OsmResultLocationListDto.OsmResultLocationDto> results =
-        locationApiSearchDas.getLocationsForCountry("DE");
+        locationApiSearchDas.getLocationsForCountry(country);
     LOGGER.info("Finished receiving data from OSM! (1/4)");
+    LOGGER.info("received ({}) Locations for Country: ({}) from OSM", results.size(), country);
     // Checking if API Call has a legit result
-    if (results.size() < 1000) {
+    if (results.size() < 10) {
       throw new IllegalStateException(
-          "OSM returned less than 1000 results! This doesn't seem right...");
+          "API returns too few results! This doesn't seem right...");
     }
 
     // Getting IDs stored in the Database right now
-    List<Long> locationIds = locationRepository.getAllIds();
+    List<Long> locationIds = locationRepository.getAllIdsForCountry(country);
     LOGGER.info("Pre Update Location Count: " + locationIds.size());
     // Sort data by id before import, inserts should be faster for sorted ids
     LOGGER.warn("Sorting OSM data... (2/4)");
@@ -179,9 +183,10 @@ public class LocationService {
     LOGGER.info("Finished sorting OSM data! (2/4)");
 
     // Insert or update data one by one in the table
-    LOGGER.warn("Inserting and updating OSM data in database... (3/4)");
+    LOGGER.warn("Importing OSM data to database... (3/4)");
     for (int i = 0; i < results.size(); i++) {
       OsmResultLocationListDto.OsmResultLocationDto osmLocation = results.get(i);
+      osmLocation.setCountry(country);
       if (locationIds.contains(osmLocation.getId())) {
         // Updating an existing Location
         updateLocation(osmLocation);
@@ -202,11 +207,8 @@ public class LocationService {
       }
     }
     importLocationProgress.set(1.0);
-    LOGGER.info("Finished inserting and updating OSM data in database! (3/4)");
 
-    // Delete all (now) none existent Locations, linked Occupancies and linked Presences
-    // from our database cache
-    LOGGER.warn("Delete not existing Locations... (4/4)");
+    LOGGER.warn("Delete not existing Locations... (3/4)");
     for (int i = 0; i < locationIds.size(); i++) {
       try {
         locationRepository
@@ -218,17 +220,18 @@ public class LocationService {
             locationIds.get(i), e);
       }
 
-      // Report
       double progress = ((double) i) / locationIds.size();
       deleteLocationProgress.set(progress);
       if (i % 100 == 0) {
-        LOGGER.info("OSM deletion: " + progress * 100.0 + " %");
+        LOGGER.info("Location deletion: " + progress * 100.0 + " %");
       }
     }
     deleteLocationProgress.set(1.0);
-    LOGGER.info("Finished deleting " + locationIds.size() + " not existing Locations! (4/4)");
+    LOGGER.info("Finished deleting " + locationIds.size() + " not existing Locations! (3/4)");
 
     LOGGER.info("Finished data import from OSM! (4/4)");
+    int locationCount = locationRepository.getAllIdsForCountry(country).size();
+    LOGGER.info("After Update Location Count: ({})", locationCount);
   }
 
 
@@ -237,7 +240,8 @@ public class LocationService {
    *
    * @param osmLocation New Location
    */
-  private void updateLocation(OsmResultLocationListDto.OsmResultLocationDto osmLocation) {
+  @Async
+  public void updateLocation(OsmResultLocationListDto.OsmResultLocationDto osmLocation) {
     Optional<Location> optionalLocation = locationRepository.findById(osmLocation.getId());
     if (optionalLocation.isPresent()) {
       Location location = optionalLocation.get();
@@ -270,7 +274,8 @@ public class LocationService {
    *
    * @param osmLocation Location that will be added to the Database
    */
-  private void createNewLocation(OsmResultLocationListDto.OsmResultLocationDto osmLocation) {
+  @Async
+  public void createNewLocation(OsmResultLocationListDto.OsmResultLocationDto osmLocation) {
     LocationDetails details = new LocationDetails(
         osmLocation.getType(),
         osmLocation.getOpeningHours(),
@@ -304,6 +309,7 @@ public class LocationService {
    * @param location Location that needs to be deleted
    */
   @VisibleForTesting
+  @Async
   protected void delete(Location location) {
     occupancyRepository.findByLocation(location).forEach(occupancyRepository::delete);
     presenceRepository.findByLocation(location).forEach(presenceRepository::delete);
