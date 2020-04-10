@@ -247,7 +247,6 @@ public class LocationService {
       details.setBrand(osmLocation.getBrand());
       locationDetailsService.save(details);
 
-      locationDetailsService.save(details);
       Address address = location.getAddress();
       address.setCountry(osmLocation.getCountry());
       address.setCity(osmLocation.getCity());
