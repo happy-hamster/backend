@@ -154,14 +154,17 @@ public class LocationService {
     importLocationProgress.set(0.0);
     deleteLocationProgress.set(0.0);
 
+    LOGGER.warn("Starting OSM import...");
+
     // Download data from OSM
-    LOGGER.warn("Starting OSM import... (1/4)");
+    LOGGER.info("Requesting data from OSM... (1/4)");
     List<OsmResultLocationListDto.OsmResultLocationDto> results =
         locationApiSearchDas.getLocationsForCountry("DE");
     LOGGER.info("Finished receiving data from OSM! (1/4)");
     // Checking if API Call has a legit result
     if (results.size() < 1000) {
-      throw new IllegalStateException("API returns to few results! This doesn't seem right...");
+      throw new IllegalStateException(
+          "OSM returned less than 1000 results! This doesn't seem right...");
     }
 
     // Getting IDs stored in the Database right now
@@ -173,7 +176,7 @@ public class LocationService {
     LOGGER.info("Finished sorting OSM data! (2/4)");
 
     // Insert or update data one by one in the table
-    LOGGER.warn("Importing OSM data to database... (3/4)");
+    LOGGER.warn("Inserting and updating OSM data in database... (3/4)");
     for (int i = 0; i < results.size(); i++) {
       OsmResultLocationListDto.OsmResultLocationDto osmLocation = results.get(i);
       if (locationIds.contains(osmLocation.getId())) {
@@ -181,7 +184,7 @@ public class LocationService {
         updateLocation(osmLocation);
         importLocationUpdateCounter.increment();
         // Removing still existing database Ids from List
-        locationIds.remove(results.get(i).getId());
+        locationIds.remove(osmLocation.getId());
       } else {
         // Creating a Database Entry for a new Location
         createNewLocation(osmLocation);
@@ -196,26 +199,31 @@ public class LocationService {
       }
     }
     importLocationProgress.set(1.0);
+    LOGGER.info("Finished inserting and updating OSM data in database! (3/4)");
 
-    LOGGER.warn("Delete not existing Locations... (3/4)");
+    // Delete all (now) none existent Locations, linked Occupancies and linked Presences
+    // from our database cache
+    LOGGER.warn("Delete not existing Locations... (4/4)");
     for (int i = 0; i < locationIds.size(); i++) {
       try {
-        delete(locationRepository.findById(locationIds.get(i)).orElse(null));
+        locationRepository
+            .findById(locationIds.get(i))
+            .ifPresent(this::delete);
         importLocationDeleteCounter.increment();
       } catch (Exception e) {
         LOGGER.warn("An unknown error occurred while deleting Location with Id ({})",
             locationIds.get(i), e);
       }
 
-
+      // Report
       double progress = ((double) i) / locationIds.size();
       deleteLocationProgress.set(progress);
       if (i % 100 == 0) {
-        LOGGER.info("Location deletion: " + progress * 100.0 + " %");
+        LOGGER.info("OSM deletion: " + progress * 100.0 + " %");
       }
     }
     deleteLocationProgress.set(1.0);
-    LOGGER.info("Finished deleting " + locationIds.size() + " not existing Locations! (3/4)");
+    LOGGER.info("Finished deleting " + locationIds.size() + " not existing Locations! (4/4)");
 
     LOGGER.info("Finished data import from OSM! (4/4)");
   }
@@ -294,10 +302,6 @@ public class LocationService {
    * @param location Location that needs to be deleted
    */
   private void delete(Location location) {
-    if (location == null) {
-      return;
-    }
-
     occupancyRepository.deleteByLocation(location);
     presenceRepository.deleteByLocation(location);
     locationRepository.delete(location);
