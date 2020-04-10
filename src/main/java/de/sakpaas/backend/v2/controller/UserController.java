@@ -2,6 +2,7 @@ package de.sakpaas.backend.v2.controller;
 
 import de.sakpaas.backend.dto.UserInfoDto;
 import de.sakpaas.backend.service.UserService;
+import java.security.Principal;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,7 +27,8 @@ public class UserController {
    * @return Returns the UserInfoDto
    */
   @GetMapping("/info")
-  public ResponseEntity<UserInfoDto> getUserInfo(@RequestHeader("Authorization") String header) {
-    return new ResponseEntity<>(userService.getUserInfo(header), HttpStatus.OK);
+  public ResponseEntity<UserInfoDto> getUserInfo(@RequestHeader("Authorization") String header,
+                                                 Principal principal) {
+    return new ResponseEntity<>(userService.getUserInfo(header, principal), HttpStatus.OK);
   }
 }
