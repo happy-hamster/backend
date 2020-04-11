@@ -297,7 +297,6 @@ public class LocationService {
     ResponseEntity<NominatimSearchResultListDto> response =
         restTemplate.getForEntity(url, NominatimSearchResultListDto.class);
 
-    List<Location> responseList = new ArrayList<>();
 
     if (response.getBody() == null) {
       return Collections.emptyList();
