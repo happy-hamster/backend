@@ -300,7 +300,7 @@ public class LocationService {
     List<Location> responseList = new ArrayList<>();
 
     if (response.getBody() == null) {
-      return responseList;
+      return Collections.emptyList();
     }
 
     List<NominatimResultLocationDto> list = response.getBody().getElements();
