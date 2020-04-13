@@ -48,5 +48,4 @@ public class Occupancy {
     this.timestamp = ZonedDateTime.now();
     this.clientType = clientType;
   }
-
 }

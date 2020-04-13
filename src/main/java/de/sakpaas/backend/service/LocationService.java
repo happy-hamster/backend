@@ -120,7 +120,7 @@ public class LocationService {
   }
 
   /**
-   * Gets all Locations in a specific Coordinate.
+   * Gets all Locations from a specific coordinate.
    *
    * @param lat Latitude of the Location.
    * @param lon Longitude of the Location.
@@ -148,7 +148,7 @@ public class LocationService {
 
 
   /**
-   * Making an Request to the OverpassAPI, insert or update the Locations in the Database, deleting
+   * Makes a Request to the OverpassAPI, inserts or updates the Locations in the Database, deletes
    * the unused locations.
    */
   public void updateDatabase() {
@@ -190,7 +190,7 @@ public class LocationService {
         importLocationInsertCounter.increment();
       }
 
-      // Report
+      // Report importing progress
       double progress = ((double) i) / results.size();
       importLocationProgress.set(progress);
       if (i % 100 == 0) {
@@ -218,7 +218,7 @@ public class LocationService {
 
 
   /**
-   * Updating an existing Database Entry.
+   * Updates an existing Database Entry.
    *
    * @param osmLocation New Location
    */
@@ -252,7 +252,7 @@ public class LocationService {
   }
 
   /**
-   * Creating a new Location Entry in the Database.
+   * Creates a new Location Entry in the Database.
    *
    * @param osmLocation Location that will be added to the Database
    */

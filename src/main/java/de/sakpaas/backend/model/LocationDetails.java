@@ -40,5 +40,4 @@ public class LocationDetails {
     this.openingHours = openingHours;
     this.brand = brand;
   }
-
 }
