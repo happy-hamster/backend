@@ -15,7 +15,7 @@ class TokenUtilsTest extends HappyHamsterTest {
 
   @Test
   void getTokenFromHeader() {
-    assertThat(TokenUtils.getTokenFromHeader("Bearer SickToken")).isEqualTo("SickTokens");
+    assertThat(TokenUtils.getTokenFromHeader("Bearer SickToken")).isEqualTo("SickToken");
 
     assertThrows(ArrayIndexOutOfBoundsException.class,
         () -> TokenUtils.getTokenFromHeader("Bearer"));
