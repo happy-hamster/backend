@@ -1,22 +1,31 @@
 package de.sakpaas.backend.service;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import de.sakpaas.backend.PostgresqlContainer;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.Occupancy;
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.ComponentScan;
-
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.ClassRule;
+import org.junit.jupiter.api.Test;
+import org.junit.runner.RunWith;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.testcontainers.containers.PostgreSQLContainer;
 
 @SpringBootTest
+@RunWith(SpringRunner.class)
 @ComponentScan
 class OccupancyCalculationServiceTest {
 
-    private static Occupancy buildOccupancy(Location location, double occupancy, ZonedDateTime time) {
+    @ClassRule
+    private static PostgreSQLContainer postgreSQLContainer = PostgresqlContainer.getInstance();
+
+    private static Occupancy buildOccupancy(Location location, double occupancy,
+                                            ZonedDateTime time) {
         Occupancy obj = new Occupancy(location, occupancy, "test");
         obj.setTimestamp(time);
         return obj;
