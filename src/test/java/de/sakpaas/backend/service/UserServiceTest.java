@@ -2,23 +2,18 @@ package de.sakpaas.backend.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import de.sakpaas.backend.PostgresqlContainer;
+import de.sakpaas.backend.HappyHamsterTest;
 import de.sakpaas.backend.dto.UserInfoDto;
 import java.security.Principal;
-import org.junit.ClassRule;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.testcontainers.containers.PostgreSQLContainer;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-class UserServiceTest {
-
-  @ClassRule
-  private static PostgreSQLContainer postgreSQLContainer = PostgresqlContainer.getInstance();
+class UserServiceTest extends HappyHamsterTest {
 
   @Autowired
   UserService userService;
