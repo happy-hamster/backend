@@ -17,4 +17,4 @@ jobs:
           java-version: 1.8
 
       - name: CheckStyle
-        run: mvn checkstyle:check
+        run: mvn --no-transfer-progress checkstyle:check
