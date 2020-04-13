@@ -106,6 +106,10 @@ public class LocationService {
         .collect(Collectors.toList());
   }
 
+  /**
+   * Makes a Request to the OverpassAPI, inserts or updates the Locations in the Database, deletes
+   * the unused locations.
+   */
   public void updateDatabase() {
     final OpenStreetMapService openStreetMapService =
         new OpenStreetMapService(locationRepository, locationDetailsService, addressService,
