@@ -39,11 +39,11 @@ public class LocationController {
   private static final String MAPPING_BY_ID = "/{locationId}";
   private static final String MAPPING_START_DATABASE = "/generate/{key}";
   private static final String MAPPING_SEARCH_LOCATION = "/search/{key}";
-  private LocationService locationService;
-  private LocationMapper locationMapper;
-  private OccupancyService occupancyService;
-  private PresenceService presenceService;
-  private AtomicBoolean importState;
+  private final LocationService locationService;
+  private final LocationMapper locationMapper;
+  private final OccupancyService occupancyService;
+  private final PresenceService presenceService;
+  private final AtomicBoolean importState;
 
 
   /**

@@ -12,7 +12,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class UserService {
-  static Logger LOGGER = LoggerFactory.getLogger(UserService.class);
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
 
   /**
    * Extracts User Information out of the JWT and returns them as a UserServiceDto.
@@ -38,8 +39,5 @@ public class UserService {
         jwt.getClaim("family_name").asString(),
         jwt.getClaim("email").asString()
     );
-
-
   }
-
 }

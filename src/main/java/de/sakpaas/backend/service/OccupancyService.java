@@ -98,9 +98,8 @@ public class OccupancyService {
    * Saves an {@link Occupancy} to the database.
    *
    * @param occupancy the occupancy
-   * @return the same occupancy
    */
-  public Occupancy save(Occupancy occupancy) {
-    return occupancyRepository.save(occupancy);
+  public void save(Occupancy occupancy) {
+    occupancyRepository.save(occupancy);
   }
 }

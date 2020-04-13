@@ -7,15 +7,15 @@ import org.springframework.stereotype.Service;
 @Service
 public class AddressService {
 
-  private AddressRepository addressRepository;
+  private final AddressRepository addressRepository;
 
   @Autowired
   public AddressService(AddressRepository addressRepository) {
     this.addressRepository = addressRepository;
   }
 
-  public Address save(Address address) {
-    return addressRepository.save(address);
+  public void save(Address address) {
+    addressRepository.save(address);
   }
 
 }
