@@ -12,6 +12,7 @@ import lombok.Setter;
 @Getter
 @Entity(name = "REQUEST")
 public class Request {
+
   @Id
   @GeneratedValue
   @Column(name = "ID", nullable = false)
