@@ -4,7 +4,6 @@ import de.sakpaas.backend.dto.NominatimSearchResultListDto;
 import de.sakpaas.backend.dto.NominatimSearchResultListDto.NominatimResultLocationDto;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.util.CoordinatesUtils;
-import io.micrometer.core.instrument.MeterRegistry;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -21,10 +20,7 @@ import org.springframework.web.client.RestTemplate;
 public class LocationService {
 
   private final LocationRepository locationRepository;
-  private final LocationDetailsService locationDetailsService;
-  private final AddressService addressService;
-  private final LocationApiSearchDas locationApiSearchDas;
-  private final MeterRegistry meterRegistry;
+  private final OpenStreetMapService openStreetMapService;
 
   @Value("${app.search-api-url}")
   private String searchApiUrl;
@@ -32,24 +28,15 @@ public class LocationService {
   /**
    * Default Constructor. Handles the Dependency Injection and Meter Initialisation and Registering
    *
-   * @param locationRepository     The Location Repository
-   * @param locationDetailsService The Location Details Service
-   * @param addressService         The Address Service
-   * @param meterRegistry          The Meter Registry
-   * @param locationApiSearchDas   The LocationApiSearchDas
+   * @param locationRepository   The Location Repository
+   * @param openStreetMapService The OpenStreetMap Service
    */
   @Autowired
   public LocationService(LocationRepository locationRepository,
-      LocationDetailsService locationDetailsService,
-      AddressService addressService,
-      MeterRegistry meterRegistry, LocationApiSearchDas locationApiSearchDas) {
+      OpenStreetMapService openStreetMapService) {
     this.locationRepository = locationRepository;
-    this.locationDetailsService = locationDetailsService;
-    this.addressService = addressService;
-    this.meterRegistry = meterRegistry;
-    this.locationApiSearchDas = locationApiSearchDas;
+    this.openStreetMapService = openStreetMapService;
   }
-
 
   /**
    * Gets a Location by its ID from the Database.
@@ -78,7 +65,6 @@ public class LocationService {
         .limit(100)
         .collect(Collectors.toList());
   }
-
 
   /**
    * Searches in the Nominatim Microservice for the given key.
@@ -111,9 +97,15 @@ public class LocationService {
    * the unused locations.
    */
   public void updateDatabase() {
-    final OpenStreetMapService openStreetMapService =
-        new OpenStreetMapService(locationRepository, locationDetailsService, addressService,
-            meterRegistry, locationApiSearchDas);
     openStreetMapService.updateDatabase();
+  }
+
+  /**
+   * Saves a Location to the Database.
+   *
+   * @param location Location that will be saved
+   */
+  public void save(Location location) {
+    locationRepository.save(location);
   }
 }

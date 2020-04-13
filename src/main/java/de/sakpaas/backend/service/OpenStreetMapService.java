@@ -14,7 +14,10 @@ import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+@Service
 public class OpenStreetMapService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(LocationService.class);
@@ -25,6 +28,7 @@ public class OpenStreetMapService {
   private final LocationDetailsService locationDetailsService;
   private final AddressService addressService;
   private final MeterRegistry meterRegistry;
+  private final LocationService locationService;
   private Counter importLocationInsertCounter;
   private Counter importLocationUpdateCounter;
   private Counter importLocationDeleteCounter;
@@ -37,16 +41,20 @@ public class OpenStreetMapService {
    * @param addressService         The Address Service
    * @param meterRegistry          The Meter Registry
    * @param locationApiSearchDas   The LocationApiSearchDas
+   * @param locationService        The Location Service
    */
+  @Autowired
   public OpenStreetMapService(LocationRepository locationRepository,
       LocationDetailsService locationDetailsService,
       AddressService addressService,
-      MeterRegistry meterRegistry, LocationApiSearchDas locationApiSearchDas) {
+      MeterRegistry meterRegistry, LocationApiSearchDas locationApiSearchDas,
+      LocationService locationService) {
     this.locationRepository = locationRepository;
     this.locationDetailsService = locationDetailsService;
     this.addressService = addressService;
     this.locationApiSearchDas = locationApiSearchDas;
     this.meterRegistry = meterRegistry;
+    this.locationService = locationService;
 
     this.importLocationProgress = new AtomicDouble();
     this.deleteLocationProgress = new AtomicDouble();
@@ -233,7 +241,6 @@ public class OpenStreetMapService {
    * @param location Location that will be saved
    */
   public void save(Location location) {
-    locationRepository.save(location);
+    locationService.save(location);
   }
-
 }
