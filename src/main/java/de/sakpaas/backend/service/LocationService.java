@@ -33,7 +33,7 @@ public class LocationService {
    */
   @Autowired
   public LocationService(LocationRepository locationRepository,
-      OpenStreetMapService openStreetMapService) {
+                         OpenStreetMapService openStreetMapService) {
     this.locationRepository = locationRepository;
     this.openStreetMapService = openStreetMapService;
   }
