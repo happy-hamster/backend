@@ -1,6 +1,6 @@
 server:
   servlet:
-    application-display-name: SAKPaaS
+    application-display-name: HappyHamster
 spring:
   jpa:
     hibernate:
