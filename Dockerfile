@@ -4,7 +4,7 @@ FROM maven:3-jdk-8 as build
 COPY src /home/app/src
 COPY pom.xml /home/app
 # Run maven
-RUN mvn -Dmaven.test.skip=true -f /home/app/pom.xml package
+RUN mvn -f /home/app/pom.xml package
 
 
 # Run spring in minimal container

@@ -20,7 +20,7 @@ class TokenUtilsTest {
 
   @Test
   void getTokenFromHeader() {
-    assertThat(TokenUtils.getTokenFromHeader("Bearer SickToken")).isEqualTo("SickToken");
+    assertThat(TokenUtils.getTokenFromHeader("Bearer SickToken")).isEqualTo("SickTokens");
 
     assertThrows(ArrayIndexOutOfBoundsException.class,
         () -> TokenUtils.getTokenFromHeader("Bearer"));
