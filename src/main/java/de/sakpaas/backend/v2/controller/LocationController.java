@@ -68,7 +68,7 @@ public class LocationController {
    * Get Endpoint to receive all Locations around a given location.
    *
    * @param latitude  Latitude of the Location.
-   * @param longitude Öongitude of the Location.
+   * @param longitude Longitude of the Location.
    * @return List of all Locations in the Area.
    */
   @GetMapping
@@ -110,8 +110,8 @@ public class LocationController {
    * Post Endpoint to create a new Occupancy Report.
    *
    * @param occupancyReportDto OccupancyReportDto send by the Client
-   * @param locationId         LocationId of the Locaation the Report is for
-   * @return Returns if the Report was created was successful
+   * @param locationId         LocationId of the Location the Report is for
+   * @return Returns if the Report was created successfully
    */
   @PostMapping(value = MAPPING_POST_OCCUPANCY)
   public ResponseEntity<LocationResultLocationDto> postNewOccupancy(
@@ -151,7 +151,7 @@ public class LocationController {
   /**
    * Get Endpoint to initiate the Database Update.
    *
-   * @param key Secret key to authorizate the update. Printed do the Log on startup
+   * @param key Secret key to authorize the update. Printed do the Log on startup
    * @return Returns if the Import was successful
    */
   @GetMapping(value = MAPPING_START_DATABASE)

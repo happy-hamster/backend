@@ -26,7 +26,7 @@ public class OsmResultLocationListDto {
     private OsmResultTagsDto tags;
 
     /**
-     * Creates a {@link OsmResultLocationDto} from JSON.
+     * Creates an {@link OsmResultLocationDto} from JSON.
      *
      * @param id     the id
      * @param lat    the latitude
@@ -148,8 +148,5 @@ public class OsmResultLocationListDto {
       this.brand = brand;
       this.openingHours = openingHours;
     }
-
   }
-
-
 }
