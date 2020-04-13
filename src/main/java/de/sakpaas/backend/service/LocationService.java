@@ -1,6 +1,8 @@
 package de.sakpaas.backend.service;
 
 import com.google.common.util.concurrent.AtomicDouble;
+import de.sakpaas.backend.dto.NominatimSearchResultListDto;
+import de.sakpaas.backend.dto.NominatimSearchResultListDto.NominatimResultLocationDto;
 import de.sakpaas.backend.dto.OsmResultLocationListDto;
 import de.sakpaas.backend.model.Address;
 import de.sakpaas.backend.model.Location;
@@ -8,6 +10,7 @@ import de.sakpaas.backend.model.LocationDetails;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -15,10 +18,14 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 @Service
 public class LocationService {
+
   private static Logger LOGGER = LoggerFactory.getLogger(LocationService.class);
   private final LocationRepository locationRepository;
   private final LocationDetailsService locationDetailsService;
@@ -31,6 +38,9 @@ public class LocationService {
   private AtomicDouble deleteLocationProgress;
 
 
+  @Value("${app.search-api-url}")
+  private String searchApiUrl;
+
   /**
    * Default Constructor. Handles the Dependency Injection and Meter Initialisation and Registering
    *
@@ -42,9 +52,9 @@ public class LocationService {
    */
   @Autowired
   public LocationService(LocationRepository locationRepository,
-                         LocationDetailsService locationDetailsService,
-                         AddressService addressService,
-                         MeterRegistry meterRegistry, LocationApiSearchDas locationApiSearchDas) {
+      LocationDetailsService locationDetailsService,
+      AddressService addressService,
+      MeterRegistry meterRegistry, LocationApiSearchDas locationApiSearchDas) {
     this.locationRepository = locationRepository;
     this.locationDetailsService = locationDetailsService;
     this.addressService = addressService;
@@ -272,5 +282,32 @@ public class LocationService {
         address
     );
     this.save(location);
+  }
+
+  /**
+   * Searches in the Nominatim Microservice for the given key.
+   *
+   * @param key The search parameter. Multiple words are separated with %20.
+   * @return The list of Locations in our database
+   */
+  public List<Location> search(String key) {
+    // Makes a request to the Nominatim Microservice
+    final String url = this.searchApiUrl + "/search/" + key + "?format=json";
+    RestTemplate restTemplate = new RestTemplate();
+    ResponseEntity<NominatimSearchResultListDto> response =
+        restTemplate.getForEntity(url, NominatimSearchResultListDto.class);
+
+
+    if (response.getBody() == null) {
+      return Collections.emptyList();
+    }
+
+    List<NominatimResultLocationDto> list = response.getBody().getElements();
+
+    // Check if the ID is valid (is in database)
+    return list.stream()
+        .map(element -> getById(element.getOsmId()).orElse(null))
+        .filter(Objects::nonNull)
+        .collect(Collectors.toList());
   }
 }
