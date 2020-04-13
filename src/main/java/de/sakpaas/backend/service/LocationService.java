@@ -10,9 +10,10 @@ import de.sakpaas.backend.model.LocationDetails;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -52,9 +53,9 @@ public class LocationService {
    */
   @Autowired
   public LocationService(LocationRepository locationRepository,
-      LocationDetailsService locationDetailsService,
-      AddressService addressService,
-      MeterRegistry meterRegistry, LocationApiSearchDas locationApiSearchDas) {
+                         LocationDetailsService locationDetailsService,
+                         AddressService addressService,
+                         MeterRegistry meterRegistry, LocationApiSearchDas locationApiSearchDas) {
     this.locationRepository = locationRepository;
     this.locationDetailsService = locationDetailsService;
     this.addressService = addressService;
