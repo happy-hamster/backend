@@ -3,7 +3,7 @@ package de.sakpaas.backend;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 public class PostgresqlContainer extends PostgreSQLContainer<PostgresqlContainer> {
-  private static final String IMAGE_VERSION = "postgres:11.1";
+  private static final String IMAGE_VERSION = "postgres:latest";
   private static PostgresqlContainer container;
 
   private PostgresqlContainer() {
