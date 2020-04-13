@@ -9,6 +9,7 @@ import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.Occupancy;
 import de.sakpaas.backend.service.LocationService;
 import de.sakpaas.backend.service.OccupancyService;
+import de.sakpaas.backend.service.OpenStreetMapService;
 import de.sakpaas.backend.service.PresenceService;
 import de.sakpaas.backend.v2.dto.LocationResultLocationDto;
 import de.sakpaas.backend.v2.dto.OccupancyReportDto;
@@ -40,6 +41,7 @@ public class LocationController {
   private static final String MAPPING_START_DATABASE = "/generate/{key}";
   private static final String MAPPING_SEARCH_LOCATION = "/search/{key}";
   private final LocationService locationService;
+  private final OpenStreetMapService openStreetMapService;
   private final LocationMapper locationMapper;
   private final OccupancyService occupancyService;
   private final PresenceService presenceService;
@@ -49,15 +51,18 @@ public class LocationController {
   /**
    * Constructor that injects the needed dependencies.
    *
-   * @param locationService  The Location Service
-   * @param locationMapper   An OSM Location to Location Mapper
-   * @param occupancyService The Occupancy Service
-   * @param presenceService  The Presence Service
+   * @param locationService      The Location Service
+   * @param openStreetMapService The OpenStreetMap Service
+   * @param locationMapper       An OSM Location to Location Mapper
+   * @param occupancyService     The Occupancy Service
+   * @param presenceService      The Presence Service
    */
   public LocationController(LocationService locationService,
+      OpenStreetMapService openStreetMapService,
       LocationMapper locationMapper, OccupancyService occupancyService,
       PresenceService presenceService) {
     this.locationService = locationService;
+    this.openStreetMapService = openStreetMapService;
     this.locationMapper = locationMapper;
     this.occupancyService = occupancyService;
     this.presenceService = presenceService;
@@ -169,7 +174,7 @@ public class LocationController {
     // Lock database import
     importState.set(true);
     // Making the Database import
-    locationService.updateDatabase();
+    openStreetMapService.updateDatabase();
     // Unlock database import
     importState.set(false);
 

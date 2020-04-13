@@ -20,7 +20,6 @@ import org.springframework.web.client.RestTemplate;
 public class LocationService {
 
   private final LocationRepository locationRepository;
-  private final OpenStreetMapService openStreetMapService;
 
   @Value("${app.search-api-url}")
   private String searchApiUrl;
@@ -28,14 +27,11 @@ public class LocationService {
   /**
    * Default Constructor. Handles the Dependency Injection and Meter Initialisation and Registering
    *
-   * @param locationRepository   The Location Repository
-   * @param openStreetMapService The OpenStreetMap Service
+   * @param locationRepository The Location Repository
    */
   @Autowired
-  public LocationService(LocationRepository locationRepository,
-                         OpenStreetMapService openStreetMapService) {
+  public LocationService(LocationRepository locationRepository) {
     this.locationRepository = locationRepository;
-    this.openStreetMapService = openStreetMapService;
   }
 
   /**
@@ -90,14 +86,6 @@ public class LocationService {
         .map(element -> getById(element.getOsmId()).orElse(null))
         .filter(Objects::nonNull)
         .collect(Collectors.toList());
-  }
-
-  /**
-   * Makes a Request to the OverpassAPI, inserts or updates the Locations in the Database, deletes
-   * the unused locations.
-   */
-  public void updateDatabase() {
-    openStreetMapService.updateDatabase();
   }
 
   /**
