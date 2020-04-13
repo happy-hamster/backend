@@ -29,6 +29,15 @@ public class OpenStreetMapService {
   private Counter importLocationUpdateCounter;
   private Counter importLocationDeleteCounter;
 
+  /**
+   * Handles the OpenStreetMap database import and update.
+   *
+   * @param locationRepository     The Location Repository
+   * @param locationDetailsService The Location Details Service
+   * @param addressService         The Address Service
+   * @param meterRegistry          The Meter Registry
+   * @param locationApiSearchDas   The LocationApiSearchDas
+   */
   public OpenStreetMapService(LocationRepository locationRepository,
       LocationDetailsService locationDetailsService,
       AddressService addressService,
