@@ -10,6 +10,7 @@ spring:
     username: postgres
     password: SAKPaaS
 app:
+  search-api-url: https://nominatim.openstreetmap.org
   presence:
     duration: 20
   occupancy:

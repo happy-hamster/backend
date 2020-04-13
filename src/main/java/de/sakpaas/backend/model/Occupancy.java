@@ -38,8 +38,8 @@ public class Occupancy {
   /**
    * Creates a new {@link Occupancy} for a {@link Location}.
    *
-   * @param location the {@link Location}
-   * @param occupancy the occupancy (from 0.0 to 1.0)
+   * @param location   the {@link Location}
+   * @param occupancy  the occupancy (from 0.0 to 1.0)
    * @param clientType the client type (eg. IOT, WEB_CLIENT)
    */
   public Occupancy(Location location, Double occupancy, String clientType) {
