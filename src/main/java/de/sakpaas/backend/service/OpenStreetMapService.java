@@ -195,7 +195,7 @@ public class OpenStreetMapService {
       location.setName(osmLocation.getName() != null ? osmLocation.getName() : "Supermarkt");
       location.setLatitude(osmLocation.getCoordinates().getLat());
       location.setLongitude(osmLocation.getCoordinates().getLon());
-      this.save(location);
+      locationService.save(location);
     } else {
       LOGGER.error("Unable to find Location with ID=" + osmLocation.getId()
           + ". Maybe removed during DatabaseUpdate?");
@@ -232,15 +232,6 @@ public class OpenStreetMapService {
         details,
         address
     );
-    this.save(location);
-  }
-
-  /**
-   * Saves a Location to the Database.
-   *
-   * @param location Location that will be saved
-   */
-  public void save(Location location) {
     locationService.save(location);
   }
 }
