@@ -33,18 +33,21 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/v2/locations")
 @RestController
 public class LocationController {
+
   private static final String MAPPING_POST_OCCUPANCY = "/{locationId}/occupancy";
   private static final String MAPPING_POST_CHECKIN = "/{locationId}/check-in";
   private static final String MAPPING_BY_ID = "/{locationId}";
   private static final String MAPPING_START_DATABASE = "/generate/{key}";
+  private static final String MAPPING_SEARCH_LOCATION = "/search/{key}";
   private LocationService locationService;
   private LocationMapper locationMapper;
   private OccupancyService occupancyService;
   private PresenceService presenceService;
   private AtomicBoolean importState;
 
+
   /**
-   * Constuctor that injects the needed dependencies.
+   * Constructor that injects the needed dependencies.
    *
    * @param locationService  The Location Service
    * @param locationMapper   An OSM Location to Location Mapper
@@ -52,8 +55,8 @@ public class LocationController {
    * @param presenceService  The Presence Service
    */
   public LocationController(LocationService locationService,
-                            LocationMapper locationMapper, OccupancyService occupancyService,
-                            PresenceService presenceService) {
+      LocationMapper locationMapper, OccupancyService occupancyService,
+      PresenceService presenceService) {
     this.locationService = locationService;
     this.locationMapper = locationMapper;
     this.occupancyService = occupancyService;
@@ -61,19 +64,17 @@ public class LocationController {
     this.importState = new AtomicBoolean(false);
   }
 
-
   /**
    * Get Endpoint to receive all Locations around a given location.
    *
    * @param latitude  Latitude of the Location.
-   * @param longitude Öongitude of the Location.
+   * @param longitude Longitude of the Location.
    * @return List of all Locations in the Area.
    */
   @GetMapping
   @ResponseBody
   public ResponseEntity<List<LocationResultLocationDto>> getLocation(@RequestParam Double latitude,
-                                                                     @RequestParam
-                                                                         Double longitude) {
+      @RequestParam Double longitude) {
     List<Location> searchResult = locationService.findByCoordinates(latitude, longitude);
 
     if (searchResult.isEmpty()) {
@@ -109,8 +110,8 @@ public class LocationController {
    * Post Endpoint to create a new Occupancy Report.
    *
    * @param occupancyReportDto OccupancyReportDto send by the Client
-   * @param locationId         LocationId of the Locaation the Report is for
-   * @return Returns if the Report was created was successful
+   * @param locationId         LocationId of the Location the Report is for
+   * @return Returns if the Report was created successfully
    */
   @PostMapping(value = MAPPING_POST_OCCUPANCY)
   public ResponseEntity<LocationResultLocationDto> postNewOccupancy(
@@ -150,7 +151,7 @@ public class LocationController {
   /**
    * Get Endpoint to initiate the Database Update.
    *
-   * @param key Secret key to authorizate the update. Printed do the Log on startup
+   * @param key Secret key to authorize the update. Printed do the Log on startup
    * @return Returns if the Import was successful
    */
   @GetMapping(value = MAPPING_START_DATABASE)
@@ -173,5 +174,12 @@ public class LocationController {
     importState.set(false);
 
     return ResponseEntity.ok("Success");
+  }
+
+  @GetMapping(value = MAPPING_SEARCH_LOCATION)
+  public ResponseEntity<List<LocationResultLocationDto>> searchForLocations(
+      @PathVariable("key") String key) {
+    List<Location> locations = locationService.search(key);
+    return new ResponseEntity<>(locationMapper.mapToOutputDto(locations), OK);
   }
 }

@@ -10,6 +10,7 @@ spring:
     username: postgres
     password: SAKPaaS
 app:
+  search-api-url: https://nominatim.openstreetmap.org
   presence:
     duration: 20
   occupancy:
@@ -36,6 +37,7 @@ keycloak:
         - uma_authorization
       securityCollections:
         - patterns: /auth/*
+        - patterns: /v2/user/*
     - securityCollections:
         - patterns: /v1/*
         - patterns: /v2/*

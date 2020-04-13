@@ -36,7 +36,7 @@ public class Presence {
    * Creates a new {@link Presence} from a {@link Location}.
    *
    * @param location the {@link Location}
-   * @param checkIn the check in time
+   * @param checkIn  the check in time
    * @param checkOut the check out time
    */
   public Presence(Location location, ZonedDateTime checkIn, ZonedDateTime checkOut) {

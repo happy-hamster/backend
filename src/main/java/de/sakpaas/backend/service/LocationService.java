@@ -1,6 +1,8 @@
 package de.sakpaas.backend.service;
 
 import com.google.common.util.concurrent.AtomicDouble;
+import de.sakpaas.backend.dto.NominatimSearchResultListDto;
+import de.sakpaas.backend.dto.NominatimSearchResultListDto.NominatimResultLocationDto;
 import de.sakpaas.backend.dto.OsmResultLocationListDto;
 import de.sakpaas.backend.model.Address;
 import de.sakpaas.backend.model.Location;
@@ -8,17 +10,23 @@ import de.sakpaas.backend.model.LocationDetails;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 @Service
 public class LocationService {
+
   private static Logger LOGGER = LoggerFactory.getLogger(LocationService.class);
   private final LocationRepository locationRepository;
   private final LocationDetailsService locationDetailsService;
@@ -30,6 +38,9 @@ public class LocationService {
   private AtomicDouble importLocationProgress;
   private AtomicDouble deleteLocationProgress;
 
+
+  @Value("${app.search-api-url}")
+  private String searchApiUrl;
 
   /**
    * Default Constructor. Handles the Dependency Injection and Meter Initialisation and Registering
@@ -110,7 +121,7 @@ public class LocationService {
   }
 
   /**
-   * Gets all Locations in a specific Coordinate.
+   * Gets all Locations from a specific coordinate.
    *
    * @param lat Latitude of the Location.
    * @param lon Longitude of the Location.
@@ -138,8 +149,8 @@ public class LocationService {
 
 
   /**
-   * Making an Request to the OverpassAPI, insert or update the Locations in the Database,
-   * deleting the unused locations.
+   * Makes a Request to the OverpassAPI, inserts or updates the Locations in the Database, deletes
+   * the unused locations.
    */
   public void updateDatabase() {
     // Reset import progress
@@ -180,7 +191,7 @@ public class LocationService {
         importLocationInsertCounter.increment();
       }
 
-      // Report
+      // Report importing progress
       double progress = ((double) i) / results.size();
       importLocationProgress.set(progress);
       if (i % 100 == 0) {
@@ -208,7 +219,7 @@ public class LocationService {
 
 
   /**
-   * Updating an existing Database Entry.
+   * Updates an existing Database Entry.
    *
    * @param osmLocation New Location
    */
@@ -242,7 +253,7 @@ public class LocationService {
   }
 
   /**
-   * Creating a new Location Entry in the Database.
+   * Creates a new Location Entry in the Database.
    *
    * @param osmLocation Location that will be added to the Database
    */
@@ -272,5 +283,32 @@ public class LocationService {
         address
     );
     this.save(location);
+  }
+
+  /**
+   * Searches in the Nominatim Microservice for the given key.
+   *
+   * @param key The search parameter. Multiple words are separated with %20.
+   * @return The list of Locations in our database
+   */
+  public List<Location> search(String key) {
+    // Makes a request to the Nominatim Microservice
+    final String url = this.searchApiUrl + "/search/" + key + "?format=json";
+    RestTemplate restTemplate = new RestTemplate();
+    ResponseEntity<NominatimSearchResultListDto> response =
+        restTemplate.getForEntity(url, NominatimSearchResultListDto.class);
+
+
+    if (response.getBody() == null) {
+      return Collections.emptyList();
+    }
+
+    List<NominatimResultLocationDto> list = response.getBody().getElements();
+
+    // Check if the ID is valid (is in database)
+    return list.stream()
+        .map(element -> getById(element.getOsmId()).orElse(null))
+        .filter(Objects::nonNull)
+        .collect(Collectors.toList());
   }
 }
