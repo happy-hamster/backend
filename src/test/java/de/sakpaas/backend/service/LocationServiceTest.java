@@ -3,6 +3,7 @@ package de.sakpaas.backend.service;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
+import de.sakpaas.backend.HappyHamsterTest;
 import de.sakpaas.backend.model.Address;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.LocationDetails;
@@ -10,12 +11,12 @@ import de.sakpaas.backend.model.Occupancy;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
-@DataJpaTest
-class LocationServiceTest {
+@SpringBootTest
+class LocationServiceTest extends HappyHamsterTest {
   @Autowired
   private LocationService locationService;
   @Autowired
