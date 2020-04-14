@@ -19,7 +19,7 @@ app:
   occupancy:
     duration: 300
   import:
-    country: ${IMPORT_COUNTRY}
+    country: ${IMPORT_COUNTRY:"DE"}
   version: dev
   commit: dev
 management:
