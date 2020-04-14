@@ -15,22 +15,22 @@ import lombok.Getter;
 @JsonPropertyOrder({"id", "name", "details", "coordinates", "occupancy", "address"})
 public class LocationResultLocationDto {
 
-  private long id;
-  private String name;
-  private LocationResultLocationDetailsDto details;
-  private LocationResultCoordinatesDto coordinates;
-  private LocationResultOccupancyDto occupancy;
-  private LocationResultAddressDto address;
+  private final long id;
+  private final String name;
+  private final LocationResultLocationDetailsDto details;
+  private final LocationResultCoordinatesDto coordinates;
+  private final LocationResultOccupancyDto occupancy;
+  private final LocationResultAddressDto address;
 
   /**
    * Creates a v2 LocationResultLocationDto from JSON.
    *
-   * @param id the id
-   * @param name the name
-   * @param details the LocationResultLocationDetailsDto
+   * @param id          the id
+   * @param name        the name
+   * @param details     the LocationResultLocationDetailsDto
    * @param coordinates the LocationResultCoordinatesDto
-   * @param occupancy the LocationResultOccupancyDto
-   * @param address the LocationResultAddressDto
+   * @param occupancy   the LocationResultOccupancyDto
+   * @param address     the LocationResultAddressDto
    */
   @JsonCreator
   public LocationResultLocationDto(@JsonProperty("id") long id,

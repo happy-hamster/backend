@@ -26,13 +26,13 @@ public class OsmResultLocationListDto {
     private OsmResultTagsDto tags;
 
     /**
-     * Creates a {@link OsmResultLocationDto} from JSON.
+     * Creates an {@link OsmResultLocationDto} from JSON.
      *
-     * @param id the id
-     * @param lat the latitude
-     * @param lon the longitude
+     * @param id     the id
+     * @param lat    the latitude
+     * @param lon    the longitude
      * @param center the center location, can be null, the lat and lon will be used
-     * @param tags the tags of this OSM Location
+     * @param tags   the tags of this OSM Location
      */
     @JsonCreator
     public OsmResultLocationDto(@JsonProperty("id") long id,
@@ -89,6 +89,7 @@ public class OsmResultLocationListDto {
   @Getter
   @JsonPropertyOrder({"lat", "lon"})
   public static class OsmResultCoordinatesDto {
+
     private double lat;
     private double lon;
 
@@ -104,6 +105,7 @@ public class OsmResultLocationListDto {
       "addr:city", "addr:country", "shop", "brand", "opening_hours"})
   @Getter
   public static class OsmResultTagsDto {
+
     private String name;
     private String street;
     private String housenumber;
@@ -117,15 +119,15 @@ public class OsmResultLocationListDto {
     /**
      * Creates a {@link OsmResultTagsDto} from JSON.
      *
-     * @param name the location name
-     * @param street the street of the address
-     * @param housenumber the house number of the address
-     * @param postcode the post code of the address
-     * @param city the city of the address
-     * @param country the country of the address
-     * @param place currently unused
-     * @param type the type of the location (eg. supermarket)
-     * @param brand the brand of the location (eg. LIDL, ALDI)
+     * @param name         the location name
+     * @param street       the street of the address
+     * @param housenumber  the house number of the address
+     * @param postcode     the post code of the address
+     * @param city         the city of the address
+     * @param country      the country of the address
+     * @param place        currently unused
+     * @param type         the type of the location (eg. supermarket)
+     * @param brand        the brand of the location (eg. LIDL, ALDI)
      * @param openingHours the opening hours in human readable format
      */
     @JsonCreator
@@ -154,6 +156,4 @@ public class OsmResultLocationListDto {
       this.country = country;
     }
   }
-
-
 }

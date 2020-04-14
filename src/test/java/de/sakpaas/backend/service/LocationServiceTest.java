@@ -1,19 +1,30 @@
 package de.sakpaas.backend.service;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+
+import de.sakpaas.backend.HappyHamsterTest;
 import de.sakpaas.backend.model.Address;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.LocationDetails;
 import de.sakpaas.backend.model.Occupancy;
 import org.junit.jupiter.api.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.ComponentScan;
+import org.springframework.test.context.junit4.SpringRunner;
 
+@RunWith(SpringRunner.class)
 @SpringBootTest
-@ComponentScan
-class LocationServiceTest {
+class LocationServiceTest extends HappyHamsterTest {
   @Autowired
   private LocationService locationService;
+  @Autowired
+  private LocationRepository locationRepository;
+  @Autowired
+  private PresenceRepository presenceRepository;
+  @Autowired
+  private OccupancyRepository occupancyRepository;
   @Autowired
   private LocationDetailsService locationDetailsService;
   @Autowired
@@ -25,6 +36,7 @@ class LocationServiceTest {
 
   @Test
   void shouldDeleteLocations() {
+    assertThat(locationRepository.count(), equalTo(0L));
     Location penny = locationService.save(
         new Location(1L, "Penny", 0.0, 0.0, locationDetailsService.save(new LocationDetails()),
             addressService.save(new Address())));
@@ -42,8 +54,16 @@ class LocationServiceTest {
     occupancyService.save(new Occupancy(lidl, 0.66, "costumer"));
     presenceService.addNewCheckin(lidl);
 
+    assertThat(locationRepository.count(), equalTo(3L));
+    assertThat(presenceRepository.count(), equalTo(3L));
+    assertThat(occupancyRepository.count(), equalTo(3L));
+
     locationService.delete(penny);
     locationService.delete(aldi);
     locationService.delete(lidl);
+
+    assertThat(locationRepository.count(), equalTo(0L));
+    assertThat(presenceRepository.count(), equalTo(0L));
+    assertThat(occupancyRepository.count(), equalTo(0L));
   }
 }

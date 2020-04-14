@@ -12,7 +12,7 @@ public class StatusController {
   private String version;
   @Value("${app.commit}")
   private String commit;
-  
+
   /**
    * Request endpoint to receive the status and version of the application.
    *
@@ -31,10 +31,10 @@ public class StatusController {
     status.setCommit(commit);
     return status;
   }
-    
+
   /**
-   * Request to test the Authentication Feature. This Request should be configured to only acessible
-   * by an authenticated user.
+   * Request to test the Authentication Feature. This Request should be configured to only be
+   * accessible by an authenticated user.
    *
    * @return Status Response
    */
@@ -46,5 +46,4 @@ public class StatusController {
     status.setCommit(commit);
     return status;
   }
-
 }

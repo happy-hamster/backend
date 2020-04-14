@@ -3,8 +3,8 @@ FROM maven:3-jdk-8 as build
 # Copy files
 COPY src /home/app/src
 COPY pom.xml /home/app
-# Run maven
-RUN mvn -Dmaven.test.skip=true -f /home/app/pom.xml package
+# Run maven (skip tests as these can not be run inside of docker)
+RUN mvn --no-transfer-progress -Dmaven.test.skip=true -f /home/app/pom.xml package
 
 
 # Run spring in minimal container

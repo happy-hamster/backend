@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class LocationDetailsService {
 
-  private LocationDetailsRepository locationDetailsRepository;
+  private final LocationDetailsRepository locationDetailsRepository;
 
   @Autowired
   public LocationDetailsService(LocationDetailsRepository locationDetailsRepository) {
