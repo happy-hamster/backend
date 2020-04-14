@@ -33,7 +33,7 @@ public class OccupancyService {
    * Calculates the average occupancy based on the given reports.
    *
    * @param occupancies the occupancies to calculate with
-   * @param time the time to calculate with
+   * @param time        the time to calculate with
    * @return the average occupancy
    */
   public static Double calculateAverage(List<Occupancy> occupancies, ZonedDateTime time) {
@@ -98,9 +98,8 @@ public class OccupancyService {
    * Saves an {@link Occupancy} to the database.
    *
    * @param occupancy the occupancy
-   * @return the same occupancy
    */
-  public Occupancy save(Occupancy occupancy) {
-    return occupancyRepository.save(occupancy);
+  public void save(Occupancy occupancy) {
+    occupancyRepository.save(occupancy);
   }
 }

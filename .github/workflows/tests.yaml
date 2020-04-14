@@ -1,11 +1,11 @@
-name: Linter
+name: Tests
 
 # Trigger on push
 on: push
 
 jobs:
-  lint:
-    name: Run Linter
+  tests:
+    name: Run Tests
     runs-on: ubuntu-latest
 
     steps:
@@ -16,5 +16,5 @@ jobs:
         with:
           java-version: 1.8
 
-      - name: CheckStyle
-        run: mvn --no-transfer-progress checkstyle:check
+      - name: jUnit Tests
+        run: mvn --no-transfer-progress test

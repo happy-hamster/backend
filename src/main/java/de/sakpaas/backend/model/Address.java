@@ -39,10 +39,10 @@ public class Address {
   /**
    * Creates an Address from scratch. Can be saved newly into the database.
    *
-   * @param country country of the address
-   * @param city city of the address
-   * @param postcode postal code of the address
-   * @param street street of the address
+   * @param country     country of the address
+   * @param city        city of the address
+   * @param postcode    postal code of the address
+   * @param street      street of the address
    * @param housenumber house number of the address
    */
   public Address(String country, String city, String postcode, String street, String housenumber) {

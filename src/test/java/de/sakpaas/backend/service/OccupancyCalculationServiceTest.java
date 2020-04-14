@@ -1,22 +1,26 @@
 package de.sakpaas.backend.service;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import de.sakpaas.backend.HappyHamsterTest;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.Occupancy;
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.ComponentScan;
-
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Test;
+import org.junit.runner.RunWith;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.test.context.junit4.SpringRunner;
 
 @SpringBootTest
+@RunWith(SpringRunner.class)
 @ComponentScan
-class OccupancyCalculationServiceTest {
+class OccupancyCalculationServiceTest extends HappyHamsterTest {
 
-    private static Occupancy buildOccupancy(Location location, double occupancy, ZonedDateTime time) {
+    private static Occupancy buildOccupancy(Location location, double occupancy,
+                                            ZonedDateTime time) {
         Occupancy obj = new Occupancy(location, occupancy, "test");
         obj.setTimestamp(time);
         return obj;

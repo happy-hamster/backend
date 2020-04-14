@@ -1,15 +1,19 @@
 server:
   servlet:
-    application-display-name: SAKPaaS
+    application-display-name: HappyHamster
 spring:
   jpa:
     hibernate:
       ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
   datasource:
-    url: jdbc:postgresql://localhost:5432/postgres
-    username: postgres
-    password: SAKPaaS
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
 app:
+  search-api-url: https://nominatim.openstreetmap.org
   presence:
     duration: 20
   occupancy:
@@ -23,3 +27,22 @@ management:
     web:
       exposure:
         include: "*"
+keycloak:
+  auth-server-url: <Address of the cool Keycloak instance (ask Robert)>
+  realm: <super cool realm (ask Robert)>
+  resource: <mega cool resource (ask Robert)>
+  ssl-required: external
+  credentials:
+    secret: <Super Secret Client Secret (ask Robert)>
+  bearer-only: true
+  securityConstraints:
+    - authRoles:
+        - uma_authorization
+      securityCollections:
+        - patterns: /auth/*
+        - patterns: /v2/user/*
+    - securityCollections:
+        - patterns: /v1/*
+        - patterns: /v2/*
+        - patterns: /
+  enabled: false
