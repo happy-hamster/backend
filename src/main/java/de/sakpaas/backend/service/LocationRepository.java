@@ -13,7 +13,7 @@ public interface LocationRepository extends JpaRepository<Location, Long> {
   List<Location> findByLatitudeBetweenAndLongitudeBetween(Double latMin, Double latMax,
                                                           Double lonMin, Double lonMax);
 
-  @Query(value = "SELECT l.id FROM LOCATION l JOIN ADDRESS a ON l.address_id = a.id "
+  @Query(value = "SELECT loc.id FROM LOCATION loc JOIN ADDRESS a ON loc.address_id = a.id "
       + "WHERE a.country=(:country)", nativeQuery = true)
   List<Long> getAllIdsForCountry(@Param("country") String country);
 }

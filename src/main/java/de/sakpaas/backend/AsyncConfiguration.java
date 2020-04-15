@@ -23,7 +23,7 @@ public class AsyncConfiguration {
   public CompletableFuture<Executor> taskExecutor() {
     LOGGER.debug("Creating Async Task Executor");
     final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-    executor.setCorePoolSize(6);
+    executor.setCorePoolSize(2);
     executor.setMaxPoolSize(6);
     executor.setQueueCapacity(100);
     executor.setThreadNamePrefix("DatabaseCreationThread-");
