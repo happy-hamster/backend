@@ -29,6 +29,12 @@ class LocationRepositoryTest extends HappyHamsterTest {
 
   @Test
   public void testingGetByIdWithDependencyForAddressAndLocationDetails() {
+
+    locationRepository.deleteAll();
+    addressRepository.deleteAll();
+    locationDetailsRepository.deleteAll();
+
+
     Address address =
         new Address("testCountry", "testPostcode", "123456", "testStreet", "testNumber");
     Address savedAddress = addressRepository.save(address);
@@ -42,6 +48,10 @@ class LocationRepositoryTest extends HappyHamsterTest {
 
     Optional<Location> optionalLocation = locationRepository.findById(1L);
     assertThat(optionalLocation.isPresent()).isTrue();
+
+    locationRepository.deleteAll();
+    addressRepository.deleteAll();
+    locationDetailsRepository.deleteAll();
 
   }
 
