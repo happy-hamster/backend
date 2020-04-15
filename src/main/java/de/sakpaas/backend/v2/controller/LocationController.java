@@ -58,9 +58,9 @@ public class LocationController {
    * @param presenceService      The Presence Service
    */
   public LocationController(LocationService locationService,
-      OpenStreetMapService openStreetMapService,
-      LocationMapper locationMapper, OccupancyService occupancyService,
-      PresenceService presenceService) {
+                            OpenStreetMapService openStreetMapService,
+                            LocationMapper locationMapper, OccupancyService occupancyService,
+                            PresenceService presenceService) {
     this.locationService = locationService;
     this.openStreetMapService = openStreetMapService;
     this.locationMapper = locationMapper;
@@ -79,7 +79,8 @@ public class LocationController {
   @GetMapping
   @ResponseBody
   public ResponseEntity<List<LocationResultLocationDto>> getLocation(@RequestParam Double latitude,
-      @RequestParam Double longitude) {
+                                                                     @RequestParam
+                                                                         Double longitude) {
     List<Location> searchResult = locationService.findByCoordinates(latitude, longitude);
 
     if (searchResult.isEmpty()) {

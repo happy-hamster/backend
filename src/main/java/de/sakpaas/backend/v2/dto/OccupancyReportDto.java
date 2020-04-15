@@ -30,8 +30,8 @@ public class OccupancyReportDto {
    */
   @JsonCreator
   public OccupancyReportDto(@JsonProperty("locationId") Long locationId,
-      @JsonProperty("occupancy") Double occupancy,
-      @JsonProperty("clientType") String clientType) {
+                            @JsonProperty("occupancy") Double occupancy,
+                            @JsonProperty("clientType") String clientType) {
     this.locationId = locationId;
     this.occupancy = occupancy;
     this.clientType = clientType;

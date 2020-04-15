@@ -19,27 +19,27 @@ import org.springframework.test.context.junit4.SpringRunner;
 @ComponentScan
 class OccupancyCalculationServiceTest extends HappyHamsterTest {
 
-    private static Occupancy buildOccupancy(Location location, double occupancy,
-                                            ZonedDateTime time) {
-        Occupancy obj = new Occupancy(location, occupancy, "test");
-        obj.setTimestamp(time);
-        return obj;
-    }
+  private static Occupancy buildOccupancy(Location location, double occupancy,
+                                          ZonedDateTime time) {
+    Occupancy obj = new Occupancy(location, occupancy, "test");
+    obj.setTimestamp(time);
+    return obj;
+  }
 
-    @Test
-    void getAverageOccupancy() {
-        Location location = new Location(1L, "LIDL", 41.0D, 8.0D, null, null);
-        ZonedDateTime time = ZonedDateTime.now();
+  @Test
+  void getAverageOccupancy() {
+    Location location = new Location(1L, "LIDL", 41.0D, 8.0D, null, null);
+    ZonedDateTime time = ZonedDateTime.now();
 
-        List<Occupancy> occupancyList = new ArrayList<>();
-        occupancyList.add(buildOccupancy(location, 0.5, time.minusMinutes(15)));
-        occupancyList.add(buildOccupancy(location, 0.8, time.minusMinutes(30)));
-        occupancyList.add(buildOccupancy(location, 1.0, time.minusMinutes(45)));
+    List<Occupancy> occupancyList = new ArrayList<>();
+    occupancyList.add(buildOccupancy(location, 0.5, time.minusMinutes(15)));
+    occupancyList.add(buildOccupancy(location, 0.8, time.minusMinutes(30)));
+    occupancyList.add(buildOccupancy(location, 1.0, time.minusMinutes(45)));
 
-        assertTrue(1.0 > OccupancyService.calculateAverage(occupancyList, time));
-    }
+    assertTrue(1.0 > OccupancyService.calculateAverage(occupancyList, time));
+  }
 
-    @Test
+  @Test
     void bellCurve() {
         assertTrue(0.95 < OccupancyService.bellCurve(-15));
         assertTrue(1.0 > OccupancyService.bellCurve(-15));

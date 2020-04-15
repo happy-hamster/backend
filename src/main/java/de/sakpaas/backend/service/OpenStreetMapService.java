@@ -45,10 +45,11 @@ public class OpenStreetMapService {
    */
   @Autowired
   public OpenStreetMapService(LocationRepository locationRepository,
-      LocationDetailsService locationDetailsService,
-      AddressService addressService,
-      MeterRegistry meterRegistry, LocationApiSearchDas locationApiSearchDas,
-      LocationService locationService) {
+                              LocationDetailsService locationDetailsService,
+                              AddressService addressService,
+                              MeterRegistry meterRegistry,
+                              LocationApiSearchDas locationApiSearchDas,
+                              LocationService locationService) {
     this.locationRepository = locationRepository;
     this.locationDetailsService = locationDetailsService;
     this.addressService = addressService;
