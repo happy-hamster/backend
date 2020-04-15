@@ -158,7 +158,8 @@ class OccupancyServiceTest extends HappyHamsterTest {
         "The factor should be 1.0 at the beginning.");
     // Lower bound
     // Use -x as we are progressing backwards in time
-    double value = occupancyService.calculateAccumulationFactor(-TimeUnit.HOURS.toMinutes(TEST_DURATION_HOURS));
+    double value = occupancyService
+        .calculateAccumulationFactor(-TimeUnit.HOURS.toMinutes(TEST_DURATION_HOURS));
     assertTrue(value <= (1.05) * occupancyService.getConfigMinimum(),
         "After some time, the value should be near the minimum (5% margin).");
   }
