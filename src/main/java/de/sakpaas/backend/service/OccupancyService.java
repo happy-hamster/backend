@@ -6,38 +6,25 @@ import com.google.common.annotations.VisibleForTesting;
 import de.sakpaas.backend.model.AccumulatedOccupancy;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.Occupancy;
+import de.sakpaas.backend.util.OccupancyAccumulationConfiguration;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.List;
-import lombok.AccessLevel;
-import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-@Getter
 @Service
 public class OccupancyService {
 
-  @Getter(AccessLevel.PRIVATE)
   private final OccupancyRepository occupancyRepository;
-
-  @Value("${app.occupancy.duration}")
-  private int configDuration;
-  @Value("${app.occupancy.constant}")
-  private int configConstant;
-
-  @Value("${app.occupancy.minimum}")
-  private double configMinimum;
-  @Value("${app.occupancy.factorA}")
-  private double configFactorA;
-  @Value("${app.occupancy.factorB}")
-  private double configFactorB;
+  private final OccupancyAccumulationConfiguration config;
 
   @Autowired
-  public OccupancyService(OccupancyRepository occupancyRepository) {
+  public OccupancyService(OccupancyRepository occupancyRepository,
+                          OccupancyAccumulationConfiguration occupancyAccumulationConfiguration) {
     this.occupancyRepository = occupancyRepository;
+    this.config = occupancyAccumulationConfiguration;
   }
 
   /**
@@ -79,10 +66,10 @@ public class OccupancyService {
   @VisibleForTesting
   double calculateAccumulationFactor(double x) {
     // See documentation for a more understandable formula
-    double base = 1.0 + (1.0 / this.getConfigFactorA());
-    double exponent = -Math.pow(-x - this.getConfigConstant(), 2) / this.getConfigFactorB();
-    return (x < -this.getConfigConstant())
-        ? (1.0 - this.getConfigMinimum()) * Math.pow(base, exponent) + this.getConfigMinimum()
+    double base = 1.0 + (1.0 / config.getFactorA());
+    double exponent = -Math.pow(-x - config.getConstant(), 2) / config.getFactorB();
+    return (x < -config.getConstant())
+        ? (1.0 - config.getMinimum()) * Math.pow(base, exponent) + config.getMinimum()
         : 1;
   }
 
@@ -95,7 +82,7 @@ public class OccupancyService {
   public AccumulatedOccupancy getOccupancyCalculation(Location location) {
     ZonedDateTime time = now();
     List<Occupancy> occupancies = occupancyRepository.findByLocationAndTimestampAfter(location,
-        now().minusMinutes(this.getConfigDuration()));
+        now().minusMinutes(config.getDuration()));
 
     return new AccumulatedOccupancy(
         calculateAccumulatedOccupancy(occupancies, time),

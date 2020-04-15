@@ -8,6 +8,7 @@ import de.sakpaas.backend.HappyHamsterTest;
 import de.sakpaas.backend.model.AccumulatedOccupancy;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.Occupancy;
+import de.sakpaas.backend.util.OccupancyAccumulationConfiguration;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
@@ -29,6 +30,8 @@ class OccupancyServiceTest extends HappyHamsterTest {
 
   @Autowired
   OccupancyService occupancyService;
+  @Autowired
+  OccupancyAccumulationConfiguration config;
 
   @MockBean
   OccupancyRepository occupancyRepository;
@@ -107,7 +110,7 @@ class OccupancyServiceTest extends HappyHamsterTest {
   @Test
   void testCalculateFactorConstant() {
     // Test all minutes where the factor should be constant 1.0
-    for (int x = 0; x <= occupancyService.getConfigConstant(); x++) {
+    for (int x = 0; x <= config.getConstant(); x++) {
       // Use -x as we are progressing backwards in time
       assertEquals(1.0, occupancyService.calculateAccumulationFactor(-x),
           "The occupancy should stay at 1.0 for constant time.");
@@ -145,7 +148,7 @@ class OccupancyServiceTest extends HappyHamsterTest {
     for (int x = 0; x < TimeUnit.HOURS.toMinutes(TEST_DURATION_HOURS); x++) {
       // Use -x as we are progressing backwards in time
       double value = occupancyService.calculateAccumulationFactor(-x);
-      assertTrue(value >= occupancyService.getConfigMinimum(),
+      assertTrue(value >= config.getMinimum(),
           "The factor should never be smaller than the minimum.");
     }
   }
@@ -160,7 +163,7 @@ class OccupancyServiceTest extends HappyHamsterTest {
     // Use -x as we are progressing backwards in time
     double value = occupancyService
         .calculateAccumulationFactor(-TimeUnit.HOURS.toMinutes(TEST_DURATION_HOURS));
-    assertTrue(value <= (1.05) * occupancyService.getConfigMinimum(),
+    assertTrue(value <= (1.05) * config.getMinimum(),
         "After some time, the value should be near the minimum (5% margin).");
   }
 
