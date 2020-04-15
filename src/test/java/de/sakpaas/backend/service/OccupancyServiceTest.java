@@ -45,7 +45,7 @@ class OccupancyServiceTest extends HappyHamsterTest {
       // Create test data
       double reportedOccupancy = 0.5;
       ZonedDateTime offsetTimestamp = timestamp.minusMinutes(x);
-      Occupancy occupancy = new Occupancy(1L, location, reportedOccupancy, offsetTimestamp, "TEST");
+      Occupancy occupancy = makeOccupancy(1L, location, reportedOccupancy, offsetTimestamp, "TEST");
 
       // Mock test data
       Mockito.when(
@@ -75,9 +75,9 @@ class OccupancyServiceTest extends HappyHamsterTest {
       ZonedDateTime offsetTimestampMin = timestamp.minusMinutes(x + 1);
       ZonedDateTime offsetTimestampMax = timestamp.minusMinutes(x);
       Occupancy occupancyMin =
-          new Occupancy(1L, location, reportedOccupancyMin, offsetTimestampMin, "TEST_MIN");
+          makeOccupancy(1L, location, reportedOccupancyMin, offsetTimestampMin, "TEST_MIN");
       Occupancy occupancyMax =
-          new Occupancy(1L, location, reportedOccupancyMax, offsetTimestampMax, "TEST_MAX");
+          makeOccupancy(1L, location, reportedOccupancyMax, offsetTimestampMax, "TEST_MAX");
 
       // Mock test data
       Mockito.when(
@@ -142,8 +142,8 @@ class OccupancyServiceTest extends HappyHamsterTest {
         "The factor should be 1.0 at the beginning.");
     // Lower bound
     // Use -x as we are progressing backwards in time
-    double value = occupancyService.calculateFactor(- TimeUnit.HOURS.toMinutes(TEST_DURATION_HOURS));
-    assertTrue(value <= (1.05) * occupancyService.getConfigMinimum() ,
+    double value = occupancyService.calculateFactor(-TimeUnit.HOURS.toMinutes(TEST_DURATION_HOURS));
+    assertTrue(value <= (1.05) * occupancyService.getConfigMinimum(),
         "After some time, the value should be near the minimum (5% margin).");
   }
 
@@ -152,7 +152,7 @@ class OccupancyServiceTest extends HappyHamsterTest {
     // Create test data
     Location location = new Location();
     ZonedDateTime timestamp = ZonedDateTime.of(2020, 1, 1, 1, 1, 1, 1, ZoneId.of("Z"));
-    Occupancy occupancy = new Occupancy(1L, location, 0.0, timestamp, "TEST");
+    Occupancy occupancy = makeOccupancy(1L, location, 0.0, timestamp, "TEST");
 
     // Mock test data
     Mockito.when(occupancyRepository.save(occupancy)).thenReturn(occupancy);
@@ -161,5 +161,16 @@ class OccupancyServiceTest extends HappyHamsterTest {
     // (This test is really meaningless...)
     assertSame(occupancy, occupancyService.save(occupancy),
         "The saved occupancy should be the same occupancy returned.");
+  }
+
+  private Occupancy makeOccupancy(long id, Location location, double occupancy,
+                                  ZonedDateTime timestamp, String clientType) {
+    Occupancy object = new Occupancy();
+    object.setId(id);
+    object.setLocation(location);
+    object.setOccupancy(occupancy);
+    object.setTimestamp(timestamp);
+    object.setClientType(clientType);
+    return object;
   }
 }

@@ -15,8 +15,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-// AllArgsConstructor is needed for the tests
-@AllArgsConstructor
 @Entity(name = "OCCUPANCY")
 public class Occupancy {
 
