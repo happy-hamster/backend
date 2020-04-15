@@ -25,7 +25,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 class OccupancyServiceTest extends HappyHamsterTest {
 
-  private static int TEST_DURATION_HOURS = 12;
+  private final static int TEST_DURATION_HOURS = 12;
 
   @Autowired
   OccupancyService occupancyService;
