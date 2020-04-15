@@ -2,7 +2,6 @@ package de.sakpaas.backend.service;
 
 import com.google.common.util.concurrent.AtomicDouble;
 import de.sakpaas.backend.dto.OsmResultLocationListDto;
-import de.sakpaas.backend.dto.OsmResultLocationListDto.OsmResultLocationDto;
 import de.sakpaas.backend.model.Address;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.LocationDetails;
@@ -12,9 +11,12 @@ import io.micrometer.core.instrument.MeterRegistry;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import javax.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -32,6 +34,9 @@ public class OpenStreetMapService {
   private Counter importLocationInsertCounter;
   private Counter importLocationUpdateCounter;
   private Counter importLocationDeleteCounter;
+
+  @Value("${app.import.country}")
+  private String country;
 
   /**
    * Handles the OpenStreetMap database import and update.
@@ -103,6 +108,7 @@ public class OpenStreetMapService {
    * Makes a Request to the OverpassAPI, inserts or updates the Locations in the Database, deletes
    * the unused locations.
    */
+  @Transactional
   public void updateDatabase() {
     // Reset import progress
     importLocationProgress.set(0.0);
@@ -110,16 +116,18 @@ public class OpenStreetMapService {
 
     // Download data from OSM
     LOGGER.warn("Starting OSM import... (1/4)");
-    List<OsmResultLocationDto> results =
-        locationApiSearchDas.getLocationsForCountry("DE");
+    List<OsmResultLocationListDto.OsmResultLocationDto> results =
+        locationApiSearchDas.getLocationsForCountry(country);
     LOGGER.info("Finished receiving data from OSM! (1/4)");
+    LOGGER.info("received ({}) Locations for Country: ({}) from OSM", results.size(), country);
     // Checking if API Call has a legit result
-    if (results.size() < 1000) {
-      throw new IllegalStateException("API returns to few results! This doesn't seem right...");
+    if (results.size() < 10) {
+      throw new IllegalStateException(
+          "API returns too few results! This doesn't seem right...");
     }
 
     // Getting IDs stored in the Database right now
-    List<Long> locationIds = locationRepository.getAllIds();
+    List<Long> locationIds = locationRepository.getAllIdsForCountry(country);
     LOGGER.info("Pre Update Location Count: " + locationIds.size());
     // Sort data by id before import, inserts should be faster for sorted ids
     LOGGER.warn("Sorting OSM data... (2/4)");
@@ -130,19 +138,20 @@ public class OpenStreetMapService {
     LOGGER.warn("Importing OSM data to database... (3/4)");
     for (int i = 0; i < results.size(); i++) {
       OsmResultLocationListDto.OsmResultLocationDto osmLocation = results.get(i);
+      osmLocation.setCountry(country);
       if (locationIds.contains(osmLocation.getId())) {
         // Updating an existing Location
         updateLocation(osmLocation);
         importLocationUpdateCounter.increment();
         // Removing still existing database Ids from List
-        locationIds.remove(results.get(i).getId());
+        locationIds.remove(osmLocation.getId());
       } else {
         // Creating a Database Entry for a new Location
         createNewLocation(osmLocation);
         importLocationInsertCounter.increment();
       }
 
-      // Report importing progress
+      // Report
       double progress = ((double) i) / results.size();
       importLocationProgress.set(progress);
       if (i % 100 == 0) {
@@ -153,8 +162,15 @@ public class OpenStreetMapService {
 
     LOGGER.warn("Delete not existing Locations... (3/4)");
     for (int i = 0; i < locationIds.size(); i++) {
-      locationRepository.deleteById(locationIds.get(i));
-      importLocationDeleteCounter.increment();
+      try {
+        locationRepository
+            .findById(locationIds.get(i))
+            .ifPresent(locationService::delete);
+        importLocationDeleteCounter.increment();
+      } catch (Exception e) {
+        LOGGER.warn("An unknown error occurred while deleting Location with Id ({})",
+            locationIds.get(i), e);
+      }
 
       double progress = ((double) i) / locationIds.size();
       deleteLocationProgress.set(progress);
@@ -166,15 +182,18 @@ public class OpenStreetMapService {
     LOGGER.info("Finished deleting " + locationIds.size() + " not existing Locations! (3/4)");
 
     LOGGER.info("Finished data import from OSM! (4/4)");
+    int locationCount = locationRepository.getAllIdsForCountry(country).size();
+    LOGGER.info("After Update Location Count: ({})", locationCount);
   }
 
 
   /**
-   * Updates an existing Database Entry.
+   * Updating an existing Database Entry.
    *
    * @param osmLocation New Location
    */
-  private void updateLocation(OsmResultLocationListDto.OsmResultLocationDto osmLocation) {
+  @Async
+  public void updateLocation(OsmResultLocationListDto.OsmResultLocationDto osmLocation) {
     Optional<Location> optionalLocation = locationRepository.findById(osmLocation.getId());
     if (optionalLocation.isPresent()) {
       Location location = optionalLocation.get();
@@ -184,7 +203,6 @@ public class OpenStreetMapService {
       details.setBrand(osmLocation.getBrand());
       locationDetailsService.save(details);
 
-      locationDetailsService.save(details);
       Address address = location.getAddress();
       address.setCountry(osmLocation.getCountry());
       address.setCity(osmLocation.getCity());
@@ -204,11 +222,12 @@ public class OpenStreetMapService {
   }
 
   /**
-   * Creates a new Location Entry in the Database.
+   * Creating a new Location Entry in the Database.
    *
    * @param osmLocation Location that will be added to the Database
    */
-  private void createNewLocation(OsmResultLocationListDto.OsmResultLocationDto osmLocation) {
+  @Async
+  public void createNewLocation(OsmResultLocationListDto.OsmResultLocationDto osmLocation) {
     LocationDetails details = new LocationDetails(
         osmLocation.getType(),
         osmLocation.getOpeningHours(),

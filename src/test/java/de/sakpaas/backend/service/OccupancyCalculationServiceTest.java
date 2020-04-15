@@ -40,14 +40,14 @@ class OccupancyCalculationServiceTest extends HappyHamsterTest {
   }
 
   @Test
-    void bellCurve() {
-        assertTrue(0.95 < OccupancyService.bellCurve(-15));
-        assertTrue(1.0 > OccupancyService.bellCurve(-15));
+  void bellCurve() {
+    assertTrue(0.95 < OccupancyService.bellCurve(-15));
+    assertTrue(1.0 > OccupancyService.bellCurve(-15));
 
-        assertTrue(0.0 < OccupancyService.bellCurve(-30));
-        assertTrue(0.0 < OccupancyService.bellCurve(-45));
-        assertTrue(0.0 < OccupancyService.bellCurve(-60));
-        assertTrue(0.0 < OccupancyService.bellCurve(-105));
-        assertTrue(0.0 < OccupancyService.bellCurve(-120));
-    }
+    assertTrue(0.0 < OccupancyService.bellCurve(-30));
+    assertTrue(0.0 < OccupancyService.bellCurve(-45));
+    assertTrue(0.0 < OccupancyService.bellCurve(-60));
+    assertTrue(0.0 < OccupancyService.bellCurve(-105));
+    assertTrue(0.0 < OccupancyService.bellCurve(-120));
+  }
 }
