@@ -34,7 +34,7 @@ class OccupancyServiceTest extends HappyHamsterTest {
   OccupancyRepository occupancyRepository;
 
   @Test
-  void testGetOccupancyCalculation() {
+  void testGetOccupancyCalculationOneOccupancy() {
     Location location = new Location();
     ZonedDateTime timestamp = ZonedDateTime.of(2020, 1, 1, 1, 1, 1, 1, ZoneId.of("Z"));
 
@@ -62,6 +62,12 @@ class OccupancyServiceTest extends HappyHamsterTest {
       assertEquals(offsetTimestamp, accumulatedOccupancy.getLatestReport(),
           "The latest report should be the time of the only report.");
     }
+  }
+
+  @Test
+  void testGetOccupancyCalculationDecreasingFactor() {
+    Location location = new Location();
+    ZonedDateTime timestamp = ZonedDateTime.of(2020, 1, 1, 1, 1, 1, 1, ZoneId.of("Z"));
 
     // Test for TEST_DURATION_HOURS hours that the most recent occupancy report will
     // be more valuable than the others
@@ -99,14 +105,17 @@ class OccupancyServiceTest extends HappyHamsterTest {
   }
 
   @Test
-  void testCalculateFactor() {
+  void testCalculateFactorConstant() {
     // Test all minutes where the factor should be constant 1.0
     for (int x = 0; x <= occupancyService.getConfigConstant(); x++) {
       // Use -x as we are progressing backwards in time
       assertEquals(1.0, occupancyService.calculateAccumulationFactor(-x),
           "The occupancy should stay at 1.0 for constant time.");
     }
+  }
 
+  @Test
+  void testCalculateFactorMonotonicallyDecreasing() {
     // Test for TEST_DURATION_HOURS hours that the factor is monotonically decreasing
     double before = Double.MAX_VALUE;
     for (int x = 0; x < TimeUnit.HOURS.toMinutes(TEST_DURATION_HOURS); x++) {
@@ -117,7 +126,10 @@ class OccupancyServiceTest extends HappyHamsterTest {
       // Set new before
       before = value;
     }
+  }
 
+  @Test
+  void testCalculateFactorMaximumOne() {
     // Test for TEST_DURATION_HOURS hours that the factor is at most 1.0
     for (int x = 0; x < TimeUnit.HOURS.toMinutes(TEST_DURATION_HOURS); x++) {
       // Use -x as we are progressing backwards in time
@@ -125,7 +137,10 @@ class OccupancyServiceTest extends HappyHamsterTest {
       assertTrue(value <= 1.0,
           "The factor should never be exceed 1.0.");
     }
+  }
 
+  @Test
+  void testCalculateFactorMinimum() {
     // Test for TEST_DURATION_HOURS hours that the factor is always at least "minimum"
     for (int x = 0; x < TimeUnit.HOURS.toMinutes(TEST_DURATION_HOURS); x++) {
       // Use -x as we are progressing backwards in time
@@ -133,7 +148,10 @@ class OccupancyServiceTest extends HappyHamsterTest {
       assertTrue(value >= occupancyService.getConfigMinimum(),
           "The factor should never be smaller than the minimum.");
     }
+  }
 
+  @Test
+  void testCalculateFactorBounds() {
     // Test the bounds
     // Upper bound
     assertEquals(1.0, occupancyService.calculateAccumulationFactor(0),
