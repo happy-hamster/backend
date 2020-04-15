@@ -47,7 +47,7 @@ public class OccupancyService {
    * @param time        the time to calculate with
    * @return the average occupancy
    */
-  private Double calculateAverage(List<Occupancy> occupancies, ZonedDateTime time) {
+  private Double calculateAccumulatedOccupancy(List<Occupancy> occupancies, ZonedDateTime time) {
     // If there is no occupancy, we can't give an average
     if (occupancies.isEmpty()) {
       return null;
@@ -59,7 +59,7 @@ public class OccupancyService {
     for (Occupancy occupancy : occupancies) {
       // Calculate curve
       double minutes = ChronoUnit.MINUTES.between(time, occupancy.getTimestamp());
-      double factor = calculateFactor(minutes);
+      double factor = calculateAccumulationFactor(minutes);
 
       // Collect
       totalOccupancy += factor * occupancy.getOccupancy();
@@ -77,7 +77,7 @@ public class OccupancyService {
    * @return the y value
    */
   @VisibleForTesting
-  double calculateFactor(double x) {
+  double calculateAccumulationFactor(double x) {
     // See documentation for a more understandable formula
     double base = 1.0 + (1.0 / this.getConfigFactorA());
     double exponent = -Math.pow(-x - this.getConfigConstant(), 2) / this.getConfigFactorB();
@@ -98,7 +98,7 @@ public class OccupancyService {
         now().minusMinutes(this.getConfigDuration()));
 
     return new AccumulatedOccupancy(
-        calculateAverage(occupancies, time),
+        calculateAccumulatedOccupancy(occupancies, time),
         occupancies.size(),
         occupancies.stream()
             .map(Occupancy::getTimestamp)

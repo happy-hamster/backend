@@ -103,7 +103,7 @@ class OccupancyServiceTest extends HappyHamsterTest {
     // Test all minutes where the factor should be constant 1.0
     for (int x = 0; x <= occupancyService.getConfigConstant(); x++) {
       // Use -x as we are progressing backwards in time
-      assertEquals(1.0, occupancyService.calculateFactor(-x),
+      assertEquals(1.0, occupancyService.calculateAccumulationFactor(-x),
           "The occupancy should stay at 1.0 for constant time.");
     }
 
@@ -111,7 +111,7 @@ class OccupancyServiceTest extends HappyHamsterTest {
     double before = Double.MAX_VALUE;
     for (int x = 0; x < TimeUnit.HOURS.toMinutes(TEST_DURATION_HOURS); x++) {
       // Use -x as we are progressing backwards in time
-      double value = occupancyService.calculateFactor(-x);
+      double value = occupancyService.calculateAccumulationFactor(-x);
       assertTrue(value <= before,
           "The factor should be decreasing over time (or staying at the same level).");
       // Set new before
@@ -121,7 +121,7 @@ class OccupancyServiceTest extends HappyHamsterTest {
     // Test for TEST_DURATION_HOURS hours that the factor is at most 1.0
     for (int x = 0; x < TimeUnit.HOURS.toMinutes(TEST_DURATION_HOURS); x++) {
       // Use -x as we are progressing backwards in time
-      double value = occupancyService.calculateFactor(-x);
+      double value = occupancyService.calculateAccumulationFactor(-x);
       assertTrue(value <= 1.0,
           "The factor should never be exceed 1.0.");
     }
@@ -129,18 +129,18 @@ class OccupancyServiceTest extends HappyHamsterTest {
     // Test for TEST_DURATION_HOURS hours that the factor is always at least "minimum"
     for (int x = 0; x < TimeUnit.HOURS.toMinutes(TEST_DURATION_HOURS); x++) {
       // Use -x as we are progressing backwards in time
-      double value = occupancyService.calculateFactor(-x);
+      double value = occupancyService.calculateAccumulationFactor(-x);
       assertTrue(value >= occupancyService.getConfigMinimum(),
           "The factor should never be smaller than the minimum.");
     }
 
     // Test the bounds
     // Upper bound
-    assertEquals(1.0, occupancyService.calculateFactor(0),
+    assertEquals(1.0, occupancyService.calculateAccumulationFactor(0),
         "The factor should be 1.0 at the beginning.");
     // Lower bound
     // Use -x as we are progressing backwards in time
-    double value = occupancyService.calculateFactor(-TimeUnit.HOURS.toMinutes(TEST_DURATION_HOURS));
+    double value = occupancyService.calculateAccumulationFactor(-TimeUnit.HOURS.toMinutes(TEST_DURATION_HOURS));
     assertTrue(value <= (1.05) * occupancyService.getConfigMinimum(),
         "After some time, the value should be near the minimum (5% margin).");
   }
