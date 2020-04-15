@@ -65,6 +65,7 @@ class OccupancyServiceTest extends HappyHamsterTest {
           "The latest report should be the time of the only report.");
     }
 
+    // Test for TEST_DURATION_HOURS hours that the most recent occupancy report will
     // be more valuable than the others
     for (int x = 0; x < TimeUnit.HOURS.toMinutes(TEST_DURATION_HOURS); x++) {
       // Create test data
