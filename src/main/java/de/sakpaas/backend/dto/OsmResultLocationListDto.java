@@ -36,10 +36,10 @@ public class OsmResultLocationListDto {
      */
     @JsonCreator
     public OsmResultLocationDto(@JsonProperty("id") long id,
-        @JsonProperty("lat") double lat,
-        @JsonProperty("lon") double lon,
-        @JsonProperty("center") OsmResultCoordinatesDto center,
-        @JsonProperty("tags") OsmResultTagsDto tags) {
+                                @JsonProperty("lat") double lat,
+                                @JsonProperty("lon") double lon,
+                                @JsonProperty("center") OsmResultCoordinatesDto center,
+                                @JsonProperty("tags") OsmResultTagsDto tags) {
       this.id = id;
       this.tags = tags;
       this.coordinates = (center != null) ? center : new OsmResultCoordinatesDto(lat, lon);
@@ -81,6 +81,9 @@ public class OsmResultLocationListDto {
       return tags.getOpeningHours();
     }
 
+    public void setCountry(String country) {
+      tags.setCountry(country);
+    }
   }
 
   @Getter
@@ -92,7 +95,7 @@ public class OsmResultLocationListDto {
 
     @JsonCreator
     public OsmResultCoordinatesDto(@JsonProperty("lat") double lat,
-        @JsonProperty("lon") double lon) {
+                                   @JsonProperty("lon") double lon) {
       this.lat = lat;
       this.lon = lon;
     }
@@ -129,15 +132,15 @@ public class OsmResultLocationListDto {
      */
     @JsonCreator
     public OsmResultTagsDto(@JsonProperty("name") String name,
-        @JsonProperty("addr:street") String street,
-        @JsonProperty("addr:housenumber") String housenumber,
-        @JsonProperty("addr:postcode") String postcode,
-        @JsonProperty("addr:city") String city,
-        @JsonProperty("addr:country") String country,
-        @JsonProperty("addr:place") String place,
-        @JsonProperty("shop") String type,
-        @JsonProperty("brand") String brand,
-        @JsonProperty("opening_hours") String openingHours) {
+                            @JsonProperty("addr:street") String street,
+                            @JsonProperty("addr:housenumber") String housenumber,
+                            @JsonProperty("addr:postcode") String postcode,
+                            @JsonProperty("addr:city") String city,
+                            @JsonProperty("addr:country") String country,
+                            @JsonProperty("addr:place") String place,
+                            @JsonProperty("shop") String type,
+                            @JsonProperty("brand") String brand,
+                            @JsonProperty("opening_hours") String openingHours) {
       this.name = name;
       this.street = street != null ? street : place;
       this.housenumber = housenumber;
@@ -147,6 +150,10 @@ public class OsmResultLocationListDto {
       this.type = type;
       this.brand = brand;
       this.openingHours = openingHours;
+    }
+
+    public void setCountry(String country) {
+      this.country = country;
     }
   }
 }

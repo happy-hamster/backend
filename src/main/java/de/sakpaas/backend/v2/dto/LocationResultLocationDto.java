@@ -34,13 +34,13 @@ public class LocationResultLocationDto {
    */
   @JsonCreator
   public LocationResultLocationDto(@JsonProperty("id") long id,
-      @JsonProperty("name") String name,
-      @JsonProperty("details")
-          LocationResultLocationDetailsDto details,
-      @JsonProperty("coordinates")
-          LocationResultCoordinatesDto coordinates,
-      @JsonProperty("occupancy") LocationResultOccupancyDto occupancy,
-      @JsonProperty("address") LocationResultAddressDto address) {
+                                   @JsonProperty("name") String name,
+                                   @JsonProperty("details")
+                                       LocationResultLocationDetailsDto details,
+                                   @JsonProperty("coordinates")
+                                       LocationResultCoordinatesDto coordinates,
+                                   @JsonProperty("occupancy") LocationResultOccupancyDto occupancy,
+                                   @JsonProperty("address") LocationResultAddressDto address) {
     this.id = id;
     this.name = (name != null) ? name : "Supermarkt";
     this.details = details;

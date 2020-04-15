@@ -14,8 +14,8 @@ public class LocationDetailsService {
     this.locationDetailsRepository = locationDetailsRepository;
   }
 
-  public void save(LocationDetails address) {
-    locationDetailsRepository.save(address);
+  public LocationDetails save(LocationDetails address) {
+    return locationDetailsRepository.save(address);
   }
 
 }

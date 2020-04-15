@@ -26,6 +26,8 @@ app:
     # Factors of the bell curve (0 < factor)
     factorA: 30
     factorB: 150
+  import:
+    country: ${IMPORT_COUNTRY:"DE"}
   version: dev
   commit: dev
 management:
