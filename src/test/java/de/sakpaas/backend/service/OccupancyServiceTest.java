@@ -24,7 +24,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-@ComponentScan
 class OccupancyServiceTest extends HappyHamsterTest {
 
   private static int TEST_DURATION_HOURS = 12;
