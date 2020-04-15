@@ -10,13 +10,12 @@ import lombok.NoArgsConstructor;
 
 /*
  * @Data beinhaltet verschiedene Annotationen (z.B. @Getter, @Setter)
- * 
+ *
  *       Da diese Annotation auch die @RequiredArgsConstructor beinhaltet ist hier
- *       kein @NoArgsConstructor mehr nötig
+ *       @NoArgsConstructor noch notwendig, da Lombok nicht weiß, dass Spring den hier braucht
  */
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 @Entity(name = "ADDRESS")
 public class Address {
 

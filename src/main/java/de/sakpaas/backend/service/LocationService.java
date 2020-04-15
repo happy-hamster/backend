@@ -1,5 +1,6 @@
 package de.sakpaas.backend.service;
 
+import com.google.common.annotations.VisibleForTesting;
 import de.sakpaas.backend.dto.NominatimSearchResultListDto;
 import de.sakpaas.backend.dto.NominatimSearchResultListDto.NominatimResultLocationDto;
 import de.sakpaas.backend.model.Location;
@@ -20,6 +21,8 @@ import org.springframework.web.client.RestTemplate;
 public class LocationService {
 
   private final LocationRepository locationRepository;
+  private final PresenceRepository presenceRepository;
+  private final OccupancyRepository occupancyRepository;
 
   @Value("${app.search-api-url}")
   private String searchApiUrl;
@@ -30,8 +33,12 @@ public class LocationService {
    * @param locationRepository The Location Repository
    */
   @Autowired
-  public LocationService(LocationRepository locationRepository) {
+  public LocationService(LocationRepository locationRepository,
+                         PresenceRepository presenceRepository,
+                         OccupancyRepository occupancyRepository) {
     this.locationRepository = locationRepository;
+    this.presenceRepository = presenceRepository;
+    this.occupancyRepository = occupancyRepository;
   }
 
   /**
@@ -93,7 +100,19 @@ public class LocationService {
    *
    * @param location Location that will be saved
    */
-  public void save(Location location) {
-    locationRepository.save(location);
+  public Location save(Location location) {
+    return locationRepository.save(location);
+  }
+
+  /**
+   * Deletes the given Location and all depending entities.
+   *
+   * @param location Location that needs to be deleted
+   */
+  @VisibleForTesting
+  protected void delete(Location location) {
+    occupancyRepository.findByLocation(location).forEach(occupancyRepository::delete);
+    presenceRepository.findByLocation(location).forEach(presenceRepository::delete);
+    locationRepository.delete(location);
   }
 }
