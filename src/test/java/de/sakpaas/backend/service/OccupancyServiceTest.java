@@ -1,53 +1,164 @@
 package de.sakpaas.backend.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import de.sakpaas.backend.HappyHamsterTest;
+import de.sakpaas.backend.model.AccumulatedOccupancy;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.Occupancy;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @ComponentScan
-class OccupancyCalculationServiceTest extends HappyHamsterTest {
+class OccupancyServiceTest extends HappyHamsterTest {
 
-    private static Occupancy buildOccupancy(Location location, double occupancy,
-                                            ZonedDateTime time) {
-        Occupancy obj = new Occupancy(location, occupancy, "test");
-        obj.setTimestamp(time);
-        return obj;
+  private static int TEST_DURATION_HOURS = 12;
+
+  @Autowired
+  OccupancyService occupancyService;
+
+  @MockBean
+  OccupancyRepository occupancyRepository;
+
+  @Test
+  void testGetOccupancyCalculation() {
+    Location location = new Location();
+    ZonedDateTime timestamp = ZonedDateTime.of(2020, 1, 1, 1, 1, 1, 1, ZoneId.of("Z"));
+
+    // Test for TEST_DURATION_HOURS hours that occupancy will be equals when only one is entered
+    for (int x = 0; x < TimeUnit.HOURS.toMinutes(TEST_DURATION_HOURS); x++) {
+      // Create test data
+      double reportedOccupancy = 0.5;
+      ZonedDateTime offsetTimestamp = timestamp.minusMinutes(x);
+      Occupancy occupancy = new Occupancy(1L, location, reportedOccupancy, offsetTimestamp, "TEST");
+
+      // Mock test data
+      Mockito.when(
+          occupancyRepository.findByLocationAndTimestampAfter(Mockito.eq(location), Mockito.any())
+      ).thenReturn(Collections.singletonList(occupancy));
+
+      // Run calculation
+      AccumulatedOccupancy accumulatedOccupancy =
+          occupancyService.getOccupancyCalculation(location);
+
+      // Test result
+      assertEquals(reportedOccupancy, accumulatedOccupancy.getValue(),
+          "The reported occupancy should be equal to the calculated occupancy.");
+      assertEquals(1, accumulatedOccupancy.getCount(),
+          "The count of the occupancy reports should be 1.");
+      assertEquals(offsetTimestamp, accumulatedOccupancy.getLatestReport(),
+          "The latest report should be the time of the only report.");
     }
 
-    @Test
-    void getAverageOccupancy() {
-        Location location = new Location(1L, "LIDL", 41.0D, 8.0D, null, null);
-        ZonedDateTime time = ZonedDateTime.now();
+    // be more valuable than the others
+    for (int x = 0; x < TimeUnit.HOURS.toMinutes(TEST_DURATION_HOURS); x++) {
+      // Create test data
+      double reportedOccupancyMin = 0.0;
+      double reportedOccupancyMax = 1.0;
+      double reportedOccupancyAvg = (reportedOccupancyMin + reportedOccupancyMax) / 2.0;
+      ZonedDateTime offsetTimestampMin = timestamp.minusMinutes(x + 1);
+      ZonedDateTime offsetTimestampMax = timestamp.minusMinutes(x);
+      Occupancy occupancyMin =
+          new Occupancy(1L, location, reportedOccupancyMin, offsetTimestampMin, "TEST_MIN");
+      Occupancy occupancyMax =
+          new Occupancy(1L, location, reportedOccupancyMax, offsetTimestampMax, "TEST_MAX");
 
-        List<Occupancy> occupancyList = new ArrayList<>();
-        occupancyList.add(buildOccupancy(location, 0.5, time.minusMinutes(15)));
-        occupancyList.add(buildOccupancy(location, 0.8, time.minusMinutes(30)));
-        occupancyList.add(buildOccupancy(location, 1.0, time.minusMinutes(45)));
+      // Mock test data
+      Mockito.when(
+          occupancyRepository.findByLocationAndTimestampAfter(Mockito.eq(location), Mockito.any())
+      ).thenReturn(
+          Arrays.asList(occupancyMin, occupancyMax)
+      );
 
-        assertTrue(1.0 > OccupancyService.calculateAverage(occupancyList, time));
+      // Run calculation
+      AccumulatedOccupancy accumulatedOccupancy =
+          occupancyService.getOccupancyCalculation(location);
+
+      // Test result
+      assertTrue(accumulatedOccupancy.getValue() >= reportedOccupancyAvg,
+          "The reported occupancy should be always greater or equal to the average.");
+      assertEquals(2, accumulatedOccupancy.getCount(),
+          "The count of the occupancy reports should be 1.");
+      assertEquals(offsetTimestampMax, accumulatedOccupancy.getLatestReport(),
+          "The latest report should be the time of the latest occupancy.");
+    }
+  }
+
+  @Test
+  void testCalculateFactor() {
+    // Test all minutes where the factor should be constant 1.0
+    for (int x = 0; x <= occupancyService.getConfigConstant(); x++) {
+      // Use -x as we are progressing backwards in time
+      assertEquals(1.0, occupancyService.calculateFactor(-x),
+          "The occupancy should stay at 1.0 for constant time.");
     }
 
-    @Test
-    void bellCurve() {
-        assertTrue(0.95 < OccupancyService.bellCurve(-15));
-        assertTrue(1.0 > OccupancyService.bellCurve(-15));
-
-        assertTrue(0.0 < OccupancyService.bellCurve(-30));
-        assertTrue(0.0 < OccupancyService.bellCurve(-45));
-        assertTrue(0.0 < OccupancyService.bellCurve(-60));
-        assertTrue(0.0 < OccupancyService.bellCurve(-105));
-        assertTrue(0.0 < OccupancyService.bellCurve(-120));
+    // Test for TEST_DURATION_HOURS hours that the factor is monotonically decreasing
+    double before = Double.MAX_VALUE;
+    for (int x = 0; x < TimeUnit.HOURS.toMinutes(TEST_DURATION_HOURS); x++) {
+      // Use -x as we are progressing backwards in time
+      double value = occupancyService.calculateFactor(-x);
+      assertTrue(value <= before,
+          "The factor should be decreasing over time (or staying at the same level).");
+      // Set new before
+      before = value;
     }
+
+    // Test for TEST_DURATION_HOURS hours that the factor is at most 1.0
+    for (int x = 0; x < TimeUnit.HOURS.toMinutes(TEST_DURATION_HOURS); x++) {
+      // Use -x as we are progressing backwards in time
+      double value = occupancyService.calculateFactor(-x);
+      assertTrue(value <= 1.0,
+          "The factor should never be exceed 1.0.");
+    }
+
+    // Test for TEST_DURATION_HOURS hours that the factor is always at least "minimum"
+    for (int x = 0; x < TimeUnit.HOURS.toMinutes(TEST_DURATION_HOURS); x++) {
+      // Use -x as we are progressing backwards in time
+      double value = occupancyService.calculateFactor(-x);
+      assertTrue(value >= occupancyService.getConfigMinimum(),
+          "The factor should never be smaller than the minimum.");
+    }
+
+    // Test the bounds
+    // Upper bound
+    assertEquals(1.0, occupancyService.calculateFactor(0),
+        "The factor should be 1.0 at the beginning.");
+    // Lower bound
+    // Use -x as we are progressing backwards in time
+    double value = occupancyService.calculateFactor(- TimeUnit.HOURS.toMinutes(TEST_DURATION_HOURS));
+    assertTrue(value <= (1.05) * occupancyService.getConfigMinimum() ,
+        "After some time, the value should be near the minimum (5% margin).");
+  }
+
+  @Test
+  void testSave() {
+    // Create test data
+    Location location = new Location();
+    ZonedDateTime timestamp = ZonedDateTime.of(2020, 1, 1, 1, 1, 1, 1, ZoneId.of("Z"));
+    Occupancy occupancy = new Occupancy(1L, location, 0.0, timestamp, "TEST");
+
+    // Mock test data
+    Mockito.when(occupancyRepository.save(occupancy)).thenReturn(occupancy);
+
+    // Test
+    // (This test is really meaningless...)
+    assertSame(occupancy, occupancyService.save(occupancy),
+        "The saved occupancy should be the same occupancy returned.");
+  }
 }

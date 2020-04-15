@@ -2,6 +2,7 @@ package de.sakpaas.backend.service;
 
 import static java.time.ZonedDateTime.now;
 
+import com.google.common.annotations.VisibleForTesting;
 import de.sakpaas.backend.model.AccumulatedOccupancy;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.Occupancy;
@@ -9,20 +10,30 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.List;
+import lombok.AccessLevel;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+@Getter
 @Service
 public class OccupancyService {
 
-  public static final double FACTOR_A = 2 * 20 ^ 2;
-  public static final double FACTOR_B = 1.0 / Math.sqrt(2.0 * Math.PI * Math.pow(0.4, 2));
-
+  @Getter(AccessLevel.PRIVATE)
   private final OccupancyRepository occupancyRepository;
 
   @Value("${app.occupancy.duration}")
-  private int confDuration;
+  private int configDuration;
+  @Value("${app.occupancy.constant}")
+  private int configConstant;
+
+  @Value("${app.occupancy.minimum}")
+  private double configMinimum;
+  @Value("${app.occupancy.factorA}")
+  private double configFactorA;
+  @Value("${app.occupancy.factorB}")
+  private double configFactorB;
 
   @Autowired
   public OccupancyService(OccupancyRepository occupancyRepository) {
@@ -36,25 +47,19 @@ public class OccupancyService {
    * @param time        the time to calculate with
    * @return the average occupancy
    */
-  public static Double calculateAverage(List<Occupancy> occupancies, ZonedDateTime time) {
+  private Double calculateAverage(List<Occupancy> occupancies, ZonedDateTime time) {
     // If there is no occupancy, we can't give an average
     if (occupancies.isEmpty()) {
       return null;
     }
 
-    // After this deadline we have to factor in the bell curve
-    ZonedDateTime deadline = time.minusMinutes(15);
-
     // Collect all occupancies and factors
     double totalOccupancy = 0.0;
     double totalFactor = 0.0;
     for (Occupancy occupancy : occupancies) {
-      double factor = 1.0;
-      // Calculate factor if necessary
-      if (occupancy.getTimestamp().isBefore(deadline)) {
-        double minutes = ChronoUnit.MINUTES.between(time, occupancy.getTimestamp());
-        factor = bellCurve(minutes);
-      }
+      // Calculate curve
+      double minutes = ChronoUnit.MINUTES.between(time, occupancy.getTimestamp());
+      double factor = calculateFactor(minutes);
 
       // Collect
       totalOccupancy += factor * occupancy.getOccupancy();
@@ -71,8 +76,14 @@ public class OccupancyService {
    * @param x the x value
    * @return the y value
    */
-  public static double bellCurve(double x) {
-    return FACTOR_B * Math.exp(-Math.pow(-x - 15, 2) / FACTOR_A);
+  @VisibleForTesting
+  double calculateFactor(double x) {
+    // See documentation for a more understandable formula
+    double base = 1.0 + (1.0 / this.getConfigFactorA());
+    double exponent = -Math.pow(-x - this.getConfigConstant(), 2) / this.getConfigFactorB();
+    return (x < -this.getConfigConstant())
+        ? (1.0 - this.getConfigMinimum()) * Math.pow(base, exponent) + this.getConfigMinimum()
+        : 1;
   }
 
   /**
@@ -84,12 +95,14 @@ public class OccupancyService {
   public AccumulatedOccupancy getOccupancyCalculation(Location location) {
     ZonedDateTime time = now();
     List<Occupancy> occupancies = occupancyRepository.findByLocationAndTimestampAfter(location,
-        now().minusMinutes(confDuration));
+        now().minusMinutes(this.getConfigDuration()));
 
     return new AccumulatedOccupancy(
         calculateAverage(occupancies, time),
         occupancies.size(),
-        occupancies.stream().map(Occupancy::getTimestamp).max(Comparator.naturalOrder())
+        occupancies.stream()
+            .map(Occupancy::getTimestamp)
+            .max(Comparator.naturalOrder())
             .orElse(null)
     );
   }
@@ -99,7 +112,7 @@ public class OccupancyService {
    *
    * @param occupancy the occupancy
    */
-  public void save(Occupancy occupancy) {
-    occupancyRepository.save(occupancy);
+  public Occupancy save(Occupancy occupancy) {
+    return occupancyRepository.save(occupancy);
   }
 }
