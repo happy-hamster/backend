@@ -86,7 +86,7 @@ public class Expect {
    */
   public static void throwError(HttpStatus httpStatus, String message, String textId,
       Object... replacers) {
-    throw new ApplicationException(httpStatus, message, textId, replacers);
+    throw new ApplicationException(httpStatus, message, false, textId, replacers);
   }
 
   /**
@@ -96,6 +96,6 @@ public class Expect {
    * @param message the message shown in the console/log
    */
   public static void throwInternalError(String message) {
-    throw new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, message, null);
+    throw new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, message, true, null);
   }
 }

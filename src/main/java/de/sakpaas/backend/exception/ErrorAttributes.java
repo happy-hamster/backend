@@ -69,8 +69,6 @@ public class ErrorAttributes extends DefaultErrorAttributes {
   @Override
   public Map<String, Object> getErrorAttributes(WebRequest webRequest, boolean includeStackTrace) {
     Map<String, Object> errorAttributes = super.getErrorAttributes(webRequest, includeStackTrace);
-    // httpStatus of the error
-    int errorCode = (int) errorAttributes.get("status");
     errorAttributes.remove("message"); // removal of springs default message
     Throwable throwable = super.getError(webRequest);
     // unknown error unless it gets specified in the following code
@@ -85,8 +83,8 @@ public class ErrorAttributes extends DefaultErrorAttributes {
       // if the exception is one of our exceptions we have to replace the textId
       if (throwable instanceof ApplicationException) {
         ApplicationException appException = (ApplicationException) throwable;
-        // 500 errors are internal error -> not communicated to frontend
-        if (errorCode == 500) {
+        // internal error -> not communicated to frontend
+        if (appException.isInternal()) {
           message = getErrorMessage(INTERNAL_ERROR_ID);
           errorType = INTERNAL_ERROR_TYPE;
         } else {
@@ -104,6 +102,8 @@ public class ErrorAttributes extends DefaultErrorAttributes {
         errorType = NO_PERMISSION_ERROR_TYPE;
       }
     } else {
+      // httpStatus of the error
+      int errorCode = (int) errorAttributes.get("status");
       switch (errorCode) {
         // Accessing Resources that do no exist
         case 404:
