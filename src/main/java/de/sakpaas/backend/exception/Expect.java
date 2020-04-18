@@ -90,12 +90,23 @@ public class Expect {
   }
 
   /**
-   * Used to throw an internal error that is useful for other developers. This one does not need a
-   * text ID and will send a default message to the frontend
+   * Used to throw an internal error. This one does not need a text ID and will send a default
+   * message to the frontend
+   * 
+   * @param httpStatus status of the error that will be in the response
+   * @param message the message shown in the console/log
+   */
+  public static void throwInternalError(HttpStatus httpStatus, String message) {
+    throw new ApplicationException(httpStatus, message, true, null);
+  }
+
+  /**
+   * Used to throw an internal error. This one does not need a text ID and will send a default
+   * message to the frontend. Status default: Internal Server Error
    * 
    * @param message the message shown in the console/log
    */
   public static void throwInternalError(String message) {
-    throw new ApplicationException(HttpStatus.INTERNAL_SERVER_ERROR, message, true, null);
+    throwInternalError(HttpStatus.INTERNAL_SERVER_ERROR, message);
   }
 }
