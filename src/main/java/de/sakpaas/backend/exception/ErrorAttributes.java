@@ -39,9 +39,9 @@ public class ErrorAttributes extends DefaultErrorAttributes {
 
 
   /**
-   * The String that will be the prefix for the parameters.
+   * The String that is used as the prefix for the replacers.
    */
-  private static final String SPLIT = "%%";
+  private static final String REPLACER = "%%";
 
   /**
    * Returns the message that corresponds to the given textId.
@@ -99,7 +99,7 @@ public class ErrorAttributes extends DefaultErrorAttributes {
           errorType = DEFAULT_ERROR_TYPE;
           // setting the parameters of the message
           for (int i = replacers.length - 1; i >= 0; i--) {
-            message = message.replace(SPLIT + i, String.valueOf(replacers[i]));
+            message = message.replace(REPLACER + i, String.valueOf(replacers[i]));
           }
         }
       } else if (throwable instanceof AccessDeniedException) {
