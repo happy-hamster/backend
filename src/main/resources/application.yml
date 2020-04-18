@@ -1,19 +1,33 @@
 server:
   servlet:
-    application-display-name: SAKPaaS
+    application-display-name: HappyHamster
 spring:
   jpa:
     hibernate:
       ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
   datasource:
-    url: jdbc:postgresql://localhost:5432/postgres
-    username: postgres
-    password: SAKPaaS
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
 app:
+  search-api-url: https://nominatim.openstreetmap.org
   presence:
     duration: 20
   occupancy:
+    # The amount of minutes an AccumulatedOccupancy contains
     duration: 300
+    # The amount of minutes an Occupancy should have a factor of 1.0
+    constant: 15
+    # The minimum factor for an Occupancy
+    minimum: 0.05
+    # Factors of the bell curve (0 < factor)
+    factorA: 30
+    factorB: 150
+  import:
+    country: ${IMPORT_COUNTRY:"DE"}
   version: dev
   commit: dev
 management:
@@ -23,3 +37,22 @@ management:
     web:
       exposure:
         include: "*"
+keycloak:
+  auth-server-url: <Address of the cool Keycloak instance (ask Robert)>
+  realm: <super cool realm (ask Robert)>
+  resource: <mega cool resource (ask Robert)>
+  ssl-required: external
+  credentials:
+    secret: <Super Secret Client Secret (ask Robert)>
+  bearer-only: true
+  securityConstraints:
+    - authRoles:
+        - uma_authorization
+      securityCollections:
+        - patterns: /auth/*
+        - patterns: /v2/user/*
+    - securityCollections:
+        - patterns: /v1/*
+        - patterns: /v2/*
+        - patterns: /
+  enabled: false

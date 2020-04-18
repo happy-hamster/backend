@@ -7,8 +7,12 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Component
 public class InterceptorAppConfig implements WebMvcConfigurer {
+  private final RequestInterceptor requestInterceptor;
+
   @Autowired
-  RequestInterceptor requestInterceptor;
+  public InterceptorAppConfig(RequestInterceptor requestInterceptor) {
+    this.requestInterceptor = requestInterceptor;
+  }
 
   @Override
   public void addInterceptors(InterceptorRegistry registry) {

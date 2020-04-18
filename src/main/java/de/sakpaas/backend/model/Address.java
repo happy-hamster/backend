@@ -7,6 +7,12 @@ import javax.persistence.Id;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/*
+ * @Data beinhaltet verschiedene Annotationen (z.B. @Getter, @Setter)
+ *
+ *       Da diese Annotation auch die @RequiredArgsConstructor beinhaltet ist hier
+ *       @NoArgsConstructor noch notwendig, da Lombok nicht weiß, dass Spring den hier braucht
+ */
 @Data
 @NoArgsConstructor
 @Entity(name = "ADDRESS")
@@ -35,10 +41,10 @@ public class Address {
   /**
    * Creates an Address from scratch. Can be saved newly into the database.
    *
-   * @param country country of the address
-   * @param city city of the address
-   * @param postcode postal code of the address
-   * @param street street of the address
+   * @param country     country of the address
+   * @param city        city of the address
+   * @param postcode    postal code of the address
+   * @param street      street of the address
    * @param housenumber house number of the address
    */
   public Address(String country, String city, String postcode, String street, String housenumber) {

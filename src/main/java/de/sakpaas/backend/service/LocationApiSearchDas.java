@@ -14,13 +14,15 @@ public class LocationApiSearchDas {
   /**
    * Gets all Locations in a Country (currently only Germany).
    *
-   * @param countryCode currently Dummy as lookup for area id is missing
+   * @param countryCode ISO3166-1:alpha2 Code
    * @return list of supermarkets in Country
    */
   public List<OsmResultLocationListDto.OsmResultLocationDto> getLocationsForCountry(
       String countryCode) {
+    // TODO: lookup of areaId by countryCode from overpass-api (TINF-70)
     final String url =
-        "https://overpass-api.de/api/interpreter?data=[out:json][timeout:2500];area(3600051477)->.searchArea;("
+        "https://overpass-api.de/api/interpreter?data=[out:json][timeout:2500];"
+            + "area[\"ISO3166-1:alpha2\"=" + countryCode + "]->.searchArea;("
             + "node[shop=supermarket](area.searchArea);way[shop=supermarket](area.searchArea);"
             + "node[shop=chemist](area.searchArea);way[shop=chemist](area.searchArea);"
             + "node[shop=beverages](area.searchArea);way[shop=beverages](area.searchArea);"
