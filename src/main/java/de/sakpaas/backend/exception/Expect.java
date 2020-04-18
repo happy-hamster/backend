@@ -5,12 +5,6 @@ import org.springframework.http.HttpStatus;
 public class Expect {
 
   /**
-   * The String that will be used to split textId and parameters so it can be used in the error
-   * management.
-   */
-  static final String SPLIT = "%%";
-
-  /**
    * Throws an {@link ApplicationException} if the Object in param "obj" is null.
    * 
    * @param obj The object that should be non null

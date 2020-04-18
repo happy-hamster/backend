@@ -37,6 +37,12 @@ public class ErrorAttributes extends DefaultErrorAttributes {
   @Value("${app.exceptions.debug}")
   private boolean printException;
 
+
+  /**
+   * The String that will be the prefix for the parameters.
+   */
+  private static final String SPLIT = "%%";
+
   /**
    * Returns the message that corresponds to the given textId.
    * 
@@ -55,7 +61,7 @@ public class ErrorAttributes extends DefaultErrorAttributes {
       case UNKNOWN_RESOURCE_ID:
         return "Die angeforderte Resource existiert nicht.";
       case "no_location":
-        return "Es existiert keine Location mit der ID %%0";
+        return "Es existiert keine Location mit der ID %%0, %%1, %%2";
       default:
         return null;
     }
@@ -92,8 +98,8 @@ public class ErrorAttributes extends DefaultErrorAttributes {
           Object[] replacers = appException.getReplacers();
           errorType = DEFAULT_ERROR_TYPE;
           // setting the parameters of the message
-          for (int i = 0; i < replacers.length; i++) {
-            message = message.replace(Expect.SPLIT + i, String.valueOf(replacers[i]));
+          for (int i = replacers.length - 1; i >= 0; i--) {
+            message = message.replace(SPLIT + i, String.valueOf(replacers[i]));
           }
         }
       } else if (throwable instanceof AccessDeniedException) {
