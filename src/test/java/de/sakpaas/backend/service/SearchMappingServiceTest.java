@@ -41,8 +41,6 @@ public class SearchMappingServiceTest extends HappyHamsterTest {
 
   @Test
   public void testCalcCenter() {
-//    final NominatimResultLocationDto internalList1 = new NominatimResultLocationDto(1, "3", "5");
-//    final NominatimResultLocationDto internalList2 = new NominatimResultLocationDto(1, "3", "5");
     final NominatimResultLocationDto internalList1 = new NominatimResultLocationDto(3, 5);
     final NominatimResultLocationDto internalList2 = new NominatimResultLocationDto(5, 3);
 
@@ -73,15 +71,11 @@ public class SearchMappingServiceTest extends HappyHamsterTest {
 
   @Test
   public void testResultMap() {
-//    final String url = "https://nominatim.openstreetmap.org/search/Rewe%20Limburgerhof?format=json";
-//    final String url = "https://nominatim.openstreetmap.org/search/Limburgerhof?format=json";
     final String url = "https://nominatim.openstreetmap.org/search/Edeka%20Hochdorf?format=json";
     final List<NominatimResultLocationDto> resultList = searchMappingService.makeRequest(url);
     LOGGER.info(resultList.toString());
     final Map<String, Double> center = searchMappingService.calculateCenter(resultList);
     LOGGER.info(center.toString());
-//    assertEquals(49.4251245, center.get("lat"));
-//    assertEquals(8.395376, center.get("lon"));
     assert (center.get("lat") > 0);
     assert (center.get("lon") > 0);
   }
@@ -91,9 +85,9 @@ public class SearchMappingServiceTest extends HappyHamsterTest {
     String url = "https://nominatim.openstreetmap.org/search/Mannheim?format=json";
     assertNotEquals("[]", searchMappingService.makeRequest(url).toString());
     LOGGER.info(searchMappingService.makeRequest(url).toString());
-//    url = "https://nominatim.openstreetmap.org/search/Rewe?format=json";
-//    assertNotEquals("[]", searchMappingService.makeRequest(url).toString());
-//    url = "https://nominatim.openstreetmap.org/search/Limburgerhof?format=json";
-//    assertNotEquals("[]", searchMappingService.makeRequest(url).toString());
+    url = "https://nominatim.openstreetmap.org/search/Rewe?format=json";
+    assertNotEquals("[]", searchMappingService.makeRequest(url).toString());
+    url = "https://nominatim.openstreetmap.org/search/Limburgerhof?format=json";
+    assertNotEquals("[]", searchMappingService.makeRequest(url).toString());
   }
 }

@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.DefaultUriBuilderFactory;
 
 @Service
 public class SearchMappingService {
@@ -40,7 +41,11 @@ public class SearchMappingService {
    */
   @VisibleForTesting
   protected List<NominatimResultLocationDto> makeRequest(String url) {
+    DefaultUriBuilderFactory defaultUriBuilderFactory = new DefaultUriBuilderFactory();
+    defaultUriBuilderFactory.setEncodingMode(DefaultUriBuilderFactory.EncodingMode.NONE);
+
     RestTemplate restTemplate = new RestTemplate();
+    restTemplate.setUriTemplateHandler(defaultUriBuilderFactory);
     ResponseEntity<NominatimSearchResultListDto> response =
         restTemplate.getForEntity(url, NominatimSearchResultListDto.class);
 

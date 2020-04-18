@@ -11,9 +11,13 @@ import de.sakpaas.backend.service.LocationService;
 import de.sakpaas.backend.service.OccupancyService;
 import de.sakpaas.backend.service.OpenStreetMapService;
 import de.sakpaas.backend.service.PresenceService;
+import de.sakpaas.backend.service.SearchService;
+import de.sakpaas.backend.service.SearchService.SearchResultObject;
 import de.sakpaas.backend.v2.dto.LocationResultLocationDto;
 import de.sakpaas.backend.v2.dto.OccupancyReportDto;
+import de.sakpaas.backend.v2.dto.SearchResultDto;
 import de.sakpaas.backend.v2.mapper.LocationMapper;
+import de.sakpaas.backend.v2.mapper.SearchResultMapper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -39,11 +43,12 @@ public class LocationController {
   private static final String MAPPING_POST_CHECKIN = "/{locationId}/check-in";
   private static final String MAPPING_BY_ID = "/{locationId}";
   private static final String MAPPING_START_DATABASE = "/generate/{key}";
-  //TODO:  private static final String MAPPING_SEARCH_LOCATION = "/search/{key}";
+  private static final String MAPPING_SEARCH_LOCATION = "/search/{key}";
   private final LocationService locationService;
-  //TODO:  private final SearchService searchService;
+  private final SearchService searchService;
   private final OpenStreetMapService openStreetMapService;
   private final LocationMapper locationMapper;
+  private final SearchResultMapper searchResultMapper;
   private final OccupancyService occupancyService;
   private final PresenceService presenceService;
   private final AtomicBoolean importState;
@@ -56,18 +61,22 @@ public class LocationController {
    *                             for searching the database
    * @param openStreetMapService The OpenStreetMap Service
    * @param locationMapper       An OSM Location to Location Mapper
+   * @param searchResultMapper   TODO
    * @param occupancyService     The Occupancy Service
    * @param presenceService      The Presence Service
    */
   public LocationController(LocationService locationService,
-//    TODO:  SearchService searchService,
+      SearchService searchService,
       OpenStreetMapService openStreetMapService,
-      LocationMapper locationMapper, OccupancyService occupancyService,
+      LocationMapper locationMapper,
+      SearchResultMapper searchResultMapper,
+      OccupancyService occupancyService,
       PresenceService presenceService) {
     this.locationService = locationService;
-//  TODO:   this.searchService = searchService;
+    this.searchService = searchService;
     this.openStreetMapService = openStreetMapService;
     this.locationMapper = locationMapper;
+    this.searchResultMapper = searchResultMapper;
     this.occupancyService = occupancyService;
     this.presenceService = presenceService;
     this.importState = new AtomicBoolean(false);
@@ -186,10 +195,10 @@ public class LocationController {
     return ResponseEntity.ok("Success");
   }
 
-//  @GetMapping(value = MAPPING_SEARCH_LOCATION)
-//  public ResponseEntity<List<LocationResultLocationDto>> searchForLocations(
-//      @PathVariable("key") String key) {
-//// TODO:   List<Location> locations = searchService.search(key);
-////  TODO:  return new ResponseEntity<>(locationMapper.mapToOutputDto(locations), OK);
-//  }
+  @GetMapping(value = MAPPING_SEARCH_LOCATION)
+  public ResponseEntity<SearchResultDto> searchForLocations(
+      @PathVariable("key") String key) {
+    final SearchResultObject resultObject = searchService.search(key);
+    return new ResponseEntity<>(searchResultMapper.mapToOutputDto(resultObject), OK);
+  }
 }
