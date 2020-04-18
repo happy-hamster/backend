@@ -39,8 +39,9 @@ public class LocationController {
   private static final String MAPPING_POST_CHECKIN = "/{locationId}/check-in";
   private static final String MAPPING_BY_ID = "/{locationId}";
   private static final String MAPPING_START_DATABASE = "/generate/{key}";
-  private static final String MAPPING_SEARCH_LOCATION = "/search/{key}";
+  //TODO:  private static final String MAPPING_SEARCH_LOCATION = "/search/{key}";
   private final LocationService locationService;
+  //TODO:  private final SearchService searchService;
   private final OpenStreetMapService openStreetMapService;
   private final LocationMapper locationMapper;
   private final OccupancyService occupancyService;
@@ -51,17 +52,20 @@ public class LocationController {
   /**
    * Constructor that injects the needed dependencies.
    *
-   * @param locationService      The Location Service
+   * @param locationService      The Location Service //   * @param searchService        The Service
+   *                             for searching the database
    * @param openStreetMapService The OpenStreetMap Service
    * @param locationMapper       An OSM Location to Location Mapper
    * @param occupancyService     The Occupancy Service
    * @param presenceService      The Presence Service
    */
   public LocationController(LocationService locationService,
-                            OpenStreetMapService openStreetMapService,
-                            LocationMapper locationMapper, OccupancyService occupancyService,
-                            PresenceService presenceService) {
+//    TODO:  SearchService searchService,
+      OpenStreetMapService openStreetMapService,
+      LocationMapper locationMapper, OccupancyService occupancyService,
+      PresenceService presenceService) {
     this.locationService = locationService;
+//  TODO:   this.searchService = searchService;
     this.openStreetMapService = openStreetMapService;
     this.locationMapper = locationMapper;
     this.occupancyService = occupancyService;
@@ -79,8 +83,8 @@ public class LocationController {
   @GetMapping
   @ResponseBody
   public ResponseEntity<List<LocationResultLocationDto>> getLocation(@RequestParam Double latitude,
-                                                                     @RequestParam
-                                                                         Double longitude) {
+      @RequestParam
+          Double longitude) {
     List<Location> searchResult = locationService.findByCoordinates(latitude, longitude);
 
     if (searchResult.isEmpty()) {
@@ -182,10 +186,10 @@ public class LocationController {
     return ResponseEntity.ok("Success");
   }
 
-  @GetMapping(value = MAPPING_SEARCH_LOCATION)
-  public ResponseEntity<List<LocationResultLocationDto>> searchForLocations(
-      @PathVariable("key") String key) {
-    List<Location> locations = locationService.search(key);
-    return new ResponseEntity<>(locationMapper.mapToOutputDto(locations), OK);
-  }
+//  @GetMapping(value = MAPPING_SEARCH_LOCATION)
+//  public ResponseEntity<List<LocationResultLocationDto>> searchForLocations(
+//      @PathVariable("key") String key) {
+//// TODO:   List<Location> locations = searchService.search(key);
+////  TODO:  return new ResponseEntity<>(locationMapper.mapToOutputDto(locations), OK);
+//  }
 }

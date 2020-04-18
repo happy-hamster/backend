@@ -8,7 +8,7 @@ import lombok.Getter;
 @Getter
 public class NominatimSearchResultListDto {
 
-  private List<NominatimResultLocationDto> elements;
+  private final List<NominatimResultLocationDto> elements;
 
   @JsonCreator
   public NominatimSearchResultListDto(List<NominatimResultLocationDto> elements) {
@@ -18,17 +18,30 @@ public class NominatimSearchResultListDto {
   @Getter
   public static class NominatimResultLocationDto {
 
-    private long osmId;
+    private final double lat;
+    private final double lon;
 
+    /**
+     * Default constructor.
+     *
+     * @param lat The latitude of the locations coordinates
+     * @param lon The longitude of the locations coordinates
+     */
     @JsonCreator
     public NominatimResultLocationDto(
-        @JsonProperty("osm_id") long osmId
+        @JsonProperty("lat") double lat,
+        @JsonProperty("lon") double lon
     ) {
-      this.osmId = osmId;
+      this.lat = lat;
+      this.lon = lon;
     }
 
-    public long getOsmId() {
-      return osmId;
+    @Override
+    public String toString() {
+      return "NominatimResultLocationDto{" +
+          "lat=" + lat +
+          ", lon=" + lon +
+          '}';
     }
   }
 }
