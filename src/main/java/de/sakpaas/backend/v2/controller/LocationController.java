@@ -5,6 +5,7 @@ import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 
 import de.sakpaas.backend.BackendApplication;
+import de.sakpaas.backend.exception.Expect;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.Occupancy;
 import de.sakpaas.backend.service.LocationService;
@@ -105,9 +106,7 @@ public class LocationController {
       @PathVariable("locationId") Long locationId) {
     Location location = locationService.getById(locationId).orElse(null);
 
-    if (location == null) {
-      return ResponseEntity.notFound().build();
-    }
+    Expect.notNull(location, HttpStatus.NOT_FOUND, "no_location", locationId);
 
     return new ResponseEntity<>(locationMapper.mapToOutputDto(location), OK);
   }

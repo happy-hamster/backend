@@ -53,9 +53,9 @@ public class ErrorAttributes extends DefaultErrorAttributes {
         return "Du hast keine Berechtigung dies zu tun.";
       case UNKNOWN_RESOURCE_ID:
         return "Die angeforderte Resource existiert nicht.";
-      case "example_with_params":
+      case "no_location":
         // TODO Remove example as soon as there is a message with parameters. Just for reference
-        return "Fehler aufgetreten. %%0 ist Param[0] %%1 ist Param[1] etc...";
+        return "Es existiert keine Location mit der ID %%0";
       default:
         return null;
     }
