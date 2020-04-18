@@ -26,6 +26,7 @@ public class ErrorAttributes extends DefaultErrorAttributes {
   private static final String UNKNOWN_RESOURCE_ERROR_TYPE = "resource";
   private static final String NOT_AUTHENTICATED_ERROR_TYPE = "authentication";
 
+
   // TextIds that are used inside this class
   private static final String UNKNOWN_ERROR_ID = "unknown_error";
   private static final String INTERNAL_ERROR_ID = "internal_error";
@@ -83,18 +84,19 @@ public class ErrorAttributes extends DefaultErrorAttributes {
       }
       // if the exception is one of our exceptions we have to replace the textId
       if (throwable instanceof ApplicationException) {
-        // 500 and larger errors are internal error - not communicated to frontend
-        if (errorCode >= 500) {
+        ApplicationException appException = (ApplicationException) throwable;
+        // 500 errors are internal error -> not communicated to frontend
+        if (errorCode == 500) {
           message = getErrorMessage(INTERNAL_ERROR_ID);
           errorType = INTERNAL_ERROR_TYPE;
         } else {
-          // Splitting textId and parameters
-          String[] split = throwable.getMessage().split(Expect.SPLIT);
-          message = getErrorMessage(split[0]);
+          // getting the message of the corresponding textId
+          message = getErrorMessage(appException.getTextId());
+          Object[] replacers = appException.getReplacers();
           errorType = DEFAULT_ERROR_TYPE;
           // setting the parameters of the message
-          for (int i = 1; i < split.length; i++) {
-            message = message.replace(Expect.SPLIT + (i - 1), split[i]);
+          for (int i = 0; i < replacers.length; i++) {
+            message = message.replace(Expect.SPLIT + i, String.valueOf(replacers[i]));
           }
         }
       } else if (throwable instanceof AccessDeniedException) {
