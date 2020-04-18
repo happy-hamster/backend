@@ -55,7 +55,6 @@ public class ErrorAttributes extends DefaultErrorAttributes {
       case UNKNOWN_RESOURCE_ID:
         return "Die angeforderte Resource existiert nicht.";
       case "no_location":
-        // TODO Remove example as soon as there is a message with parameters. Just for reference
         return "Es existiert keine Location mit der ID %%0";
       default:
         return null;

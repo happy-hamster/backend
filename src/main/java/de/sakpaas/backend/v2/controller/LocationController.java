@@ -3,6 +3,7 @@ package de.sakpaas.backend.v2.controller;
 import static java.util.stream.Collectors.toList;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
+
 import de.sakpaas.backend.BackendApplication;
 import de.sakpaas.backend.exception.Expect;
 import de.sakpaas.backend.model.Location;
