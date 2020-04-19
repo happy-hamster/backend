@@ -102,6 +102,7 @@ public class ErrorAttributes extends DefaultErrorAttributes {
             message = message.replace(REPLACER + i, String.valueOf(replacers[i]));
           }
         }
+        // Having no permission to access resources
       } else if (throwable instanceof AccessDeniedException) {
         message = getErrorMessage(NO_PERMISSION_ERROR_ID);
         errorType = NO_PERMISSION_ERROR_TYPE;
@@ -115,6 +116,7 @@ public class ErrorAttributes extends DefaultErrorAttributes {
           message = getErrorMessage(UNKNOWN_RESOURCE_ID);
           errorType = UNKNOWN_RESOURCE_ERROR_TYPE;
           break;
+        // Accessing resources while not being logged in
         case 403:
           message = getErrorMessage(NOT_AUTHENTICATED_ID);
           errorType = NOT_AUTHENTICATED_ERROR_TYPE;

@@ -4,13 +4,17 @@ import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
+/**
+ * Exception that will is used by the Expect class in order to throw errors throughout the whole
+ * application. It is possible to create new exceptions based on extending this class
+ */
 public class ApplicationException extends ResponseStatusException {
 
   private static final long serialVersionUID = 1L;
 
   @Getter
   private boolean internal;
-  
+
   @Getter
   private String textId;
 
@@ -19,7 +23,7 @@ public class ApplicationException extends ResponseStatusException {
 
 
   /**
-   * Creates and ApplicationException with the given values.
+   * Creates an ApplicationException with the given values.
    * 
    * @param status the response status that will be send
    * @param message the message that will be in the log
