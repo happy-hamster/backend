@@ -40,18 +40,5 @@ public class NominatimSearchResultListDto {
       this.lat = lat;
       this.lon = lon;
     }
-
-    /**
-     * Converts a NomiatimResultLocationDto to a string object
-     *
-     * @return Returns the string representation of a NomiatimResultLocationDto
-     */
-    @Override
-    public String toString() {
-      return "NominatimResultLocationDto{" +
-          "lat=" + lat +
-          ", lon=" + lon +
-          '}';
-    }
   }
 }

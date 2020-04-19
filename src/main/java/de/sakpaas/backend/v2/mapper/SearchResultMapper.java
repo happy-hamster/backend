@@ -18,7 +18,7 @@ public class SearchResultMapper {
   private final OccupancyService occupancyService;
 
   /**
-   * Maps the search result object to a SearchResultDto
+   * Maps the search result object to a SearchResultDto.
    *
    * @param occupancyService The occupancy service
    */

@@ -12,7 +12,7 @@ public class LocationMapper {
   private final OccupancyService occupancyService;
 
   /**
-   * Maps a Location to a LocationResultLocationDto
+   * Maps a Location to a LocationResultLocationDto.
    *
    * @param occupancyService The occupancy service
    */
