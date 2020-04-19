@@ -26,4 +26,15 @@ public class Favorite {
   @JoinColumn(name = "LOCATION_ID", referencedColumnName = "ID", nullable = false)
   @ManyToOne
   private Location location;
+
+  /**
+   * Constructor for creating new Favorites.
+   *
+   * @param userUuid the UUID of the user for which the favorite is for
+   * @param location the Location of the Favorite
+   */
+  public Favorite(UUID userUuid, Location location) {
+    this.userUuid = userUuid;
+    this.location = location;
+  }
 }
