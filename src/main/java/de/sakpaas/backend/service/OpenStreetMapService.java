@@ -5,6 +5,7 @@ import de.sakpaas.backend.dto.OsmResultLocationListDto;
 import de.sakpaas.backend.model.Address;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.LocationDetails;
+import de.sakpaas.backend.util.ShoptypeListConfig;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -38,6 +39,8 @@ public class OpenStreetMapService {
   @Value("${app.import.country}")
   private String country;
 
+  private ShoptypeListConfig shoptypeListConfig;
+
   /**
    * Handles the OpenStreetMap database import and update.
    *
@@ -54,13 +57,15 @@ public class OpenStreetMapService {
                               AddressService addressService,
                               MeterRegistry meterRegistry,
                               LocationApiSearchDas locationApiSearchDas,
-                              LocationService locationService) {
+                              LocationService locationService,
+                              ShoptypeListConfig shoptypeListConfig) {
     this.locationRepository = locationRepository;
     this.locationDetailsService = locationDetailsService;
     this.addressService = addressService;
     this.locationApiSearchDas = locationApiSearchDas;
     this.meterRegistry = meterRegistry;
     this.locationService = locationService;
+    this.shoptypeListConfig = shoptypeListConfig;
 
     this.importLocationProgress = new AtomicDouble();
     this.deleteLocationProgress = new AtomicDouble();
@@ -117,7 +122,7 @@ public class OpenStreetMapService {
     // Download data from OSM
     LOGGER.warn("Starting OSM import... (1/4)");
     List<OsmResultLocationListDto.OsmResultLocationDto> results =
-        locationApiSearchDas.getLocationsForCountry(country);
+        locationApiSearchDas.getLocationsForCountry(country, shoptypeListConfig);
     LOGGER.info("Finished receiving data from OSM! (1/4)");
     LOGGER.info("received ({}) Locations for Country: ({}) from OSM", results.size(), country);
     // Checking if API Call has a legit result

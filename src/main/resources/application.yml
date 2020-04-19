@@ -28,6 +28,10 @@ app:
     factorB: 150
   import:
     country: ${IMPORT_COUNTRY:"DE"}
+    shoptypes:
+      - supermarket
+      - chemist
+      - beverages
   version: dev
   commit: dev
 management:
