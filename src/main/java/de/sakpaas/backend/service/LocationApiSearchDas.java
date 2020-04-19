@@ -19,7 +19,6 @@ public class LocationApiSearchDas {
    */
   public List<OsmResultLocationListDto.OsmResultLocationDto> getLocationsForCountry(
       String countryCode) {
-    // TODO: lookup of areaId by countryCode from overpass-api (TINF-70)
     final String url =
         "https://overpass-api.de/api/interpreter?data=[out:json][timeout:2500];"
             + "area[\"ISO3166-1:alpha2\"=" + countryCode + "]->.searchArea;("
