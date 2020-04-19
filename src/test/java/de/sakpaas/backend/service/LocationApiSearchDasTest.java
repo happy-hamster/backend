@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import de.sakpaas.backend.HappyHamsterTest;
 import de.sakpaas.backend.dto.OsmResultLocationListDto;
-import de.sakpaas.backend.util.ImportConfiguration;
+import de.sakpaas.backend.util.OsmImportConfiguration;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -24,7 +24,7 @@ class LocationApiSearchDasTest extends HappyHamsterTest {
 
   @Test
   void testEmptyShoptypeList() {
-    ImportConfiguration importConfiguration = new ImportConfiguration();
+    OsmImportConfiguration importConfiguration = new OsmImportConfiguration();
 
 
     importConfiguration.setShoptypes(new ArrayList<>());

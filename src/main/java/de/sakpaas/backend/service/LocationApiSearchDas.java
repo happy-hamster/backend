@@ -3,7 +3,7 @@ package de.sakpaas.backend.service;
 import static java.util.Collections.emptyList;
 
 import de.sakpaas.backend.dto.OsmResultLocationListDto;
-import de.sakpaas.backend.util.ImportConfiguration;
+import de.sakpaas.backend.util.OsmImportConfiguration;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -16,25 +16,26 @@ public class LocationApiSearchDas {
   /**
    * Gets all Locations of specific types in a specific Country.
    *
-   * @param importConfiguration Object which contains all information about the data to load
+   * @param osmImportConfiguration Object which contains all information about the data to load
    * @return list of supermarkets in Country
    */
   public List<OsmResultLocationListDto.OsmResultLocationDto> getLocationsForCountry(
-      ImportConfiguration importConfiguration) {
+      OsmImportConfiguration osmImportConfiguration) {
     // TODO: lookup of areaId by countryCode from overpass-api (TINF-70)
 
     // If no location types specified, there is nothing to load
-    if (importConfiguration.getShoptypes().size() == 0) {
+    if (osmImportConfiguration.getShoptypes().size() == 0) {
       return emptyList();
     }
 
     // build request string
     StringBuilder url =
-        new StringBuilder("https://overpass-api.de/api/interpreter?data=[out:json][timeout:2500];"
-            + "area[\"ISO3166-1:alpha2\"=" + importConfiguration.getCountry() + "]->.searchArea;(");
+        new StringBuilder("https://overpass-api.de/api/interpreter?data=[out:json][timeout:2500];")
+            .append("area[\"ISO3166-1:alpha2\"=").append(osmImportConfiguration.getCountry())
+            .append("]->.searchArea;(");
 
     // Add shoptypes from configuration
-    for (String shoptype : importConfiguration.getShoptypes()) {
+    for (String shoptype : osmImportConfiguration.getShoptypes()) {
       url.append("node[shop=").append(shoptype).append("](area.searchArea);way[shop=")
           .append(shoptype).append("](area.searchArea);");
     }

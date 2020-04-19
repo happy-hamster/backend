@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 @Data
 @Configuration
 @ConfigurationProperties(prefix = "app.import")
-public class ImportConfiguration {
+public class OsmImportConfiguration {
 
   private String country;
 
