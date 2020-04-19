@@ -25,6 +25,8 @@ class LocationApiSearchDasTest extends HappyHamsterTest {
   @Test
   void testEmptyShoptypeList() {
     ImportConfiguration importConfiguration = new ImportConfiguration();
+
+
     importConfiguration.setShoptypes(new ArrayList<>());
     List<OsmResultLocationListDto.OsmResultLocationDto> results =
         locationApiSearchDas.getLocationsForCountry(importConfiguration);

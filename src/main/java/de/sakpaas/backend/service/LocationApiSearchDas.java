@@ -14,7 +14,7 @@ public class LocationApiSearchDas {
 
 
   /**
-   * Gets all Locations in a Country (currently only Germany).
+   * Gets all Locations of specific types in a specific Country.
    *
    * @param importConfiguration Object which contains all information about the data to load
    * @return list of supermarkets in Country
@@ -22,13 +22,16 @@ public class LocationApiSearchDas {
   public List<OsmResultLocationListDto.OsmResultLocationDto> getLocationsForCountry(
       ImportConfiguration importConfiguration) {
     // TODO: lookup of areaId by countryCode from overpass-api (TINF-70)
-    StringBuilder url =
-        new StringBuilder("https://overpass-api.de/api/interpreter?data=[out:json][timeout:2500];"
-            + "area[\"ISO3166-1:alpha2\"=" + importConfiguration.getCountry() + "]->.searchArea;(");
 
+    // If no location types specified, there is nothing to load
     if (importConfiguration.getShoptypes().size() == 0) {
       return emptyList();
     }
+
+    // build request string
+    StringBuilder url =
+        new StringBuilder("https://overpass-api.de/api/interpreter?data=[out:json][timeout:2500];"
+            + "area[\"ISO3166-1:alpha2\"=" + importConfiguration.getCountry() + "]->.searchArea;(");
 
     // Add shoptypes from configuration
     for (String shoptype : importConfiguration.getShoptypes()) {
@@ -38,7 +41,7 @@ public class LocationApiSearchDas {
 
     url.append(");out center;");
 
-
+    // make request
     RestTemplate restTemplate = new RestTemplate();
     ResponseEntity<OsmResultLocationListDto> response =
         restTemplate.getForEntity(url.toString(), OsmResultLocationListDto.class);
@@ -49,4 +52,5 @@ public class LocationApiSearchDas {
 
     return response.getBody().getElements();
   }
+
 }
