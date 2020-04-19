@@ -1,6 +1,5 @@
 package de.sakpaas.backend.service;
 
-
 import com.google.common.annotations.VisibleForTesting;
 import de.sakpaas.backend.dto.NominatimSearchResultListDto;
 import de.sakpaas.backend.dto.NominatimSearchResultListDto.NominatimResultLocationDto;
@@ -17,7 +16,7 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
 @Service
 public class SearchMappingService {
 
-  @Value("@{app.search-api-url}")
+  @Value("${app.searchApiUrl}")
   private String searchApiUrl;
 
   /**
