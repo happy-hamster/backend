@@ -9,7 +9,9 @@ import org.springframework.context.annotation.Configuration;
 @Data
 @Configuration
 @ConfigurationProperties(prefix = "app.import")
-public class ShoptypeListConfig {
+public class ImportConfiguration {
+
+  private String country;
 
   private List<String> shoptypes = new ArrayList<>();
 

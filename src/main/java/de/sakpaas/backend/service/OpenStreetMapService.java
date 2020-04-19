@@ -5,7 +5,7 @@ import de.sakpaas.backend.dto.OsmResultLocationListDto;
 import de.sakpaas.backend.model.Address;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.LocationDetails;
-import de.sakpaas.backend.util.ShoptypeListConfig;
+import de.sakpaas.backend.util.ImportConfiguration;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -16,7 +16,6 @@ import javax.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -36,10 +35,7 @@ public class OpenStreetMapService {
   private Counter importLocationUpdateCounter;
   private Counter importLocationDeleteCounter;
 
-  @Value("${app.import.country}")
-  private String country;
-
-  private ShoptypeListConfig shoptypeListConfig;
+  private ImportConfiguration shoptypeListConfig;
 
   /**
    * Handles the OpenStreetMap database import and update.
@@ -58,7 +54,7 @@ public class OpenStreetMapService {
                               MeterRegistry meterRegistry,
                               LocationApiSearchDas locationApiSearchDas,
                               LocationService locationService,
-                              ShoptypeListConfig shoptypeListConfig) {
+                              ImportConfiguration shoptypeListConfig) {
     this.locationRepository = locationRepository;
     this.locationDetailsService = locationDetailsService;
     this.addressService = addressService;
@@ -122,9 +118,10 @@ public class OpenStreetMapService {
     // Download data from OSM
     LOGGER.warn("Starting OSM import... (1/4)");
     List<OsmResultLocationListDto.OsmResultLocationDto> results =
-        locationApiSearchDas.getLocationsForCountry(country, shoptypeListConfig);
+        locationApiSearchDas.getLocationsForCountry(shoptypeListConfig);
     LOGGER.info("Finished receiving data from OSM! (1/4)");
-    LOGGER.info("received ({}) Locations for Country: ({}) from OSM", results.size(), country);
+    LOGGER.info("received ({}) Locations for Country: ({}) from OSM", results.size(),
+        shoptypeListConfig.getCountry());
     // Checking if API Call has a legit result
     if (results.size() < 10) {
       throw new IllegalStateException(
@@ -132,7 +129,8 @@ public class OpenStreetMapService {
     }
 
     // Getting IDs stored in the Database right now
-    List<Long> locationIds = locationRepository.getAllIdsForCountry(country);
+    List<Long> locationIds =
+        locationRepository.getAllIdsForCountry(shoptypeListConfig.getCountry());
     LOGGER.info("Pre Update Location Count: " + locationIds.size());
     // Sort data by id before import, inserts should be faster for sorted ids
     LOGGER.warn("Sorting OSM data... (2/4)");
@@ -143,7 +141,7 @@ public class OpenStreetMapService {
     LOGGER.warn("Importing OSM data to database... (3/4)");
     for (int i = 0; i < results.size(); i++) {
       OsmResultLocationListDto.OsmResultLocationDto osmLocation = results.get(i);
-      osmLocation.setCountry(country);
+      osmLocation.setCountry(shoptypeListConfig.getCountry());
       if (locationIds.contains(osmLocation.getId())) {
         // Updating an existing Location
         updateLocation(osmLocation);
@@ -187,7 +185,8 @@ public class OpenStreetMapService {
     LOGGER.info("Finished deleting " + locationIds.size() + " not existing Locations! (3/4)");
 
     LOGGER.info("Finished data import from OSM! (4/4)");
-    int locationCount = locationRepository.getAllIdsForCountry(country).size();
+    int locationCount =
+        locationRepository.getAllIdsForCountry(shoptypeListConfig.getCountry()).size();
     LOGGER.info("After Update Location Count: ({})", locationCount);
   }
 
