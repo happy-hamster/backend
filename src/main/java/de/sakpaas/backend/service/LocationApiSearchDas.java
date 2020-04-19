@@ -20,6 +20,7 @@ public class LocationApiSearchDas {
    * @return list of supermarkets in Country
    */
   public List<OsmResultLocationListDto.OsmResultLocationDto> getLocationsForCountry(
+
       OsmImportConfiguration osmImportConfiguration) {
     // TODO: lookup of areaId by countryCode from overpass-api (TINF-70)
 
@@ -43,6 +44,8 @@ public class LocationApiSearchDas {
     url.append(");out center;");
 
     // make request
+
+    
     RestTemplate restTemplate = new RestTemplate();
     ResponseEntity<OsmResultLocationListDto> response =
         restTemplate.getForEntity(url.toString(), OsmResultLocationListDto.class);
