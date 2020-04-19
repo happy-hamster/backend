@@ -13,7 +13,7 @@ spring:
     driver-class-name: org.postgresql.Driver
 
 app:
-  search-api-url: https://nominatim.openstreetmap.org
+  search-api-url: http://localhost
   presence:
     duration: 20
   occupancy:

@@ -85,7 +85,7 @@ public class LocationService {
     RestTemplate restTemplate = new RestTemplate();
     HttpHeaders httpHeaders = new HttpHeaders();
     // Nominatim kommt wohl nicht auf "application/json" klar.
-    httpHeaders.set(HttpHeaders.ACCEPT, "test/html");
+    httpHeaders.set(HttpHeaders.ACCEPT, "text/html");
     HttpEntity<String> entityReq = new HttpEntity<String>(httpHeaders);
     ResponseEntity<NominatimSearchResultListDto> response =
         restTemplate.exchange(url, HttpMethod.GET, entityReq, NominatimSearchResultListDto.class);
