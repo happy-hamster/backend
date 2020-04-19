@@ -10,6 +10,11 @@ public class NominatimSearchResultListDto {
 
   private final List<NominatimResultLocationDto> elements;
 
+  /**
+   * Creates a {@link NominatimSearchResultListDto} from JSON.
+   *
+   * @param elements The elements in the search response array
+   */
   @JsonCreator
   public NominatimSearchResultListDto(List<NominatimResultLocationDto> elements) {
     this.elements = elements;
@@ -36,6 +41,11 @@ public class NominatimSearchResultListDto {
       this.lon = lon;
     }
 
+    /**
+     * Converts a NomiatimResultLocationDto to a string object
+     *
+     * @return Returns the string representation of a NomiatimResultLocationDto
+     */
     @Override
     public String toString() {
       return "NominatimResultLocationDto{" +

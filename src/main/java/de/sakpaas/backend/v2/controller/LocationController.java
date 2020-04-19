@@ -195,6 +195,12 @@ public class LocationController {
     return ResponseEntity.ok("Success");
   }
 
+  /**
+   * Get Endpoint for searching.
+   *
+   * @param key The query Key
+   * @return Returns if the coordinates and the locations list was correctly calculated
+   */
   @GetMapping(value = MAPPING_SEARCH_LOCATION)
   public ResponseEntity<SearchResultDto> searchForLocations(
       @PathVariable("key") String key) {

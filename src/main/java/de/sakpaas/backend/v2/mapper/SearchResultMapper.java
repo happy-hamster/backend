@@ -17,6 +17,11 @@ public class SearchResultMapper {
 
   private final OccupancyService occupancyService;
 
+  /**
+   * Maps the search result object to a SearchResultDto
+   *
+   * @param occupancyService The occupancy service
+   */
   @Autowired
   public SearchResultMapper(OccupancyService occupancyService) {
     this.occupancyService = occupancyService;
@@ -38,6 +43,12 @@ public class SearchResultMapper {
         mapLocations(searchResultObject.getLocationList()));
   }
 
+  /**
+   * Helper method to map the locations.
+   *
+   * @param locations The list of locations to be mapped
+   * @return The mapped LocationResultLocationDto
+   */
   private List<LocationResultLocationDto> mapLocations(List<Location> locations) {
     return locations.stream()
         .map(location -> new LocationResultLocationDto(
@@ -51,8 +62,14 @@ public class SearchResultMapper {
         .collect(Collectors.toList());
   }
 
-  private LocationResultCoordinatesDto mapCoordinates(Map<String, Double> location) {
-    return new LocationResultLocationDto.LocationResultCoordinatesDto(location.get("lat"),
-        location.get("lon"));
+  /**
+   * Helper method the map the coordinates.
+   *
+   * @param coordinates The coordinates to be mapped
+   * @return The mapped LocationResultCoordinatesDto
+   */
+  private LocationResultCoordinatesDto mapCoordinates(Map<String, Double> coordinates) {
+    return new LocationResultLocationDto.LocationResultCoordinatesDto(coordinates.get("lat"),
+        coordinates.get("lon"));
   }
 }
