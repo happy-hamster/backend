@@ -84,7 +84,8 @@ public class LocationService {
     final String url = this.searchApiUrl + "/search/" + key + "?format=json";
     RestTemplate restTemplate = new RestTemplate();
     HttpHeaders httpHeaders = new HttpHeaders();
-    httpHeaders.set(HttpHeaders.ACCEPT, "text/html");
+    // Nominatim kommt wohl nicht auf "application/json" klar.
+    httpHeaders.set(HttpHeaders.ACCEPT, "test/html");
     HttpEntity<String> entityReq = new HttpEntity<String>(httpHeaders);
     ResponseEntity<NominatimSearchResultListDto> response =
         restTemplate.exchange(url, HttpMethod.GET, entityReq, NominatimSearchResultListDto.class);
