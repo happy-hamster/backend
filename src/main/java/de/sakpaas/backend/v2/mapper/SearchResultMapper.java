@@ -27,7 +27,6 @@ public class SearchResultMapper {
     this.occupancyService = occupancyService;
   }
 
-
   /**
    * Maps the given SearchResultObject to a v2 SearchResultDto.
    *
