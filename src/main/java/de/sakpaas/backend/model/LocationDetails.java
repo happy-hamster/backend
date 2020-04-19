@@ -8,6 +8,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/*
+ * @Data beinhaltet verschiedene Annotationen (z.B. @Getter, @Setter)
+ *
+ *       Da diese Annotation auch die @RequiredArgsConstructor beinhaltet ist hier
+ *       @NoArgsConstructor noch notwendig, da Lombok nicht weiß, dass Spring den hier braucht
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -31,14 +37,13 @@ public class LocationDetails {
   /**
    * Constructor for creating a new LocationDetails Entity without id.
    *
-   * @param type the type (eg. supermarket)
+   * @param type         the type (eg. supermarket)
    * @param openingHours the openingHours in human readable format
-   * @param brand the brand (eg. LIDL, ALDI, ...)
+   * @param brand        the brand (eg. LIDL, ALDI, ...)
    */
   public LocationDetails(String type, String openingHours, String brand) {
     this.type = type;
     this.openingHours = openingHours;
     this.brand = brand;
   }
-
 }

@@ -9,6 +9,7 @@ import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.Occupancy;
 import de.sakpaas.backend.service.LocationService;
 import de.sakpaas.backend.service.OccupancyService;
+import de.sakpaas.backend.service.OpenStreetMapService;
 import de.sakpaas.backend.service.PresenceService;
 import de.sakpaas.backend.v2.dto.LocationResultLocationDto;
 import de.sakpaas.backend.v2.dto.OccupancyReportDto;
@@ -33,40 +34,46 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/v2/locations")
 @RestController
 public class LocationController {
+
   private static final String MAPPING_POST_OCCUPANCY = "/{locationId}/occupancy";
   private static final String MAPPING_POST_CHECKIN = "/{locationId}/check-in";
   private static final String MAPPING_BY_ID = "/{locationId}";
   private static final String MAPPING_START_DATABASE = "/generate/{key}";
-  private LocationService locationService;
-  private LocationMapper locationMapper;
-  private OccupancyService occupancyService;
-  private PresenceService presenceService;
-  private AtomicBoolean importState;
+  private static final String MAPPING_SEARCH_LOCATION = "/search/{key}";
+  private final LocationService locationService;
+  private final OpenStreetMapService openStreetMapService;
+  private final LocationMapper locationMapper;
+  private final OccupancyService occupancyService;
+  private final PresenceService presenceService;
+  private final AtomicBoolean importState;
+
 
   /**
-   * Constuctor that injects the needed dependencies.
+   * Constructor that injects the needed dependencies.
    *
-   * @param locationService  The Location Service
-   * @param locationMapper   An OSM Location to Location Mapper
-   * @param occupancyService The Occupancy Service
-   * @param presenceService  The Presence Service
+   * @param locationService      The Location Service
+   * @param openStreetMapService The OpenStreetMap Service
+   * @param locationMapper       An OSM Location to Location Mapper
+   * @param occupancyService     The Occupancy Service
+   * @param presenceService      The Presence Service
    */
   public LocationController(LocationService locationService,
+                            OpenStreetMapService openStreetMapService,
                             LocationMapper locationMapper, OccupancyService occupancyService,
                             PresenceService presenceService) {
     this.locationService = locationService;
+    this.openStreetMapService = openStreetMapService;
     this.locationMapper = locationMapper;
     this.occupancyService = occupancyService;
     this.presenceService = presenceService;
     this.importState = new AtomicBoolean(false);
   }
 
-
   /**
    * Get Endpoint to receive all Locations around a given location.
    *
    * @param latitude  Latitude of the Location.
-   * @param longitude Öongitude of the Location.
+   * @param longitude Longitude of the Location.
    * @return List of all Locations in the Area.
    */
   @GetMapping
@@ -109,8 +116,8 @@ public class LocationController {
    * Post Endpoint to create a new Occupancy Report.
    *
    * @param occupancyReportDto OccupancyReportDto send by the Client
-   * @param locationId         LocationId of the Locaation the Report is for
-   * @return Returns if the Report was created was successful
+   * @param locationId         LocationId of the Location the Report is for
+   * @return Returns if the Report was created successfully
    */
   @PostMapping(value = MAPPING_POST_OCCUPANCY)
   public ResponseEntity<LocationResultLocationDto> postNewOccupancy(
@@ -150,7 +157,7 @@ public class LocationController {
   /**
    * Get Endpoint to initiate the Database Update.
    *
-   * @param key Secret key to authorizate the update. Printed do the Log on startup
+   * @param key Secret key to authorize the update. Printed do the Log on startup
    * @return Returns if the Import was successful
    */
   @GetMapping(value = MAPPING_START_DATABASE)
@@ -168,10 +175,17 @@ public class LocationController {
     // Lock database import
     importState.set(true);
     // Making the Database import
-    locationService.updateDatabase();
+    openStreetMapService.updateDatabase();
     // Unlock database import
     importState.set(false);
 
     return ResponseEntity.ok("Success");
+  }
+
+  @GetMapping(value = MAPPING_SEARCH_LOCATION)
+  public ResponseEntity<List<LocationResultLocationDto>> searchForLocations(
+      @PathVariable("key") String key) {
+    List<Location> locations = locationService.search(key);
+    return new ResponseEntity<>(locationMapper.mapToOutputDto(locations), OK);
   }
 }
