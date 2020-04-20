@@ -16,7 +16,7 @@ import org.springframework.web.context.request.WebRequest;
 public class ErrorAttributes extends DefaultErrorAttributes {
 
   // Object Key in the Response for the Frontend
-  private static final String RESPONSE_OBJECT_KEY = "AppError";
+  private static final String RESPONSE_OBJECT_KEY = "context";
 
   // Error types that are needed for specific reaction at the frontend
   private static final String DEFAULT_ERROR_TYPE = "error";
@@ -126,8 +126,8 @@ public class ErrorAttributes extends DefaultErrorAttributes {
       }
     }
     // Creation and appending of the prepared error for the response
-    AppError appError = new AppError(errorType, message);
-    errorAttributes.put(RESPONSE_OBJECT_KEY, appError);
+    ErrorContext errorContext = new ErrorContext(errorType, message);
+    errorAttributes.put(RESPONSE_OBJECT_KEY, errorContext);
     return errorAttributes;
   }
 
@@ -135,7 +135,7 @@ public class ErrorAttributes extends DefaultErrorAttributes {
    * Class that will be serialized and sent in the JSON of the response.
    */
   @AllArgsConstructor
-  class AppError {
+  class ErrorContext {
 
     @Getter
     private String errorType; // used to react to specific errors on the frontend (e.g needs login)
