@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 /**
- * Exception that will is used by the Expect class in order to throw errors throughout the whole
+ * Exception that will be used by the Expect class in order to throw errors throughout the whole
  * application. It is possible to create new exceptions based on extending this class
  */
 public class ApplicationException extends ResponseStatusException {
