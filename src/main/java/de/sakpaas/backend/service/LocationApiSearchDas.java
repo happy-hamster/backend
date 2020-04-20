@@ -12,6 +12,30 @@ import org.springframework.web.client.RestTemplate;
 @Component
 public class LocationApiSearchDas {
 
+  /**
+   * Builds the query url to the overpass-api from data of application.yaml
+   *
+   * @param config ImportConfig from application.yaml
+   * @return Url as string
+   */
+  public String queryUrlBuilder(OsmImportConfiguration config) {
+    // build request string
+    StringBuilder url =
+        new StringBuilder("https://overpass-api.de/api/interpreter?data=[out:json][timeout:2500];")
+            .append("area[\"ISO3166-1:alpha2\"=").append(config.getCountry())
+            .append("]->.searchArea;(");
+
+    // Add shoptypes from configuration
+    for (String shoptype : config.getShoptypes()) {
+      url.append("node[shop=").append(shoptype).append("](area.searchArea);way[shop=")
+          .append(shoptype).append("](area.searchArea);");
+    }
+
+    url.append(");out center;");
+
+    return url.toString();
+  }
+
 
   /**
    * Gets all Locations of specific types in a specific Country.
@@ -20,7 +44,6 @@ public class LocationApiSearchDas {
    * @return list of supermarkets in Country
    */
   public List<OsmResultLocationListDto.OsmResultLocationDto> getLocationsForCountry(
-
       OsmImportConfiguration osmImportConfiguration) {
 
     // If no location types specified, there is nothing to load
@@ -28,26 +51,13 @@ public class LocationApiSearchDas {
       return emptyList();
     }
 
-    // build request string
-    StringBuilder url =
-        new StringBuilder("https://overpass-api.de/api/interpreter?data=[out:json][timeout:2500];")
-            .append("area[\"ISO3166-1:alpha2\"=").append(osmImportConfiguration.getCountry())
-            .append("]->.searchArea;(");
-
-    // Add shoptypes from configuration
-    for (String shoptype : osmImportConfiguration.getShoptypes()) {
-      url.append("node[shop=").append(shoptype).append("](area.searchArea);way[shop=")
-          .append(shoptype).append("](area.searchArea);");
-    }
-
-    url.append(");out center;");
+    //build queryString
+    String url = queryUrlBuilder(osmImportConfiguration);
 
     // make request
-
-    
     RestTemplate restTemplate = new RestTemplate();
     ResponseEntity<OsmResultLocationListDto> response =
-        restTemplate.getForEntity(url.toString(), OsmResultLocationListDto.class);
+        restTemplate.getForEntity(url, OsmResultLocationListDto.class);
 
     if (response.getBody() == null) {
       return emptyList();
