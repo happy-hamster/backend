@@ -64,20 +64,24 @@ public class FavoriteRepositoryTest extends HappyHamsterTest {
   public void shouldGetFavoritesByLocation() {
     List<Favorite> result = favoriteRepository.findByLocation(locationList.get(0));
 
-    result.forEach(favorite -> assertThat(favorite.getLocation(), equalTo(locationList.get(0))));
-    assertThat(result, hasItem(favoriteList.get(0)));
-    assertThat(result, hasItem(favoriteList.get(1)));
-    assertThat(result, hasItem(favoriteList.get(2)));
+    result.forEach(favorite ->
+        assertThat("every Item should have first Location", favorite.getLocation(),
+            equalTo(locationList.get(0))));
+    assertThat("result should have first Favorite", result, hasItem(favoriteList.get(0)));
+    assertThat("result should have second Favorite", result, hasItem(favoriteList.get(1)));
+    assertThat("result should have third Favorite", result, hasItem(favoriteList.get(2)));
   }
 
   @Test
   public void shouldGetFavoritesByUser() {
     List<Favorite> result = favoriteRepository.findByUserUuid(userList.get(2));
 
-    result.forEach(favorite -> assertThat(favorite.getUserUuid(), equalTo(userList.get(2))));
-    assertThat(result, hasItem(favoriteList.get(2)));
-    assertThat(result, hasItem(favoriteList.get(5)));
-    assertThat(result, hasItem(favoriteList.get(8)));
+    result.forEach(favorite ->
+        assertThat("every Item should have third user", favorite.getUserUuid(),
+            equalTo(userList.get(2))));
+    assertThat("result should have second Favorite", result, hasItem(favoriteList.get(2)));
+    assertThat("result should have fifth Favorite", result, hasItem(favoriteList.get(5)));
+    assertThat("result should have eighths Favorite", result, hasItem(favoriteList.get(8)));
   }
 
   private Location location(Long id) {

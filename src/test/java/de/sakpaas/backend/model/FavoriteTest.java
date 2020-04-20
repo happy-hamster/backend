@@ -15,19 +15,20 @@ class FavoriteTest {
     UUID uuid = UUID.randomUUID();
     Favorite favorite = new Favorite(uuid, location);
 
-    assertThat(favorite, notNullValue());
-    assertThat(favorite.getId(), nullValue());
-    assertThat(favorite.getUserUuid(), equalTo(uuid));
-    assertThat(favorite.getLocation(), equalTo(location));
+    assertThat("created Object should not be null", favorite, notNullValue());
+    assertThat("created Object should have no Id", favorite.getId(), nullValue());
+    assertThat("created Object should have correct UUID", favorite.getUserUuid(), equalTo(uuid));
+    assertThat("created Object should have correct Location", favorite.getLocation(),
+        equalTo(location));
   }
 
   @Test
   public void shouldCreateEmptyFavorite() {
     Favorite favorite = new Favorite();
 
-    assertThat(favorite, notNullValue());
-    assertThat(favorite.getId(), nullValue());
-    assertThat(favorite.getUserUuid(), nullValue());
-    assertThat(favorite.getLocation(), nullValue());
+    assertThat("created Object should not be null", favorite, notNullValue());
+    assertThat("created Object should be empty", favorite.getId(), nullValue());
+    assertThat("created Object should be empty", favorite.getUserUuid(), nullValue());
+    assertThat("created Object should be empty", favorite.getLocation(), nullValue());
   }
 }
