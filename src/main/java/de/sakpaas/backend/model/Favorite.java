@@ -19,7 +19,7 @@ public class Favorite {
   @Column(name = "ID", nullable = false)
   private Long id;
 
-  //ManyToOne-Beziehung wird nicht dargestellt, da User in Keycloak gespeichert
+  //ManyToOne-Relationship is not displayed as user is managed in keycloak
   @Column(name = "USER_UUID", nullable = false)
   private UUID userUuid;
 
