@@ -4,7 +4,8 @@ import java.nio.file.AccessDeniedException;
 import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.springframework.beans.factory.annotation.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.servlet.error.DefaultErrorAttributes;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.WebRequest;
@@ -14,6 +15,9 @@ import org.springframework.web.context.request.WebRequest;
  */
 @Component
 public class ErrorAttributes extends DefaultErrorAttributes {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(ErrorAttributes.class);
+  private static final String LOG_PREFIX = "Debug:";
 
   // Object Key in the Response for the Frontend
   private static final String RESPONSE_OBJECT_KEY = "context";
@@ -33,10 +37,6 @@ public class ErrorAttributes extends DefaultErrorAttributes {
   private static final String NO_PERMISSION_ERROR_ID = "no_permission";
   private static final String UNKNOWN_RESOURCE_ID = "unknown_resource";
   private static final String NOT_AUTHENTICATED_ID = "not_authenticated";
-
-  @Value("${app.exceptions.debug}")
-  private boolean printException;
-
 
   /**
    * The String that is used as the prefix for the replacers.
@@ -82,9 +82,7 @@ public class ErrorAttributes extends DefaultErrorAttributes {
     String errorType = UNKNOWN_ERROR_TYPE;
     // there's a few errors that have no exceptions
     if (throwable != null) {
-      if (printException) {
-        throwable.printStackTrace();
-      }
+      LOGGER.debug(LOG_PREFIX, throwable);
       // if the exception is one of our exceptions we have to replace the textId
       if (throwable instanceof ApplicationException) {
         ApplicationException appException = (ApplicationException) throwable;

@@ -103,7 +103,7 @@ public class LocationController {
       @PathVariable("locationId") Long locationId) {
     Location location = locationService.getById(locationId).orElse(null);
 
-    Expect.notNull(location, "Location with ID " + locationId + "is null", HttpStatus.NOT_FOUND,
+    Expect.notNull(location, "Location with ID " + locationId + " is null", HttpStatus.NOT_FOUND,
         "no_location", locationId);
 
     return new ResponseEntity<>(locationMapper.mapToOutputDto(location), OK);

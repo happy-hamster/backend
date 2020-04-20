@@ -16,9 +16,6 @@ app:
   search-api-url: https://nominatim.openstreetmap.org/
   presence:
     duration: 20
-  exceptions:
-    # Whether non critical Exceptions shall be printed in the console
-    debug: false
   occupancy:
     # The amount of minutes an AccumulatedOccupancy contains
     duration: 300
