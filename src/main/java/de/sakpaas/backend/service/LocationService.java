@@ -26,6 +26,7 @@ public class LocationService {
   private final LocationRepository locationRepository;
   private final PresenceRepository presenceRepository;
   private final OccupancyRepository occupancyRepository;
+  private final FavoriteService favoriteService;
 
   @Value("${app.search-api-url}")
   private String searchApiUrl;
@@ -38,10 +39,12 @@ public class LocationService {
   @Autowired
   public LocationService(LocationRepository locationRepository,
                          PresenceRepository presenceRepository,
-                         OccupancyRepository occupancyRepository) {
+                         OccupancyRepository occupancyRepository,
+                         FavoriteService favoriteService) {
     this.locationRepository = locationRepository;
     this.presenceRepository = presenceRepository;
     this.occupancyRepository = occupancyRepository;
+    this.favoriteService = favoriteService;
   }
 
   /**
@@ -86,7 +89,7 @@ public class LocationService {
     HttpHeaders httpHeaders = new HttpHeaders();
     // Nominatim kommt wohl nicht auf "application/json" klar.
     httpHeaders.set(HttpHeaders.ACCEPT, "text/html");
-    HttpEntity<String> entityReq = new HttpEntity<String>(httpHeaders);
+    HttpEntity<String> entityReq = new HttpEntity<>(httpHeaders);
     ResponseEntity<NominatimSearchResultListDto> response =
         restTemplate.exchange(url, HttpMethod.GET, entityReq, NominatimSearchResultListDto.class);
 
@@ -122,6 +125,7 @@ public class LocationService {
   protected void delete(Location location) {
     occupancyRepository.findByLocation(location).forEach(occupancyRepository::delete);
     presenceRepository.findByLocation(location).forEach(presenceRepository::delete);
+    favoriteService.deleteByLocation(location);
     locationRepository.delete(location);
   }
 }
