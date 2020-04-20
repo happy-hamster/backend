@@ -68,8 +68,8 @@ public class ErrorAttributes extends DefaultErrorAttributes {
   }
 
   /**
-   * Eine Methode, die von Spring automatisch aufgerufen wird. Hierbei wird die default-Methode
-   * aufgerufen und zusätzlich wird unser eigenes Errorhandling durchgeführt. (FeedbackManager)
+   * Method that is called by Spring itself, every time an error occurs. Calls the default
+   * implementation by Spring + additional logic for our exception handling
    */
   @Override
   public Map<String, Object> getErrorAttributes(WebRequest webRequest, boolean includeStackTrace) {
