@@ -53,15 +53,15 @@ public class ErrorAttributes extends DefaultErrorAttributes {
     // TODO Should be implemented in any kind of text management as soon as it exists
     switch (textId) {
       case UNKNOWN_ERROR_ID:
-        return "Ein unbekannter Fehler ist aufgetreten.";
+        return "An unknown error occured.";
       case INTERNAL_ERROR_ID:
-        return "Ein interner Fehler ist aufgetreten.";
+        return "An internal error occured.";
       case NO_PERMISSION_ERROR_ID:
-        return "Du hast keine Berechtigung dies zu tun.";
+        return "You do not have permission to perform this action.";
       case UNKNOWN_RESOURCE_ID:
-        return "Die angeforderte Resource existiert nicht.";
+        return "The resource you were trying to access does not exist.";
       case "no_location":
-        return "Es existiert keine Location mit der ID %%0";
+        return "A Location with ID %%0 does not exist.";
       default:
         return null;
     }
