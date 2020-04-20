@@ -22,10 +22,9 @@ public class LocationApiSearchDas {
   public List<OsmResultLocationListDto.OsmResultLocationDto> getLocationsForCountry(
 
       OsmImportConfiguration osmImportConfiguration) {
-    // TODO: lookup of areaId by countryCode from overpass-api (TINF-70)
 
     // If no location types specified, there is nothing to load
-    if (osmImportConfiguration.getShoptypes().size() == 0) {
+    if (osmImportConfiguration.getShoptypes().isEmpty()) {
       return emptyList();
     }
 
