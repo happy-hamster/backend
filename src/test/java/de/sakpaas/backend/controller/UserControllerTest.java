@@ -62,7 +62,7 @@ public class UserControllerTest {
   private MeterRegistry meterRegistry;
 
   @Test
-  public void shouldGetLocationsforCurrentUser() throws Exception {
+  public void shouldGetLocationsForCurrentUser() throws Exception {
     String header = RandomString.randomCode(32);
     UUID user = UUID.randomUUID();
 
