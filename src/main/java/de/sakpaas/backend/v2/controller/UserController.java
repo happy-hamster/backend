@@ -42,7 +42,7 @@ public class UserController {
    * @param header The Authorization-Header that has to be provided in the request
    * @return Returns the UserInfoDto
    */
-  @GetMapping("/info")
+  @GetMapping("self/info")
   public ResponseEntity<UserInfoDto> getUserInfo(@RequestHeader("Authorization") String header,
                                                  Principal principal) {
     return new ResponseEntity<>(userService.getUserInfo(header, principal), OK);
