@@ -1,11 +1,9 @@
 package de.sakpaas.backend.service;
 
-import de.sakpaas.backend.AsyncConfiguration;
+import de.sakpaas.backend.model.CoordinateDetails;
 import de.sakpaas.backend.model.Location;
+import de.sakpaas.backend.model.SearchResultObject;
 import java.util.List;
-import java.util.Map;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,9 +12,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class SearchService {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(SearchService.class);
   private final LocationService locationService;
   private final SearchMappingService searchMappingService;
-  private static final Logger LOGGER = LoggerFactory.getLogger(AsyncConfiguration.class);
 
   /**
    * Searches for a specific key, calculates the central point as coordinates and returns
@@ -40,21 +38,14 @@ public class SearchService {
    * @return An object with the central coordinates and a list of locations
    */
   public SearchResultObject search(String key) {
-    Map<String, Double> nominatimResultLocationDtoList =
+    CoordinateDetails nominatimResultLocationDtoList =
         searchMappingService.search(key);
     List<Location> locationList =
-        locationService.findByCoordinates(nominatimResultLocationDtoList.get("lat"),
-            nominatimResultLocationDtoList.get("lon"));
+        locationService.findByCoordinates(nominatimResultLocationDtoList.getLatitude(),
+            nominatimResultLocationDtoList.getLongitude());
     LOGGER.info(locationList.toString());
 
     return new SearchResultObject(nominatimResultLocationDtoList, locationList);
   }
 
-  @AllArgsConstructor
-  @Getter
-  public static class SearchResultObject {
-
-    private final Map<String, Double> coordinates;
-    private final List<Location> locationList;
-  }
 }

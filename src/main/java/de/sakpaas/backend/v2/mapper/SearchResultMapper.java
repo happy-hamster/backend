@@ -1,21 +1,19 @@
 package de.sakpaas.backend.v2.mapper;
 
+import de.sakpaas.backend.model.CoordinateDetails;
 import de.sakpaas.backend.model.Location;
+import de.sakpaas.backend.model.SearchResultObject;
 import de.sakpaas.backend.service.OccupancyService;
-import de.sakpaas.backend.service.SearchService.SearchResultObject;
 import de.sakpaas.backend.v2.dto.LocationResultLocationDto;
 import de.sakpaas.backend.v2.dto.LocationResultLocationDto.LocationResultCoordinatesDto;
 import de.sakpaas.backend.v2.dto.SearchResultDto;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SearchResultMapper {
-
-  private final OccupancyService occupancyService;
+public class SearchResultMapper extends LocationMapper {
 
   /**
    * Maps the search result object to a SearchResultDto.
@@ -24,7 +22,7 @@ public class SearchResultMapper {
    */
   @Autowired
   public SearchResultMapper(OccupancyService occupancyService) {
-    this.occupancyService = occupancyService;
+    super(occupancyService);
   }
 
   /**
@@ -33,7 +31,7 @@ public class SearchResultMapper {
    * @param searchResultObject the SearchResultObject to be mapped
    * @return the mapped SearchResultDto
    */
-  public SearchResultDto mapToOutputDto(SearchResultObject searchResultObject) {
+  public SearchResultDto mapSearchResultToOutputDto(SearchResultObject searchResultObject) {
     if (searchResultObject == null) {
       return null;
     }
@@ -49,16 +47,11 @@ public class SearchResultMapper {
    * @return The mapped LocationResultLocationDto
    */
   private List<LocationResultLocationDto> mapLocations(List<Location> locations) {
-    return locations.stream()
-        .map(location -> new LocationResultLocationDto(
-            location.getId(), location.getName(),
-            new LocationResultLocationDto.LocationResultLocationDetailsDto(location.getDetails()),
-            new LocationResultLocationDto.LocationResultCoordinatesDto(location.getLatitude(),
-                location.getLongitude()),
-            new LocationResultLocationDto.LocationResultOccupancyDto(
-                occupancyService.getOccupancyCalculation(location)),
-            new LocationResultLocationDto.LocationResultAddressDto(location.getAddress())))
-        .collect(Collectors.toList());
+    List<LocationResultLocationDto> resultLocationDtoList = new ArrayList<>();
+    for (Location location : locations) {
+      resultLocationDtoList.add(mapLocationToOutputDto(location));
+    }
+    return resultLocationDtoList;
   }
 
   /**
@@ -67,8 +60,8 @@ public class SearchResultMapper {
    * @param coordinates The coordinates to be mapped
    * @return The mapped LocationResultCoordinatesDto
    */
-  private LocationResultCoordinatesDto mapCoordinates(Map<String, Double> coordinates) {
-    return new LocationResultLocationDto.LocationResultCoordinatesDto(coordinates.get("lat"),
-        coordinates.get("lon"));
+  private LocationResultCoordinatesDto mapCoordinates(CoordinateDetails coordinates) {
+    return new LocationResultLocationDto.LocationResultCoordinatesDto(coordinates.getLatitude(),
+        coordinates.getLongitude());
   }
 }

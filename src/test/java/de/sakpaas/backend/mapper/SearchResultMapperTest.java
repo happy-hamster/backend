@@ -39,7 +39,7 @@ public class SearchResultMapperTest extends HappyHamsterTest {
         Collections.singletonList(new Location(1L, "test", 0.0, 0.0, locationDetails, address)));
     final SearchResultObject searchResultObject = new SearchResultObject(coordinates, locations);
 
-    final SearchResultDto mappedDto = searchResultMapper.mapToOutputDto(searchResultObject);
+    final SearchResultDto mappedDto = searchResultMapper.mapLocationToOutputDto(searchResultObject);
 
     // check for null
     assertNotNull(mappedDto);

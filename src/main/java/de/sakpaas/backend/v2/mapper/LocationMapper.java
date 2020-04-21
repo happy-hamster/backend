@@ -27,7 +27,7 @@ public class LocationMapper {
    * @param location the Location to be mapped
    * @return the mapped LocationDto
    */
-  public LocationResultLocationDto mapToOutputDto(Location location) {
+  public LocationResultLocationDto mapLocationToOutputDto(Location location) {
     if (location == null) {
       return null;
     }

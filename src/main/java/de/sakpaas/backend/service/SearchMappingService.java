@@ -3,10 +3,9 @@ package de.sakpaas.backend.service;
 import com.google.common.annotations.VisibleForTesting;
 import de.sakpaas.backend.dto.NominatimSearchResultListDto;
 import de.sakpaas.backend.dto.NominatimSearchResultListDto.NominatimResultLocationDto;
+import de.sakpaas.backend.model.CoordinateDetails;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -19,7 +18,7 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
 @Service
 public class SearchMappingService {
 
-  @Value("${app.searchApiUrl}")
+  @Value("${app.search-api-url}")
   private String searchApiUrl;
 
   /**
@@ -28,7 +27,7 @@ public class SearchMappingService {
    * @param key The search parameter. Multiple words are separated with %20.
    * @return The list of Locations in our database
    */
-  public Map<String, Double> search(String key) {
+  public CoordinateDetails search(String key) {
     // Makes a request to the Nominatim Microservice
     final String url = this.searchApiUrl + "/search/" + key + "?format=json";
     final List<NominatimResultLocationDto> list = makeRequest(url);
@@ -66,28 +65,17 @@ public class SearchMappingService {
    * @return The central coordinates
    */
   @VisibleForTesting
-  protected Map<String, Double> calculateCenter(List<NominatimResultLocationDto> list) {
-    List<Double> lat = new ArrayList<>();
-    List<Double> lon = new ArrayList<>();
-    for (NominatimResultLocationDto element : list) {
-      lat.add(element.getLat());
-      lon.add(element.getLon());
-    }
-    final Map<String, Double> map = new HashMap<>();
-    map.put("lat", calculateAvg(lat));
-    map.put("lon", calculateAvg(lon));
-    return map;
-  }
+  protected CoordinateDetails calculateCenter(List<NominatimResultLocationDto> list) {
 
-  /**
-   * Calculates the average of the provided doubles.
-   *
-   * @param list The list of doubles the average has to be calculated for
-   * @return The average of the provided doubles
-   */
-  @VisibleForTesting
-  protected double calculateAvg(List<Double> list) {
-    double result = list.stream().mapToDouble(f -> f).sum();
-    return result / list.size();
+    double latitude = list.stream()
+        .map(NominatimResultLocationDto::getLat)
+        .mapToDouble(lat -> lat)
+        .average().orElse(0.0);
+    double longitude = list.stream()
+        .map(NominatimResultLocationDto::getLon)
+        .mapToDouble(lon -> lon)
+        .average().orElse(0.0);
+
+    return new CoordinateDetails(latitude, longitude);
   }
 }

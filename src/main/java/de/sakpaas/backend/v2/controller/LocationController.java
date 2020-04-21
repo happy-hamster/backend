@@ -7,12 +7,12 @@ import static org.springframework.http.HttpStatus.OK;
 import de.sakpaas.backend.BackendApplication;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.Occupancy;
+import de.sakpaas.backend.model.SearchResultObject;
 import de.sakpaas.backend.service.LocationService;
 import de.sakpaas.backend.service.OccupancyService;
 import de.sakpaas.backend.service.OpenStreetMapService;
 import de.sakpaas.backend.service.PresenceService;
 import de.sakpaas.backend.service.SearchService;
-import de.sakpaas.backend.service.SearchService.SearchResultObject;
 import de.sakpaas.backend.v2.dto.LocationResultLocationDto;
 import de.sakpaas.backend.v2.dto.OccupancyReportDto;
 import de.sakpaas.backend.v2.dto.SearchResultDto;
@@ -61,7 +61,7 @@ public class LocationController {
    *                             for searching the database
    * @param openStreetMapService The OpenStreetMap Service
    * @param locationMapper       An OSM Location to Location Mapper
-   * @param searchResultMapper   TODO
+   * @param searchResultMapper   A Mapper for the results of Search Requests
    * @param occupancyService     The Occupancy Service
    * @param presenceService      The Presence Service
    */
@@ -101,7 +101,7 @@ public class LocationController {
     }
 
     List<LocationResultLocationDto> response = searchResult.stream()
-        .map(locationMapper::mapToOutputDto)
+        .map(locationMapper::mapLocationToOutputDto)
         .collect(toList());
 
     return new ResponseEntity<>(response, OK);
@@ -122,7 +122,7 @@ public class LocationController {
       return ResponseEntity.notFound().build();
     }
 
-    return new ResponseEntity<>(locationMapper.mapToOutputDto(location), OK);
+    return new ResponseEntity<>(locationMapper.mapLocationToOutputDto(location), OK);
   }
 
   /**
@@ -146,7 +146,7 @@ public class LocationController {
     occupancyService.save(new Occupancy(location, occupancyReportDto.getOccupancy(),
         occupancyReportDto.getClientType()));
 
-    return new ResponseEntity<>(locationMapper.mapToOutputDto(location), CREATED);
+    return new ResponseEntity<>(locationMapper.mapLocationToOutputDto(location), CREATED);
   }
 
   /**
@@ -205,6 +205,6 @@ public class LocationController {
   public ResponseEntity<SearchResultDto> searchForLocations(
       @PathVariable("key") String key) {
     final SearchResultObject resultObject = searchService.search(key);
-    return new ResponseEntity<>(searchResultMapper.mapToOutputDto(resultObject), OK);
+    return new ResponseEntity<>(searchResultMapper.mapSearchResultToOutputDto(resultObject), OK);
   }
 }

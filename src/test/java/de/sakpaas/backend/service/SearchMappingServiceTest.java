@@ -2,15 +2,15 @@ package de.sakpaas.backend.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import de.sakpaas.backend.HappyHamsterTest;
 import de.sakpaas.backend.dto.NominatimSearchResultListDto.NominatimResultLocationDto;
+import de.sakpaas.backend.model.CoordinateDetails;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -23,31 +23,17 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 public class SearchMappingServiceTest extends HappyHamsterTest {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(SearchMappingServiceTest.class);
   @Autowired
   SearchMappingService searchMappingService;
-
-  @Test
-  public void testCalcAvg() {
-    final List<Double> doubleList = new ArrayList<>(Arrays.asList(3.0, 5.0));
-    assertEquals(4, searchMappingService.calculateAvg(doubleList));
-  }
-
-  @Test
-  public void testCalcAvg2() {
-    final List<Double> doubleList = new ArrayList<>(Arrays.asList(1.0, 11.0));
-    assertEquals(6, searchMappingService.calculateAvg(doubleList));
-  }
 
   @Test
   public void testCalcCenter() {
     final NominatimResultLocationDto internalList1 = new NominatimResultLocationDto(3, 5);
     final NominatimResultLocationDto internalList2 = new NominatimResultLocationDto(5, 3);
+    final CoordinateDetails coordinateDetails = new CoordinateDetails(4.0, 4.0);
 
-    final Map<String, Double> expectedMap = new HashMap<>();
-    expectedMap.put("lat", 4.0);
-    expectedMap.put("lon", 4.0);
-    assertEquals(expectedMap, searchMappingService
+    assertEquals(coordinateDetails, searchMappingService
         .calculateCenter(new ArrayList<>(Arrays.asList(internalList1, internalList2))));
   }
 
@@ -55,11 +41,9 @@ public class SearchMappingServiceTest extends HappyHamsterTest {
   public void testCalcCenter2() {
     final NominatimResultLocationDto internalList1 =
         new NominatimResultLocationDto(3.123, 5.123);
+    final CoordinateDetails coordinateDetails = new CoordinateDetails(3.123, 5.123);
 
-    final Map<String, Double> expectedMap = new HashMap<>();
-    expectedMap.put("lat", 3.123);
-    expectedMap.put("lon", 5.123);
-    assertEquals(expectedMap, searchMappingService
+    assertEquals(coordinateDetails, searchMappingService
         .calculateCenter(new ArrayList<>(Collections.singletonList(internalList1))));
   }
 
@@ -74,10 +58,11 @@ public class SearchMappingServiceTest extends HappyHamsterTest {
     final String url = "https://nominatim.openstreetmap.org/search/Edeka%20Hochdorf?format=json";
     final List<NominatimResultLocationDto> resultList = searchMappingService.makeRequest(url);
     LOGGER.info(resultList.toString());
-    final Map<String, Double> center = searchMappingService.calculateCenter(resultList);
+    final CoordinateDetails center = searchMappingService.calculateCenter(resultList);
     LOGGER.info(center.toString());
-    assert (center.get("lat") > 0);
-    assert (center.get("lon") > 0);
+
+    assertTrue(center.getLatitude() > 0);
+    assertTrue(center.getLongitude() > 0);
   }
 
   @Test
