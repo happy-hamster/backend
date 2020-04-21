@@ -5,5 +5,5 @@ import org.testcontainers.containers.PostgreSQLContainer;
 
 public class HappyHamsterTest {
   @ClassRule
-  protected static PostgreSQLContainer container = PostgresqlContainer.getInstance();
+  public static PostgreSQLContainer container = PostgresqlContainer.getInstance();
 }
