@@ -3,6 +3,7 @@ package de.sakpaas.backend.service;
 import static java.util.Collections.emptyList;
 
 import de.sakpaas.backend.dto.OsmResultLocationListDto;
+import de.sakpaas.backend.util.OsmImportConfiguration;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -12,20 +13,48 @@ import org.springframework.web.client.RestTemplate;
 public class LocationApiSearchDas {
 
   /**
-   * Gets all Locations in a Country (currently only Germany).
+   * Builds the query url to the overpass-api from data of application.yaml
    *
-   * @param countryCode ISO3166-1:alpha2 Code
+   * @param config ImportConfig from application.yaml
+   * @return Url as string
+   */
+  public String queryUrlBuilder(OsmImportConfiguration config) {
+    // build request string
+    StringBuilder url =
+        new StringBuilder("https://overpass-api.de/api/interpreter?data=[out:json][timeout:2500];")
+            .append("area[\"ISO3166-1:alpha2\"=").append(config.getCountry())
+            .append("]->.searchArea;(");
+
+    // Add shoptypes from configuration
+    for (String shoptype : config.getShoptypes()) {
+      url.append("node[shop=").append(shoptype).append("](area.searchArea);way[shop=")
+          .append(shoptype).append("](area.searchArea);");
+    }
+
+    url.append(");out center;");
+
+    return url.toString();
+  }
+
+
+  /**
+   * Gets all Locations of specific types in a specific Country.
+   *
+   * @param osmImportConfiguration Object which contains all information about the data to load
    * @return list of supermarkets in Country
    */
   public List<OsmResultLocationListDto.OsmResultLocationDto> getLocationsForCountry(
-      String countryCode) {
-    final String url =
-        "https://overpass-api.de/api/interpreter?data=[out:json][timeout:2500];"
-            + "area[\"ISO3166-1:alpha2\"=" + countryCode + "]->.searchArea;("
-            + "node[shop=supermarket](area.searchArea);way[shop=supermarket](area.searchArea);"
-            + "node[shop=chemist](area.searchArea);way[shop=chemist](area.searchArea);"
-            + "node[shop=beverages](area.searchArea);way[shop=beverages](area.searchArea);"
-            + ");out center;";
+      OsmImportConfiguration osmImportConfiguration) {
+
+    // If no location types specified, there is nothing to load
+    if (osmImportConfiguration.getShoptypes().isEmpty()) {
+      return emptyList();
+    }
+
+    //build queryString
+    String url = queryUrlBuilder(osmImportConfiguration);
+
+    // make request
     RestTemplate restTemplate = new RestTemplate();
     ResponseEntity<OsmResultLocationListDto> response =
         restTemplate.getForEntity(url, OsmResultLocationListDto.class);
@@ -36,4 +65,5 @@ public class LocationApiSearchDas {
 
     return response.getBody().getElements();
   }
+
 }
