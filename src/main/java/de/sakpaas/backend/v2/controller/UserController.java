@@ -4,7 +4,6 @@ import static org.springframework.http.HttpStatus.OK;
 
 import de.sakpaas.backend.dto.UserInfoDto;
 import de.sakpaas.backend.model.Favorite;
-import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.service.FavoriteRepository;
 import de.sakpaas.backend.service.UserService;
 import de.sakpaas.backend.v2.dto.LocationResultLocationDto;
@@ -61,10 +60,7 @@ public class UserController {
     UserInfoDto userInfo = userService.getUserInfo(header, principal);
     List<Favorite> favorites = favoriteRepository.findByUserUuid(UUID.fromString(userInfo.getId()));
     List<LocationResultLocationDto> response = favorites.stream()
-        .map(favorite -> {
-          Location location = favorite.getLocation();
-          return locationMapper.mapToOutputDto(location);
-        })
+        .map(favorite -> locationMapper.mapToOutputDto(favorite.getLocation()))
         .collect(Collectors.toList());
 
     return new ResponseEntity<>(response, OK);
