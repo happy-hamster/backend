@@ -50,7 +50,7 @@ keycloak:
         - uma_authorization
       securityCollections:
         - patterns: /auth/*
-        - patterns: /v2/user/*
+        - patterns: /v2/users/*
     - securityCollections:
         - patterns: /v1/*
         - patterns: /v2/*
