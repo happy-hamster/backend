@@ -77,14 +77,15 @@ public class ErrorAttributes extends DefaultErrorAttributes {
           message = appException.getMessage();
           // setting the given parameter
           parameters = appException.getParameters();
-          // Having no permission to access resources
         }
       } else {
         // reacting to specific errors thrown by spring
         if (throwable instanceof AccessDeniedException) {
+          // Having no permission to access resources
           textId = Error.PERMISSION.name();
           message = Error.PERMISSION.message;
         } else if (throwable instanceof MethodArgumentNotValidException) {
+          // @Valid failed
           textId = Error.PARAMETER.name();
           message = Error.PARAMETER.message;
           MethodArgumentNotValidException notvalid = (MethodArgumentNotValidException) throwable;
