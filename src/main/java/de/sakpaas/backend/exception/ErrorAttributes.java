@@ -30,8 +30,7 @@ public class ErrorAttributes extends DefaultErrorAttributes {
     PERMISSION("You do not have permission to perform this action."), 
     RESOURCE("The resource you were trying to access does not exist."), 
     AUTHENTICATION("Please login to perform this action."), 
-    PARAMETER("The value for parameter %0% does not match the requirement."), 
-    LOCATION("Location with ID %0% does not exist.");
+    PARAMETER("The value for parameter %0% does not match the requirement.");
 
     @Getter
     private String message;
