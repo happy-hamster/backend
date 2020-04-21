@@ -126,7 +126,7 @@ public class ErrorAttributes extends DefaultErrorAttributes {
    * @return
    */
   static String addParams(String message, Object... parameters) {
-    for (int i = parameters.length - 1; i >= 0; i--) {
+    for (int i = 0; i < parameters.length; i++) {
       message =
           message.replace(ErrorAttributes.PLACEHOLDER_PRE + i + ErrorAttributes.PLACEHOLDER_SUF,
               String.valueOf(parameters[i]));
