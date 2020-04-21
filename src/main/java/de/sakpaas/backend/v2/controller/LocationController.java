@@ -5,7 +5,7 @@ import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 
 import de.sakpaas.backend.BackendApplication;
-import de.sakpaas.backend.exception.Expect;
+import de.sakpaas.backend.exception.InvalidLocationException;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.Occupancy;
 import de.sakpaas.backend.service.LocationService;
@@ -101,10 +101,10 @@ public class LocationController {
   @GetMapping(value = MAPPING_BY_ID)
   public ResponseEntity<LocationResultLocationDto> getById(
       @PathVariable("locationId") Long locationId) {
-    Location location = locationService.getById(locationId).orElse(null);
 
-    Expect.notNull(location, "Location with ID " + locationId + " is null", HttpStatus.NOT_FOUND,
-        "no_location", locationId);
+    Location location = locationService.getById(locationId)
+        .orElseThrow(() -> new InvalidLocationException(locationId));
+
 
     return new ResponseEntity<>(locationMapper.mapToOutputDto(location), OK);
   }

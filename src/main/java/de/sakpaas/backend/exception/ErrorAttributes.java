@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.servlet.error.DefaultErrorAttributes;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.context.request.WebRequest;
 
 /**
@@ -22,50 +23,28 @@ public class ErrorAttributes extends DefaultErrorAttributes {
   // Object Key in the Response for the Frontend
   private static final String RESPONSE_OBJECT_KEY = "context";
 
-  // Error types that are needed for specific reaction at the frontend
-  private static final String DEFAULT_ERROR_TYPE = "error";
-  private static final String UNKNOWN_ERROR_TYPE = "unknown";
-  private static final String INTERNAL_ERROR_TYPE = "internal";
-  private static final String NO_PERMISSION_ERROR_TYPE = "permission";
-  private static final String UNKNOWN_RESOURCE_ERROR_TYPE = "resource";
-  private static final String NOT_AUTHENTICATED_ERROR_TYPE = "authentication";
+  @AllArgsConstructor
+  enum Error {
+    UNKNOWN("An unknown error occured."), INTERNAL("An internal error occured."), PERMISSION(
+        "You do not have permission to perform this action."), RESOURCE(
+            "The resource you were trying to access does not exist."), AUTHENTICATION(
+                "Please login to perform this action."), PARAMETER(
+                    "The value for parameter %0% does not match the requirement."), LOCATION(
+                        "Location with ID %0% does not exist.");
 
-
-  // TextIds that are used inside this class
-  private static final String UNKNOWN_ERROR_ID = "unknown_error";
-  private static final String INTERNAL_ERROR_ID = "internal_error";
-  private static final String NO_PERMISSION_ERROR_ID = "no_permission";
-  private static final String UNKNOWN_RESOURCE_ID = "unknown_resource";
-  private static final String NOT_AUTHENTICATED_ID = "not_authenticated";
+    @Getter
+    private String message;
+  }
 
   /**
    * The String that is used as the prefix for the replacers.
    */
-  private static final String REPLACER = "%%";
+  static final String PLACEHOLDER_PRE = "%";
 
   /**
-   * Returns the message that corresponds to the given textId.
-   * 
-   * @param textId the ID of the message that shall be received
-   * @return the corresponding message
+   * The String that is used as the suffix for the replacers.
    */
-  private String getErrorMessage(String textId) {
-    // TODO Should be implemented in any kind of text management as soon as it exists
-    switch (textId) {
-      case UNKNOWN_ERROR_ID:
-        return "An unknown error occured.";
-      case INTERNAL_ERROR_ID:
-        return "An internal error occured.";
-      case NO_PERMISSION_ERROR_ID:
-        return "You do not have permission to perform this action.";
-      case UNKNOWN_RESOURCE_ID:
-        return "The resource you were trying to access does not exist.";
-      case "no_location":
-        return "A Location with ID %%0 does not exist.";
-      default:
-        return null;
-    }
-  }
+  static final String PLACEHOLDER_SUF = "%";
 
   /**
    * Method that is called by Spring itself, every time an error occurs. Calls the default
@@ -77,33 +56,42 @@ public class ErrorAttributes extends DefaultErrorAttributes {
     errorAttributes.remove("message"); // removal of springs default message
     Throwable throwable = super.getError(webRequest);
     // unknown error unless it gets specified in the following code
-    String message = getErrorMessage(UNKNOWN_ERROR_ID);
-    // default error unless it gets specified in the following code
-    String errorType = UNKNOWN_ERROR_TYPE;
-    // there's a few errors that have no exceptions
+    String textId = Error.UNKNOWN.name();
+    String message = Error.UNKNOWN.message;
+    // unknown errors have no parameters
+    Object[] parameters = null;
+    // there's a few errors that have no thrown exceptions
     if (throwable != null) {
       LOGGER.debug(LOG_PREFIX, throwable);
-      // if the exception is one of our exceptions we have to replace the textId
+      // if the exception is one of our exceptions
       if (throwable instanceof ApplicationException) {
         ApplicationException appException = (ApplicationException) throwable;
-        // internal error -> not communicated to frontend
         if (appException.isInternal()) {
-          message = getErrorMessage(INTERNAL_ERROR_ID);
-          errorType = INTERNAL_ERROR_TYPE;
+          textId = Error.INTERNAL.name();
+          message = Error.INTERNAL.message;
         } else {
-          // getting the message of the corresponding textId
-          message = getErrorMessage(appException.getTextId());
-          Object[] replacers = appException.getReplacers();
-          errorType = DEFAULT_ERROR_TYPE;
-          // setting the parameters of the message
-          for (int i = replacers.length - 1; i >= 0; i--) {
-            message = message.replace(REPLACER + i, String.valueOf(replacers[i]));
-          }
+          // setting the given error
+          textId = appException.getTextId();
+          // setting the given error message
+          message = appException.getMessage();
+          // setting the given parameter
+          parameters = appException.getParameters();
+          // Having no permission to access resources
         }
-        // Having no permission to access resources
-      } else if (throwable instanceof AccessDeniedException) {
-        message = getErrorMessage(NO_PERMISSION_ERROR_ID);
-        errorType = NO_PERMISSION_ERROR_TYPE;
+      } else {
+        // reacting to specific errors thrown by spring
+        if (throwable instanceof AccessDeniedException) {
+          textId = Error.PERMISSION.name();
+          message = Error.PERMISSION.message;
+        } else if (throwable instanceof MethodArgumentNotValidException) {
+          textId = Error.PARAMETER.name();
+          message = Error.PARAMETER.message;
+          MethodArgumentNotValidException notvalid = (MethodArgumentNotValidException) throwable;
+          String parameterName = notvalid.getParameter().getParameterName();
+          parameters = new Object[] {parameterName};
+        }
+        // setting the parameters of the message
+        message = addParams(message, parameters);
       }
     } else {
       // httpStatus of the error
@@ -111,35 +99,54 @@ public class ErrorAttributes extends DefaultErrorAttributes {
       switch (errorCode) {
         // Accessing Resources that do no exist
         case 404:
-          message = getErrorMessage(UNKNOWN_RESOURCE_ID);
-          errorType = UNKNOWN_RESOURCE_ERROR_TYPE;
+          textId = Error.RESOURCE.name();
+          message = Error.RESOURCE.message;
           break;
         // Accessing resources while not being logged in
         case 403:
-          message = getErrorMessage(NOT_AUTHENTICATED_ID);
-          errorType = NOT_AUTHENTICATED_ERROR_TYPE;
+          textId = Error.AUTHENTICATION.name();
+          message = Error.AUTHENTICATION.message;
           break;
         default:
           break;
       }
     }
     // Creation and appending of the prepared error for the response
-    ErrorContext errorContext = new ErrorContext(errorType, message);
+    ErrorContext errorContext = new ErrorContext(textId, parameters, message);
     errorAttributes.put(RESPONSE_OBJECT_KEY, errorContext);
     return errorAttributes;
   }
 
   /**
-   * Class that will be serialized and sent in the JSON of the response.
+   * Used to add the parameters into the placeholders of the message.
+   * 
+   * @param message the message the parameters shall be filled into
+   * @param parameters the parameters that shall replace the placeholders
+   * @return
+   */
+  static String addParams(String message, Object... parameters) {
+    for (int i = parameters.length - 1; i >= 0; i--) {
+      message =
+          message.replace(ErrorAttributes.PLACEHOLDER_PRE + i + ErrorAttributes.PLACEHOLDER_SUF,
+              String.valueOf(parameters[i]));
+    }
+    return message;
+  }
+
+  /**
+   * Class that will be serialized and send in the JSON of the response.
    */
   @AllArgsConstructor
-  class ErrorContext {
+  private class ErrorContext {
 
     @Getter
-    private String errorType; // used to react to specific errors on the frontend (e.g needs login)
+    private String textId; // the textId that can be matched to a message
 
     @Getter
-    private String message; // error message that will be shown on the frontend
+    private Object[] parameters; // parameters to place inside the error message
+
+    @Getter
+    private String defaultMessage; // default error message for the frontend
   }
 }
 

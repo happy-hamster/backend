@@ -5,21 +5,24 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 /**
- * Exception that will be used by the Expect class in order to throw errors throughout the whole
- * application. It is possible to create new exceptions based on extending this class
+ * Exception that should be used as a base class in order to create new Exceptions throughout the
+ * whole application. It is possible to create new exceptions based on extending this class.
  */
 public class ApplicationException extends ResponseStatusException {
 
   private static final long serialVersionUID = 1L;
 
   @Getter
-  private boolean internal;
+  private String message;
 
   @Getter
   private String textId;
 
   @Getter
-  private Object[] replacers;
+  private Object[] parameters;
+
+  @Getter
+  private boolean internal;
 
 
   /**
@@ -27,15 +30,15 @@ public class ApplicationException extends ResponseStatusException {
    * 
    * @param status the response status that will be send
    * @param message the message that will be in the log
-   * @param internal true if there should be a standardized message to the frontend
-   * @param textId the textId of the error for the frontend
+   * @param textId The ID that defines the Text
+   * @param internal Whether the error is internal
    * @param replacers replacers for the error message
    */
-  public ApplicationException(HttpStatus status, String message, boolean internal, String textId,
+  public ApplicationException(HttpStatus status, String message, String textId, boolean internal,
       Object... replacers) {
     super(status, message);
-    this.internal = internal;
+    this.message = ErrorAttributes.addParams(message, replacers);
     this.textId = textId;
-    this.replacers = replacers;
+    this.parameters = replacers;
   }
 }
