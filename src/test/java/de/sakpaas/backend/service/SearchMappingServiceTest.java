@@ -13,8 +13,6 @@ import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -23,7 +21,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 public class SearchMappingServiceTest extends HappyHamsterTest {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(SearchMappingServiceTest.class);
   @Autowired
   SearchMappingService searchMappingService;
 
@@ -32,9 +29,9 @@ public class SearchMappingServiceTest extends HappyHamsterTest {
     final NominatimResultLocationDto internalList1 = new NominatimResultLocationDto(3, 5);
     final NominatimResultLocationDto internalList2 = new NominatimResultLocationDto(5, 3);
     final CoordinateDetails coordinateDetails = new CoordinateDetails(4.0, 4.0);
-
-    assertEquals(coordinateDetails, searchMappingService
-        .calculateCenter(new ArrayList<>(Arrays.asList(internalList1, internalList2))));
+    final CoordinateDetails calculatedCenter = searchMappingService
+        .calculateCenter(new ArrayList<>(Arrays.asList(internalList1, internalList2)));
+    assertEquals(coordinateDetails, calculatedCenter);
   }
 
   @Test
@@ -57,9 +54,7 @@ public class SearchMappingServiceTest extends HappyHamsterTest {
   public void testResultMap() {
     final String url = "https://nominatim.openstreetmap.org/search/Edeka%20Hochdorf?format=json";
     final List<NominatimResultLocationDto> resultList = searchMappingService.makeRequest(url);
-    LOGGER.info(resultList.toString());
     final CoordinateDetails center = searchMappingService.calculateCenter(resultList);
-    LOGGER.info(center.toString());
 
     assertTrue(center.getLatitude() > 0);
     assertTrue(center.getLongitude() > 0);
@@ -69,7 +64,6 @@ public class SearchMappingServiceTest extends HappyHamsterTest {
   public void testNonEmptyResultList() {
     String url = "https://nominatim.openstreetmap.org/search/Mannheim?format=json";
     assertNotEquals("[]", searchMappingService.makeRequest(url).toString());
-    LOGGER.info(searchMappingService.makeRequest(url).toString());
     url = "https://nominatim.openstreetmap.org/search/Rewe?format=json";
     assertNotEquals("[]", searchMappingService.makeRequest(url).toString());
     url = "https://nominatim.openstreetmap.org/search/Limburgerhof?format=json";

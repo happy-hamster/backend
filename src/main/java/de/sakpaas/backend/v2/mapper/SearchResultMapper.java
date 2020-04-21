@@ -3,7 +3,6 @@ package de.sakpaas.backend.v2.mapper;
 import de.sakpaas.backend.model.CoordinateDetails;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.SearchResultObject;
-import de.sakpaas.backend.service.OccupancyService;
 import de.sakpaas.backend.v2.dto.LocationResultLocationDto;
 import de.sakpaas.backend.v2.dto.LocationResultLocationDto.LocationResultCoordinatesDto;
 import de.sakpaas.backend.v2.dto.SearchResultDto;
@@ -13,16 +12,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SearchResultMapper extends LocationMapper {
+public class SearchResultMapper {
+
+  private final LocationMapper locationMapper;
 
   /**
    * Maps the search result object to a SearchResultDto.
    *
-   * @param occupancyService The occupancy service
+   * @param locationMapper The Mapper for Locations
    */
   @Autowired
-  public SearchResultMapper(OccupancyService occupancyService) {
-    super(occupancyService);
+  public SearchResultMapper(
+      LocationMapper locationMapper) {
+    this.locationMapper = locationMapper;
   }
 
   /**
@@ -49,7 +51,7 @@ public class SearchResultMapper extends LocationMapper {
   private List<LocationResultLocationDto> mapLocations(List<Location> locations) {
     List<LocationResultLocationDto> resultLocationDtoList = new ArrayList<>();
     for (Location location : locations) {
-      resultLocationDtoList.add(mapLocationToOutputDto(location));
+      resultLocationDtoList.add(locationMapper.mapLocationToOutputDto(location));
     }
     return resultLocationDtoList;
   }
