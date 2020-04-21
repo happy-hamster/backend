@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/v2/user")
+@RequestMapping("/v2/users")
 public class UserController {
 
   final UserService userService;

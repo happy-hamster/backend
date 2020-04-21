@@ -85,7 +85,7 @@ public class UserControllerTest {
     Mockito.when(locationMapper.mapToOutputDto(locations.get(2))).thenReturn(resultDtos.get(2));
 
     String resultJson =
-        this.mockMvc.perform(get("/v2/user/self/favorites").header("Authorization", header))
+        this.mockMvc.perform(get("/v2/users/self/favorites").header("Authorization", header))
             .andDo(print())
             .andExpect(status().isOk())
             .andReturn()
