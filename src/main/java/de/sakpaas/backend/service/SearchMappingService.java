@@ -8,6 +8,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -42,12 +45,13 @@ public class SearchMappingService {
   protected List<NominatimResultLocationDto> makeRequest(String url) {
     DefaultUriBuilderFactory defaultUriBuilderFactory = new DefaultUriBuilderFactory();
     defaultUriBuilderFactory.setEncodingMode(DefaultUriBuilderFactory.EncodingMode.NONE);
-
     RestTemplate restTemplate = new RestTemplate();
+    HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.set(HttpHeaders.ACCEPT, "text/html");
+    HttpEntity<String> entityReq = new HttpEntity<>(httpHeaders);
     restTemplate.setUriTemplateHandler(defaultUriBuilderFactory);
     ResponseEntity<NominatimSearchResultListDto> response =
-        restTemplate.getForEntity(url, NominatimSearchResultListDto.class);
-
+        restTemplate.exchange(url, HttpMethod.GET, entityReq, NominatimSearchResultListDto.class);
     if (response.getBody() == null) {
       return new ArrayList<>();
     }
