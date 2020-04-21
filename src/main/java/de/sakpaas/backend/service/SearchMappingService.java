@@ -6,6 +6,8 @@ import de.sakpaas.backend.dto.NominatimSearchResultListDto.NominatimResultLocati
 import de.sakpaas.backend.model.CoordinateDetails;
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -17,6 +19,7 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
 
 @Service
 public class SearchMappingService {
+  private static final Logger LOGGER = LoggerFactory.getLogger(SearchMappingService.class);
 
   @Value("${app.search-api-url}")
   private String searchApiUrl;
@@ -29,8 +32,11 @@ public class SearchMappingService {
    */
   public CoordinateDetails search(String key) {
     // Makes a request to the Nominatim Microservice
-    final String url = this.searchApiUrl + "/search/" + key + "?format=json";
+    String url = this.searchApiUrl + "/search/" + key + "?format=json";
+    LOGGER.info("URL: " + url);
+
     final List<NominatimResultLocationDto> list = makeRequest(url);
+    LOGGER.info("Liste: " + list);
     return calculateCenter(list);
   }
 
@@ -42,13 +48,10 @@ public class SearchMappingService {
    */
   @VisibleForTesting
   protected List<NominatimResultLocationDto> makeRequest(String url) {
-    DefaultUriBuilderFactory defaultUriBuilderFactory = new DefaultUriBuilderFactory();
-    defaultUriBuilderFactory.setEncodingMode(DefaultUriBuilderFactory.EncodingMode.NONE);
     RestTemplate restTemplate = new RestTemplate();
     HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set(HttpHeaders.ACCEPT, "text/html");
     HttpEntity<String> entityReq = new HttpEntity<>(httpHeaders);
-    restTemplate.setUriTemplateHandler(defaultUriBuilderFactory);
     ResponseEntity<NominatimSearchResultListDto> response =
         restTemplate.exchange(url, HttpMethod.GET, entityReq, NominatimSearchResultListDto.class);
     if (response.getBody() == null) {

@@ -25,7 +25,7 @@ public class SearchService {
    */
   @Autowired
   public SearchService(LocationService locationService,
-      SearchMappingService searchMappingService) {
+                       SearchMappingService searchMappingService) {
     this.locationService = locationService;
     this.searchMappingService = searchMappingService;
   }

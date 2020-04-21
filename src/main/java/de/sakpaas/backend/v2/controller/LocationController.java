@@ -12,6 +12,7 @@ import de.sakpaas.backend.service.LocationService;
 import de.sakpaas.backend.service.OccupancyService;
 import de.sakpaas.backend.service.OpenStreetMapService;
 import de.sakpaas.backend.service.PresenceService;
+import de.sakpaas.backend.service.SearchMappingService;
 import de.sakpaas.backend.service.SearchService;
 import de.sakpaas.backend.v2.dto.LocationResultLocationDto;
 import de.sakpaas.backend.v2.dto.OccupancyReportDto;
@@ -22,6 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -38,6 +41,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/v2/locations")
 @RestController
 public class LocationController {
+  private static final Logger LOGGER = LoggerFactory.getLogger(SearchMappingService.class);
 
   private static final String MAPPING_POST_OCCUPANCY = "/{locationId}/occupancy";
   private static final String MAPPING_POST_CHECKIN = "/{locationId}/check-in";
@@ -66,12 +70,12 @@ public class LocationController {
    * @param presenceService      The Presence Service
    */
   public LocationController(LocationService locationService,
-      SearchService searchService,
-      OpenStreetMapService openStreetMapService,
-      LocationMapper locationMapper,
-      SearchResultMapper searchResultMapper,
-      OccupancyService occupancyService,
-      PresenceService presenceService) {
+                            SearchService searchService,
+                            OpenStreetMapService openStreetMapService,
+                            LocationMapper locationMapper,
+                            SearchResultMapper searchResultMapper,
+                            OccupancyService occupancyService,
+                            PresenceService presenceService) {
     this.locationService = locationService;
     this.searchService = searchService;
     this.openStreetMapService = openStreetMapService;
@@ -92,8 +96,8 @@ public class LocationController {
   @GetMapping
   @ResponseBody
   public ResponseEntity<List<LocationResultLocationDto>> getLocation(@RequestParam Double latitude,
-      @RequestParam
-          Double longitude) {
+                                                                     @RequestParam
+                                                                         Double longitude) {
     List<Location> searchResult = locationService.findByCoordinates(latitude, longitude);
 
     if (searchResult.isEmpty()) {

@@ -8,15 +8,6 @@ import lombok.Getter;
 @Getter
 @Data
 public class CoordinateDetails {
-
   private final double latitude;
   private final double longitude;
-
-  @Override
-  public String toString() {
-    return "CoordinateDetails{"
-        + "latitude=" + latitude
-        + ", longitude=" + longitude
-        + '}';
-  }
 }
