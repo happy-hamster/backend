@@ -1,9 +1,19 @@
 package de.sakpaas.backend.v2.controller;
 
+import static org.springframework.http.HttpStatus.OK;
+
 import de.sakpaas.backend.dto.UserInfoDto;
+import de.sakpaas.backend.model.Favorite;
+import de.sakpaas.backend.model.Location;
+import de.sakpaas.backend.service.FavoriteRepository;
+import de.sakpaas.backend.service.LocationService;
 import de.sakpaas.backend.service.UserService;
+import de.sakpaas.backend.v2.dto.LocationResultLocationDto;
+import de.sakpaas.backend.v2.mapper.LocationMapper;
 import java.security.Principal;
-import org.springframework.http.HttpStatus;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -15,9 +25,19 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
   final UserService userService;
+  final FavoriteRepository favoriteRepository;
+  final LocationService locationService;
+  final LocationMapper locationMapper;
 
-  public UserController(UserService userService) {
+  /**
+   * Constructor for Services.
+   */
+  public UserController(UserService userService, FavoriteRepository favoriteRepository,
+                        LocationService locationService, LocationMapper locationMapper) {
     this.userService = userService;
+    this.favoriteRepository = favoriteRepository;
+    this.locationService = locationService;
+    this.locationMapper = locationMapper;
   }
 
   /**
@@ -29,6 +49,26 @@ public class UserController {
   @GetMapping("/info")
   public ResponseEntity<UserInfoDto> getUserInfo(@RequestHeader("Authorization") String header,
                                                  Principal principal) {
-    return new ResponseEntity<>(userService.getUserInfo(header, principal), HttpStatus.OK);
+    return new ResponseEntity<>(userService.getUserInfo(header, principal), OK);
+  }
+
+  /**
+   * Get Endpoint that returns the favorites of the user specified in the token.
+   *
+   * @param header The Authorization-Header that has to be provided in the request.
+   * @return Returns an Array of Locations.
+   */
+  @GetMapping("/self/favorites")
+  public ResponseEntity<List<LocationResultLocationDto>> getFavorites(
+      @RequestHeader("Authorization") String header, Principal principal) {
+    UserInfoDto userInfo = userService.getUserInfo(header, principal);
+    List<Favorite> favorites = favoriteRepository.findByUserUuid(UUID.fromString(userInfo.getId()));
+    List<LocationResultLocationDto> response = new ArrayList<>();
+    favorites.forEach(favorite -> {
+      Location location = favorite.getLocation();
+      response.add(locationMapper.mapToOutputDto(location));
+    });
+
+    return new ResponseEntity<>(response, OK);
   }
 }
