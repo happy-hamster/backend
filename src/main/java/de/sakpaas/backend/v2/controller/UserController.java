@@ -6,7 +6,6 @@ import de.sakpaas.backend.dto.UserInfoDto;
 import de.sakpaas.backend.model.Favorite;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.service.FavoriteRepository;
-import de.sakpaas.backend.service.LocationService;
 import de.sakpaas.backend.service.UserService;
 import de.sakpaas.backend.v2.dto.LocationResultLocationDto;
 import de.sakpaas.backend.v2.mapper.LocationMapper;
@@ -26,17 +25,15 @@ public class UserController {
 
   final UserService userService;
   final FavoriteRepository favoriteRepository;
-  final LocationService locationService;
   final LocationMapper locationMapper;
 
   /**
    * Constructor for Services.
    */
   public UserController(UserService userService, FavoriteRepository favoriteRepository,
-                        LocationService locationService, LocationMapper locationMapper) {
+                        LocationMapper locationMapper) {
     this.userService = userService;
     this.favoriteRepository = favoriteRepository;
-    this.locationService = locationService;
     this.locationMapper = locationMapper;
   }
 
