@@ -59,7 +59,7 @@ public class ErrorAttributes extends DefaultErrorAttributes {
     String textId = Error.UNKNOWN.name();
     String message = Error.UNKNOWN.message;
     // unknown errors have no parameters
-    Object[] parameters = null;
+    Object[] parameters = new Object[0];
     // there's a few errors that have no thrown exceptions
     if (throwable != null) {
       LOGGER.debug(LOG_PREFIX, throwable);

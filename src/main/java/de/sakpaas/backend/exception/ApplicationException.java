@@ -39,6 +39,7 @@ public class ApplicationException extends ResponseStatusException {
     super(status, message);
     this.message = ErrorAttributes.addParams(message, replacers);
     this.textId = textId;
+    this.internal = internal;
     this.parameters = replacers;
   }
 }
