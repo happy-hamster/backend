@@ -28,6 +28,10 @@ app:
     factorB: 150
   import:
     country: ${IMPORT_COUNTRY:"DE"}
+    shoptypes:
+      - supermarket
+      - chemist
+      - beverages
   version: dev
   commit: dev
 management:
@@ -50,7 +54,7 @@ keycloak:
         - uma_authorization
       securityCollections:
         - patterns: /auth/*
-        - patterns: /v2/user/*
+        - patterns: /v2/users/*
     - securityCollections:
         - patterns: /v1/*
         - patterns: /v2/*

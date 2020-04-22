@@ -8,6 +8,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -16,6 +21,7 @@ public class LocationService {
   private final LocationRepository locationRepository;
   private final PresenceRepository presenceRepository;
   private final OccupancyRepository occupancyRepository;
+  private final FavoriteService favoriteService;
 
   /**
    * Default Constructor. Handles the Dependency Injection and Meter Initialisation and Registering
@@ -26,9 +32,13 @@ public class LocationService {
   public LocationService(LocationRepository locationRepository,
       PresenceRepository presenceRepository,
       OccupancyRepository occupancyRepository) {
+                         PresenceRepository presenceRepository,
+                         OccupancyRepository occupancyRepository,
+                         FavoriteService favoriteService) {
     this.locationRepository = locationRepository;
     this.presenceRepository = presenceRepository;
     this.occupancyRepository = occupancyRepository;
+    this.favoriteService = favoriteService;
   }
 
   /**
@@ -77,6 +87,7 @@ public class LocationService {
   protected void delete(Location location) {
     occupancyRepository.findByLocation(location).forEach(occupancyRepository::delete);
     presenceRepository.findByLocation(location).forEach(presenceRepository::delete);
+    favoriteService.deleteByLocation(location);
     locationRepository.delete(location);
   }
 }
