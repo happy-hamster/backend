@@ -15,6 +15,7 @@ import de.sakpaas.backend.service.OccupancyService;
 import de.sakpaas.backend.service.OpenStreetMapService;
 import de.sakpaas.backend.service.PresenceService;
 import de.sakpaas.backend.service.SearchService;
+import de.sakpaas.backend.service.UserService;
 import de.sakpaas.backend.v2.dto.LocationResultLocationDto;
 import de.sakpaas.backend.v2.dto.OccupancyReportDto;
 import de.sakpaas.backend.v2.dto.SearchResultDto;
@@ -25,9 +26,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.validation.Valid;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -39,7 +37,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestTemplate;
 
 @CrossOrigin(origins = "*")
 @RequestMapping("/v2/locations")
@@ -57,6 +54,7 @@ public class LocationController {
   private final SearchResultMapper searchResultMapper;
   private final OccupancyService occupancyService;
   private final PresenceService presenceService;
+  private final UserService userService;
   private final AtomicBoolean importState;
 
 
@@ -77,7 +75,8 @@ public class LocationController {
                             LocationMapper locationMapper,
                             SearchResultMapper searchResultMapper,
                             OccupancyService occupancyService,
-                            PresenceService presenceService) {
+                            PresenceService presenceService,
+                            UserService userService) {
     this.locationService = locationService;
     this.searchService = searchService;
     this.openStreetMapService = openStreetMapService;
@@ -85,6 +84,7 @@ public class LocationController {
     this.searchResultMapper = searchResultMapper;
     this.occupancyService = occupancyService;
     this.presenceService = presenceService;
+    this.userService = userService;
     this.importState = new AtomicBoolean(false);
   }
 
@@ -134,7 +134,6 @@ public class LocationController {
 
     Location location = locationService.getById(locationId)
         .orElseThrow(() -> new InvalidLocationException(locationId));
-
 
     return user.map(
         userInfoDto -> new ResponseEntity<>(
@@ -236,21 +235,8 @@ public class LocationController {
   }
 
   private Optional<UserInfoDto> getOptionalUserWhenLoggedIn(String header) {
-    if (header == null) {
-      return Optional.empty();
-    }
-
-    UserInfoDto user;
-    HttpHeaders httpHeaders = new HttpHeaders();
-    httpHeaders.set("Authorization", header);
-    user = new RestTemplate()
-        .exchange("http://localhost:8080/v2/users/self/info", HttpMethod.GET,
-            new HttpEntity<>(null, httpHeaders), UserInfoDto.class).getBody();
-
-    if (user == null) {
-      return Optional.empty();
-    }
-
-    return Optional.of(user);
+    return (header == null)
+        ? Optional.empty()
+        : Optional.of(userService.getUserInfo(header));
   }
 }

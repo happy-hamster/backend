@@ -54,7 +54,7 @@ public class LocationMapper {
       return null;
     }
 
-    boolean flag = favoriteRepository.findByUserUuid(UUID.fromString(user.getId()))
+    boolean flag = favoriteRepository.findByUserUuid(user.getId())
         .stream()
         .anyMatch(favorite -> favorite.getLocation() == location);
 

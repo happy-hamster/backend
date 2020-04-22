@@ -76,7 +76,7 @@ public class UserControllerTest {
       favorites.add(new Favorite(user, location));
     }
 
-    Mockito.when(userService.getUserInfo(header, null)).thenReturn(
+    Mockito.when(userService.getUserInfo(header)).thenReturn(
         new UserInfoDto(user.toString(), "test", "test", "test", "test",
             "test@test.de"));
     Mockito.when(favoriteRepository.findByUserUuid(user)).thenReturn(favorites);

@@ -8,9 +8,7 @@ import de.sakpaas.backend.service.FavoriteRepository;
 import de.sakpaas.backend.service.UserService;
 import de.sakpaas.backend.v2.dto.LocationResultLocationDto;
 import de.sakpaas.backend.v2.mapper.LocationMapper;
-import java.security.Principal;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,9 +41,8 @@ public class UserController {
    * @return Returns the UserInfoDto
    */
   @GetMapping("self/info")
-  public ResponseEntity<UserInfoDto> getUserInfo(@RequestHeader("Authorization") String header,
-                                                 Principal principal) {
-    return new ResponseEntity<>(userService.getUserInfo(header, principal), OK);
+  public ResponseEntity<UserInfoDto> getUserInfo(@RequestHeader("Authorization") String header) {
+    return new ResponseEntity<>(userService.getUserInfo(header), OK);
   }
 
   /**
@@ -56,9 +53,11 @@ public class UserController {
    */
   @GetMapping("/self/favorites")
   public ResponseEntity<List<LocationResultLocationDto>> getFavorites(
-      @RequestHeader("Authorization") String header, Principal principal) {
-    UserInfoDto userInfo = userService.getUserInfo(header, principal);
-    List<Favorite> favorites = favoriteRepository.findByUserUuid(UUID.fromString(userInfo.getId()));
+      @RequestHeader("Authorization") String header) {
+
+    UserInfoDto userInfo = userService.getUserInfo(header);
+
+    List<Favorite> favorites = favoriteRepository.findByUserUuid(userInfo.getId());
     List<LocationResultLocationDto> response = favorites.stream()
         .map(favorite -> locationMapper.mapLocationToOutputDto(favorite.getLocation()))
         .collect(Collectors.toList());
