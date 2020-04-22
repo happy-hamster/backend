@@ -5,24 +5,24 @@ import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 
 import de.sakpaas.backend.BackendApplication;
+import de.sakpaas.backend.exception.InvalidLocationException;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.Occupancy;
+import de.sakpaas.backend.model.SearchResultObject;
 import de.sakpaas.backend.service.LocationService;
 import de.sakpaas.backend.service.OccupancyService;
 import de.sakpaas.backend.service.OpenStreetMapService;
 import de.sakpaas.backend.service.PresenceService;
-import de.sakpaas.backend.service.SearchMappingService;
 import de.sakpaas.backend.service.SearchService;
 import de.sakpaas.backend.v2.dto.LocationResultLocationDto;
 import de.sakpaas.backend.v2.dto.OccupancyReportDto;
+import de.sakpaas.backend.v2.dto.SearchResultDto;
 import de.sakpaas.backend.v2.mapper.LocationMapper;
 import de.sakpaas.backend.v2.mapper.SearchResultMapper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -39,8 +39,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/v2/locations")
 @RestController
 public class LocationController {
-  private static final Logger LOGGER = LoggerFactory.getLogger(SearchMappingService.class);
-
   private static final String MAPPING_POST_OCCUPANCY = "/{locationId}/occupancy";
   private static final String MAPPING_POST_CHECKIN = "/{locationId}/check-in";
   private static final String MAPPING_BY_ID = "/{locationId}";
@@ -87,14 +85,15 @@ public class LocationController {
   /**
    * Get Endpoint to receive all Locations around a given location.
    *
-   * @param latitude Latitude of the Location.
+   * @param latitude  Latitude of the Location.
    * @param longitude Longitude of the Location.
    * @return List of all Locations in the Area.
    */
   @GetMapping
   @ResponseBody
   public ResponseEntity<List<LocationResultLocationDto>> getLocation(@RequestParam Double latitude,
-      @RequestParam Double longitude) {
+                                                                     @RequestParam
+                                                                         Double longitude) {
     List<Location> searchResult = locationService.findByCoordinates(latitude, longitude);
 
     if (searchResult.isEmpty()) {
@@ -129,7 +128,7 @@ public class LocationController {
    * Post Endpoint to create a new Occupancy Report.
    *
    * @param occupancyReportDto OccupancyReportDto send by the Client
-   * @param locationId LocationId of the Location the Report is for
+   * @param locationId         LocationId of the Location the Report is for
    * @return Returns if the Report was created successfully
    */
   @PostMapping(value = MAPPING_POST_OCCUPANCY)
