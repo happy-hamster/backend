@@ -34,10 +34,8 @@ public class SearchMappingService {
    */
   public CoordinateDetails search(String key) {
     String url = this.searchApiUrl + "/search/" + key + "?format=json";
-    LOGGER.info("URL: " + url);
 
     final NominatimSearchResultListDto list = makeRequest(url);
-    LOGGER.info("Liste: " + list);
     return new CoordinateDetails(list.getElements().get(0).getLat(),
         list.getElements().get(0).getLon());
   }

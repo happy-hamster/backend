@@ -43,7 +43,6 @@ public class SearchService {
     List<Location> locationList =
         locationService.findByCoordinates(nominatimResultLocationDtoList.getLatitude(),
             nominatimResultLocationDtoList.getLongitude());
-    LOGGER.info(locationList.toString());
 
     return new SearchResultObject(nominatimResultLocationDtoList, locationList);
   }
