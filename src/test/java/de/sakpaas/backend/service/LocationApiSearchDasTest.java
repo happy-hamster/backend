@@ -71,7 +71,7 @@ class LocationApiSearchDasTest extends HappyHamsterTest {
         "    \"addr:housenumber\": \"43\",\n" +
         "    \"addr:postcode\": \"21129\",\n" +
         "    \"addr:street\": \"Steendiek\",\n" +
-        "    \"brand\": \"Budnikowsk\",\n" +
+        "    \"brand\": \"Budnikowsky\",\n" +
         "    \"brand:wikidata\": \"Q1001516\",\n" +
         "    \"brand:wikipedia\": \"de:Budnikowsky\",\n" +
         "    \"name\": \"Budnikowsky\",\n" +
