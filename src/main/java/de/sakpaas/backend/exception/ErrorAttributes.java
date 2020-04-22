@@ -104,9 +104,14 @@ public class ErrorAttributes extends DefaultErrorAttributes {
           message = Error.RESOURCE.message;
           break;
         // Accessing resources while not being logged in
-        case 403:
+        case 401:
           textId = Error.AUTHENTICATION.name();
           message = Error.AUTHENTICATION.message;
+          break;
+        // Accessing resources without the right permission
+        case 403:
+          textId = Error.PERMISSION.name();
+          message = Error.PERMISSION.message;
           break;
         default:
           break;
