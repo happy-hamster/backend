@@ -5,6 +5,7 @@ import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 
 import de.sakpaas.backend.BackendApplication;
+import de.sakpaas.backend.exception.InvalidLocationException;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.Occupancy;
 import de.sakpaas.backend.service.LocationService;
@@ -51,16 +52,15 @@ public class LocationController {
   /**
    * Constructor that injects the needed dependencies.
    *
-   * @param locationService      The Location Service
+   * @param locationService The Location Service
    * @param openStreetMapService The OpenStreetMap Service
-   * @param locationMapper       An OSM Location to Location Mapper
-   * @param occupancyService     The Occupancy Service
-   * @param presenceService      The Presence Service
+   * @param locationMapper An OSM Location to Location Mapper
+   * @param occupancyService The Occupancy Service
+   * @param presenceService The Presence Service
    */
   public LocationController(LocationService locationService,
-                            OpenStreetMapService openStreetMapService,
-                            LocationMapper locationMapper, OccupancyService occupancyService,
-                            PresenceService presenceService) {
+      OpenStreetMapService openStreetMapService, LocationMapper locationMapper,
+      OccupancyService occupancyService, PresenceService presenceService) {
     this.locationService = locationService;
     this.openStreetMapService = openStreetMapService;
     this.locationMapper = locationMapper;
@@ -72,24 +72,22 @@ public class LocationController {
   /**
    * Get Endpoint to receive all Locations around a given location.
    *
-   * @param latitude  Latitude of the Location.
+   * @param latitude Latitude of the Location.
    * @param longitude Longitude of the Location.
    * @return List of all Locations in the Area.
    */
   @GetMapping
   @ResponseBody
   public ResponseEntity<List<LocationResultLocationDto>> getLocation(@RequestParam Double latitude,
-                                                                     @RequestParam
-                                                                         Double longitude) {
+      @RequestParam Double longitude) {
     List<Location> searchResult = locationService.findByCoordinates(latitude, longitude);
 
     if (searchResult.isEmpty()) {
       return new ResponseEntity<>(new ArrayList<>(), OK);
     }
 
-    List<LocationResultLocationDto> response = searchResult.stream()
-        .map(locationMapper::mapToOutputDto)
-        .collect(toList());
+    List<LocationResultLocationDto> response =
+        searchResult.stream().map(locationMapper::mapToOutputDto).collect(toList());
 
     return new ResponseEntity<>(response, OK);
   }
@@ -103,11 +101,10 @@ public class LocationController {
   @GetMapping(value = MAPPING_BY_ID)
   public ResponseEntity<LocationResultLocationDto> getById(
       @PathVariable("locationId") Long locationId) {
-    Location location = locationService.getById(locationId).orElse(null);
 
-    if (location == null) {
-      return ResponseEntity.notFound().build();
-    }
+    Location location = locationService.getById(locationId)
+        .orElseThrow(() -> new InvalidLocationException(locationId));
+
 
     return new ResponseEntity<>(locationMapper.mapToOutputDto(location), OK);
   }
@@ -116,7 +113,7 @@ public class LocationController {
    * Post Endpoint to create a new Occupancy Report.
    *
    * @param occupancyReportDto OccupancyReportDto send by the Client
-   * @param locationId         LocationId of the Location the Report is for
+   * @param locationId LocationId of the Location the Report is for
    * @return Returns if the Report was created successfully
    */
   @PostMapping(value = MAPPING_POST_OCCUPANCY)
