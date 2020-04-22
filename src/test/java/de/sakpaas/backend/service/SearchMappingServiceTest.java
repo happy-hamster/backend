@@ -29,9 +29,9 @@ class SearchMappingServiceTest extends HappyHamsterTest {
             Collections
                 .singletonList(new NominatimSearchResultListDto.NominatimResultLocationDto(3, 5))));
     Mockito.doReturn(mockedList).when(mockService)
-        .makeRequest("https://nominatim.openstreetmap.org//search/?format=json");
+        .makeRequest(Mockito.any());
 
-    final CoordinateDetails result = searchMappingService.search("");
+    final CoordinateDetails result = mockService.search("");
     assertEquals(new CoordinateDetails(3, 5), result);
   }
 }
