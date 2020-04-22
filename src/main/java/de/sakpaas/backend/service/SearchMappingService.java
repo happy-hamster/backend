@@ -2,9 +2,7 @@ package de.sakpaas.backend.service;
 
 import com.google.common.annotations.VisibleForTesting;
 import de.sakpaas.backend.dto.NominatimSearchResultListDto;
-import de.sakpaas.backend.dto.NominatimSearchResultListDto.NominatimResultLocationDto;
 import de.sakpaas.backend.model.CoordinateDetails;
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,7 +34,6 @@ public class SearchMappingService {
 
     final NominatimSearchResultListDto list = makeRequest(url);
     LOGGER.info("Liste: " + list);
-//    return calculateCenter(list);
     return new CoordinateDetails(list.getElements().get(0).getLat(),
         list.getElements().get(0).getLon());
   }
@@ -66,27 +63,5 @@ public class SearchMappingService {
     HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set(HttpHeaders.ACCEPT, "text/html");
     return new HttpEntity<>(httpHeaders);
-  }
-
-  /**
-   * Calculates the central coordinates of a list of NominatimResultLocationDto.
-   *
-   * @param nominatimSearchResultListDto The NominatimSearchResultListDto
-   * @return The central coordinates
-   */
-  @VisibleForTesting
-  protected CoordinateDetails calculateCenter(
-      NominatimSearchResultListDto nominatimSearchResultListDto) {
-    List<NominatimResultLocationDto> list = nominatimSearchResultListDto.getElements();
-    double latitude = list.stream()
-        .map(NominatimResultLocationDto::getLat)
-        .mapToDouble(lat -> lat)
-        .average().orElse(0.0);
-    double longitude = list.stream()
-        .map(NominatimResultLocationDto::getLon)
-        .mapToDouble(lon -> lon)
-        .average().orElse(0.0);
-
-    return new CoordinateDetails(latitude, longitude);
   }
 }

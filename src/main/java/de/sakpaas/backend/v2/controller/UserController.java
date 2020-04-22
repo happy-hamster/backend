@@ -60,7 +60,7 @@ public class UserController {
     UserInfoDto userInfo = userService.getUserInfo(header, principal);
     List<Favorite> favorites = favoriteRepository.findByUserUuid(UUID.fromString(userInfo.getId()));
     List<LocationResultLocationDto> response = favorites.stream()
-        .map(favorite -> locationMapper.mapToOutputDto(favorite.getLocation()))
+        .map(favorite -> locationMapper.mapLocationToOutputDto(favorite.getLocation()))
         .collect(Collectors.toList());
 
     return new ResponseEntity<>(response, OK);
