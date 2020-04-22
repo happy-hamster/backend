@@ -11,7 +11,7 @@ public class UnsupportedEndpointException extends ApplicationException {
    * Creates an {@link UnsupportedEndpointException}.
    */
   public UnsupportedEndpointException() {
-    super(HttpStatus.BAD_REQUEST,
+    super(HttpStatus.GONE,
         "This endpoint is not supported anymore. Please refer to the openAPI specification.",
         "UNSUPPORTED_ENDPOINT", false);
   }
