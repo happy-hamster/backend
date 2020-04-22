@@ -5,12 +5,14 @@ import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 
 import de.sakpaas.backend.BackendApplication;
+import de.sakpaas.backend.dto.UserInfoDto;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.Occupancy;
 import de.sakpaas.backend.service.LocationService;
 import de.sakpaas.backend.service.OccupancyService;
 import de.sakpaas.backend.service.OpenStreetMapService;
 import de.sakpaas.backend.service.PresenceService;
+import de.sakpaas.backend.service.UserService;
 import de.sakpaas.backend.v2.dto.LocationResultLocationDto;
 import de.sakpaas.backend.v2.dto.OccupancyReportDto;
 import de.sakpaas.backend.v2.mapper.LocationMapper;
@@ -18,6 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.validation.Valid;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -25,10 +30,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
 @CrossOrigin(origins = "*")
 @RequestMapping("/v2/locations")
@@ -46,6 +53,7 @@ public class LocationController {
   private final OccupancyService occupancyService;
   private final PresenceService presenceService;
   private final AtomicBoolean importState;
+  private final UserService userService;
 
 
   /**
@@ -56,16 +64,18 @@ public class LocationController {
    * @param locationMapper       An OSM Location to Location Mapper
    * @param occupancyService     The Occupancy Service
    * @param presenceService      The Presence Service
+   * @param userService          The User Service
    */
   public LocationController(LocationService locationService,
                             OpenStreetMapService openStreetMapService,
                             LocationMapper locationMapper, OccupancyService occupancyService,
-                            PresenceService presenceService) {
+                            PresenceService presenceService, UserService userService) {
     this.locationService = locationService;
     this.openStreetMapService = openStreetMapService;
     this.locationMapper = locationMapper;
     this.occupancyService = occupancyService;
     this.presenceService = presenceService;
+    this.userService = userService;
     this.importState = new AtomicBoolean(false);
   }
 
@@ -78,9 +88,18 @@ public class LocationController {
    */
   @GetMapping
   @ResponseBody
-  public ResponseEntity<List<LocationResultLocationDto>> getLocation(@RequestParam Double latitude,
-                                                                     @RequestParam
-                                                                         Double longitude) {
+  public ResponseEntity<List<LocationResultLocationDto>> getLocation(
+      @RequestParam Double latitude, @RequestParam Double longitude,
+      @RequestHeader(value = "Authorization", required = false) String header) {
+    UserInfoDto user;
+    if (header != null) {
+      HttpHeaders httpHeaders = new HttpHeaders();
+      httpHeaders.set("Authorization", header);
+      user = new RestTemplate()
+          .exchange("http://localhost:8080/v2/users/self/info", HttpMethod.GET,
+              new HttpEntity<>(null, httpHeaders), UserInfoDto.class).getBody();
+    }
+
     List<Location> searchResult = locationService.findByCoordinates(latitude, longitude);
 
     if (searchResult.isEmpty()) {

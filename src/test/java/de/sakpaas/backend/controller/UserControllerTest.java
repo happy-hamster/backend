@@ -101,6 +101,6 @@ public class UserControllerTest {
   }
 
   private LocationResultLocationDto resultDto(Long id) {
-    return new LocationResultLocationDto(id, "Location: " + id, null, null, null, null);
+    return new LocationResultLocationDto(id, "Location: " + id, false, null, null, null, null);
   }
 }

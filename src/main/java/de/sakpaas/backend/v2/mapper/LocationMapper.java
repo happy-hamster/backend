@@ -30,7 +30,7 @@ public class LocationMapper {
     }
 
     return new LocationResultLocationDto(
-        location.getId(), location.getName(),
+        location.getId(), location.getName(), false,
         new LocationResultLocationDto.LocationResultLocationDetailsDto(location.getDetails()),
         new LocationResultLocationDto.LocationResultCoordinatesDto(location.getLatitude(),
             location.getLongitude()),
