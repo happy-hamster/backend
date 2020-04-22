@@ -153,11 +153,9 @@ public class LocationController {
       @Valid @RequestBody OccupancyReportDto occupancyReportDto,
       @PathVariable("locationId") Long locationId) {
     occupancyReportDto.setLocationId(locationId);
-    Location location = locationService.getById(locationId).orElse(null);
 
-    if (location == null) {
-      return ResponseEntity.notFound().build();
-    }
+    Location location = locationService.getById(locationId)
+        .orElseThrow(() -> new InvalidLocationException(locationId));
 
     occupancyService.save(new Occupancy(location, occupancyReportDto.getOccupancy(),
         occupancyReportDto.getClientType()));
