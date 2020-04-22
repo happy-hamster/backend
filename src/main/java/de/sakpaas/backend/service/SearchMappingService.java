@@ -17,10 +17,14 @@ import org.springframework.web.client.RestTemplate;
 public class SearchMappingService {
   private static final Logger LOGGER = LoggerFactory.getLogger(SearchMappingService.class);
 
-  private final RestTemplate restTemplate = new RestTemplate();
+  private final RestTemplate restTemplate;
 
   @Value("${app.search-api-url}")
   private String searchApiUrl;
+
+  public SearchMappingService(RestTemplate restTemplate) {
+    this.restTemplate = restTemplate;
+  }
 
   /**
    * Searches in the Nominatim Microservice for the given key.
