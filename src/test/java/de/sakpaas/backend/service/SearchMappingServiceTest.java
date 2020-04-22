@@ -2,6 +2,7 @@ package de.sakpaas.backend.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.header;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -58,6 +60,7 @@ class SearchMappingServiceTest extends HappyHamsterTest {
         "[{\"place_id\":97754986,\"licence\":\"Data © OpenStreetMap contributors, ODbL 1.0. https://osm.org/copyright\",\"osm_type\":\"way\",\"osm_id\":45186996,\"boundingbox\":[\"49.3188712\",\"49.3191267\",\"9.3630305\",\"9.3637289\"],\"lat\":\"49.3190277\",\"lon\":\"9.363421444681375\",\"display_name\":\"Lidl, 10, Daimlerstraße, Schillerhöhe, Möckmühl, Verwaltungsgemeinschaft Möckmühl, Landkreis Heilbronn, Baden-Württemberg, 74219, Germany\",\"class\":\"shop\",\"type\":\"supermarket\",\"importance\":0.22100000000000003,\"icon\":\"https://nominatim.openstreetmap.org/images/mapicons/shopping_supermarket.p.20.png\"}]";
     mockServer.expect(ExpectedCount.once(), requestTo(new URI("/test.de")))
         .andExpect(method(HttpMethod.GET))
+        .andExpect(header(HttpHeaders.ACCEPT, "text/html"))
         .andRespond(withStatus(HttpStatus.OK)
             .contentType(MediaType.APPLICATION_JSON)
             .body(responseBody));
