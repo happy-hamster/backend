@@ -1,10 +1,13 @@
 package de.sakpaas.backend.v2.mapper;
 
+import de.sakpaas.backend.dto.UserInfoDto;
 import de.sakpaas.backend.model.Location;
+import de.sakpaas.backend.service.FavoriteRepository;
 import de.sakpaas.backend.service.OccupancyService;
 import de.sakpaas.backend.v2.dto.LocationResultLocationDto;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -12,10 +15,12 @@ import org.springframework.stereotype.Component;
 public class LocationMapper {
 
   private final OccupancyService occupancyService;
+  private final FavoriteRepository favoriteRepository;
 
   @Autowired
-  public LocationMapper(OccupancyService occupancyService) {
+  public LocationMapper(OccupancyService occupancyService, FavoriteRepository favoriteRepository) {
     this.occupancyService = occupancyService;
+    this.favoriteRepository = favoriteRepository;
   }
 
   /**
@@ -40,6 +45,32 @@ public class LocationMapper {
   }
 
   /**
+   * Maps the given Location to a v2 LocationDto with favorite flag.
+   *
+   * @param location the Location to be mapped
+   * @param user     the user for which the flags should be set
+   * @return the mapped LocationDto
+   */
+  public LocationResultLocationDto mapToOutputDto(Location location, UserInfoDto user) {
+    if (location == null) {
+      return null;
+    }
+
+    boolean flag = favoriteRepository.findByUserUuid(UUID.fromString(user.getId()))
+        .stream()
+        .anyMatch(favorite -> favorite.getLocation() == location);
+
+    return new LocationResultLocationDto(
+        location.getId(), location.getName(), flag,
+        new LocationResultLocationDto.LocationResultLocationDetailsDto(location.getDetails()),
+        new LocationResultLocationDto.LocationResultCoordinatesDto(location.getLatitude(),
+            location.getLongitude()),
+        new LocationResultLocationDto.LocationResultOccupancyDto(
+            occupancyService.getOccupancyCalculation(location)),
+        new LocationResultLocationDto.LocationResultAddressDto(location.getAddress()));
+  }
+
+  /**
    * Maps the given List of Locations to a List of v2 LocationDto.
    *
    * @param locations the Location List to be mapped
@@ -49,6 +80,22 @@ public class LocationMapper {
     List<LocationResultLocationDto> resultLocationDtoList = new ArrayList<>();
     for (Location location : locations) {
       resultLocationDtoList.add(mapToOutputDto(location));
+    }
+    return resultLocationDtoList;
+  }
+
+  /**
+   * Maps the given List of Locations to a List of v2 LocationDto.
+   *
+   * @param locations the Location List to be mapped
+   * @param user      the user for which the flags should be set
+   * @return the mapped LocationDto List
+   */
+  public List<LocationResultLocationDto> mapToOutputDto(List<Location> locations,
+                                                        UserInfoDto user) {
+    List<LocationResultLocationDto> resultLocationDtoList = new ArrayList<>();
+    for (Location location : locations) {
+      resultLocationDtoList.add(mapToOutputDto(location, user));
     }
     return resultLocationDtoList;
   }

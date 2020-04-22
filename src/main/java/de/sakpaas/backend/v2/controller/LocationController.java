@@ -18,6 +18,7 @@ import de.sakpaas.backend.v2.dto.OccupancyReportDto;
 import de.sakpaas.backend.v2.mapper.LocationMapper;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.validation.Valid;
 import org.springframework.http.HttpEntity;
@@ -91,14 +92,7 @@ public class LocationController {
   public ResponseEntity<List<LocationResultLocationDto>> getLocation(
       @RequestParam Double latitude, @RequestParam Double longitude,
       @RequestHeader(value = "Authorization", required = false) String header) {
-    UserInfoDto user;
-    if (header != null) {
-      HttpHeaders httpHeaders = new HttpHeaders();
-      httpHeaders.set("Authorization", header);
-      user = new RestTemplate()
-          .exchange("http://localhost:8080/v2/users/self/info", HttpMethod.GET,
-              new HttpEntity<>(null, httpHeaders), UserInfoDto.class).getBody();
-    }
+    Optional<UserInfoDto> user = getOptionalUserWhenLoggedIn(header);
 
     List<Location> searchResult = locationService.findByCoordinates(latitude, longitude);
 
@@ -107,7 +101,13 @@ public class LocationController {
     }
 
     List<LocationResultLocationDto> response = searchResult.stream()
-        .map(locationMapper::mapToOutputDto)
+        .map(location -> {
+          if (user.isPresent()) {
+            return locationMapper.mapToOutputDto(location, user.get());
+          } else {
+            return locationMapper.mapToOutputDto(location);
+          }
+        })
         .collect(toList());
 
     return new ResponseEntity<>(response, OK);
@@ -121,14 +121,19 @@ public class LocationController {
    */
   @GetMapping(value = MAPPING_BY_ID)
   public ResponseEntity<LocationResultLocationDto> getById(
-      @PathVariable("locationId") Long locationId) {
+      @PathVariable("locationId") Long locationId,
+      @RequestHeader(value = "Authorization", required = false) String header) {
+    Optional<UserInfoDto> user = getOptionalUserWhenLoggedIn(header);
+
     Location location = locationService.getById(locationId).orElse(null);
 
     if (location == null) {
       return ResponseEntity.notFound().build();
     }
 
-    return new ResponseEntity<>(locationMapper.mapToOutputDto(location), OK);
+    return user.map(
+        userInfoDto -> new ResponseEntity<>(locationMapper.mapToOutputDto(location, userInfoDto),
+            OK)).orElseGet(() -> new ResponseEntity<>(locationMapper.mapToOutputDto(location), OK));
   }
 
   /**
@@ -201,10 +206,42 @@ public class LocationController {
     return ResponseEntity.ok("Success");
   }
 
+  /**
+   * Get Endpoint to search for Locations.
+   *
+   * @param key    the search query
+   * @param header the (optional) authentication
+   * @return a list of found locations
+   */
   @GetMapping(value = MAPPING_SEARCH_LOCATION)
   public ResponseEntity<List<LocationResultLocationDto>> searchForLocations(
-      @PathVariable("key") String key) {
+      @PathVariable("key") String key,
+      @RequestHeader(value = "Authorization", required = false) String header) {
+    Optional<UserInfoDto> user = getOptionalUserWhenLoggedIn(header);
+
     List<Location> locations = locationService.search(key);
-    return new ResponseEntity<>(locationMapper.mapToOutputDto(locations), OK);
+    return user.map(
+        userInfoDto -> new ResponseEntity<>(locationMapper.mapToOutputDto(locations, userInfoDto),
+            OK))
+        .orElseGet(() -> new ResponseEntity<>(locationMapper.mapToOutputDto(locations), OK));
+  }
+
+  private Optional<UserInfoDto> getOptionalUserWhenLoggedIn(String header) {
+    if (header == null) {
+      return Optional.empty();
+    }
+
+    UserInfoDto user;
+    HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.set("Authorization", header);
+    user = new RestTemplate()
+        .exchange("http://localhost:8080/v2/users/self/info", HttpMethod.GET,
+            new HttpEntity<>(null, httpHeaders), UserInfoDto.class).getBody();
+
+    if (user == null) {
+      return Optional.empty();
+    }
+
+    return Optional.of(user);
   }
 }

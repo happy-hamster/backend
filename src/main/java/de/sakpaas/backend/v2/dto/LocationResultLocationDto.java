@@ -12,7 +12,7 @@ import lombok.Data;
 import lombok.Getter;
 
 @Getter
-@JsonPropertyOrder({"id", "name", "details", "coordinates", "occupancy", "address"})
+@JsonPropertyOrder({"id", "name", "favorite", "details", "coordinates", "occupancy", "address"})
 public class LocationResultLocationDto {
 
   private final long id;
