@@ -5,8 +5,6 @@ import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.service.FavoriteRepository;
 import de.sakpaas.backend.service.OccupancyService;
 import de.sakpaas.backend.v2.dto.LocationResultLocationDto;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -29,7 +27,7 @@ public class LocationMapper {
    * @param location the Location to be mapped
    * @return the mapped LocationDto
    */
-  public LocationResultLocationDto mapToOutputDto(Location location) {
+  public LocationResultLocationDto mapLocationToOutputDto(Location location) {
     if (location == null) {
       return null;
     }
@@ -51,7 +49,7 @@ public class LocationMapper {
    * @param user     the user for which the flags should be set
    * @return the mapped LocationDto
    */
-  public LocationResultLocationDto mapToOutputDto(Location location, UserInfoDto user) {
+  public LocationResultLocationDto mapLocationToOutputDto(Location location, UserInfoDto user) {
     if (location == null) {
       return null;
     }
@@ -68,35 +66,5 @@ public class LocationMapper {
         new LocationResultLocationDto.LocationResultOccupancyDto(
             occupancyService.getOccupancyCalculation(location)),
         new LocationResultLocationDto.LocationResultAddressDto(location.getAddress()));
-  }
-
-  /**
-   * Maps the given List of Locations to a List of v2 LocationDto.
-   *
-   * @param locations the Location List to be mapped
-   * @return the mapped LocationDto List
-   */
-  public List<LocationResultLocationDto> mapToOutputDto(List<Location> locations) {
-    List<LocationResultLocationDto> resultLocationDtoList = new ArrayList<>();
-    for (Location location : locations) {
-      resultLocationDtoList.add(mapToOutputDto(location));
-    }
-    return resultLocationDtoList;
-  }
-
-  /**
-   * Maps the given List of Locations to a List of v2 LocationDto.
-   *
-   * @param locations the Location List to be mapped
-   * @param user      the user for which the flags should be set
-   * @return the mapped LocationDto List
-   */
-  public List<LocationResultLocationDto> mapToOutputDto(List<Location> locations,
-                                                        UserInfoDto user) {
-    List<LocationResultLocationDto> resultLocationDtoList = new ArrayList<>();
-    for (Location location : locations) {
-      resultLocationDtoList.add(mapToOutputDto(location, user));
-    }
-    return resultLocationDtoList;
   }
 }

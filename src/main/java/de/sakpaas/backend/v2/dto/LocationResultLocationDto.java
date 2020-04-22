@@ -98,10 +98,8 @@ public class LocationResultLocationDto {
   @Data
   @AllArgsConstructor
   public static class LocationResultCoordinatesDto {
-
     private double latitude;
     private double longitude;
-
   }
 
   @Data
