@@ -2,6 +2,7 @@ package de.sakpaas.backend.service;
 
 import com.google.common.annotations.VisibleForTesting;
 import de.sakpaas.backend.dto.NominatimSearchResultListDto;
+import de.sakpaas.backend.exception.NoSearchResultsException;
 import de.sakpaas.backend.model.CoordinateDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,8 +37,14 @@ public class SearchMappingService {
     String url = this.searchApiUrl + "/search/" + key + "?format=json";
 
     final NominatimSearchResultListDto list = makeRequest(url);
-    return new CoordinateDetails(list.getElements().get(0).getLat(),
-        list.getElements().get(0).getLon());
+
+    try {
+      return new CoordinateDetails(list.getElements().get(0).getLat(),
+          list.getElements().get(0).getLon());
+    } catch (IndexOutOfBoundsException e) {
+      throw new NoSearchResultsException(
+          "Under the URL (" + url + ") no coordinates could be calculated", url);
+    }
   }
 
   /**
