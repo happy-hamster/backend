@@ -1,13 +1,18 @@
 package de.sakpaas.backend.exception;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(code = HttpStatus.BAD_REQUEST)
-public class UnsupportedEndpointException extends RuntimeException {
+/**
+ * Exception that is used in order to display that a specific Endpoint is not supported anymore.
+ */
+public class UnsupportedEndpointException extends ApplicationException {
 
-  @Override
-  public String getMessage() {
-    return "This endpoint is no longer supported. Please refer to the openAPI specification.";
+  /**
+   * Creates an {@link UnsupportedEndpointException}.
+   */
+  public UnsupportedEndpointException() {
+    super(HttpStatus.BAD_REQUEST,
+        "This endpoint is not supported anymore. Please refer to the openAPI specification.",
+        "UNSUPPORTED_ENDPOINT", false);
   }
 }
