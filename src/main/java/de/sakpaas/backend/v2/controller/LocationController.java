@@ -6,13 +6,13 @@ import static org.springframework.http.HttpStatus.OK;
 
 import de.sakpaas.backend.BackendApplication;
 import de.sakpaas.backend.dto.UserInfoDto;
+import de.sakpaas.backend.exception.InvalidLocationException;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.Occupancy;
 import de.sakpaas.backend.service.LocationService;
 import de.sakpaas.backend.service.OccupancyService;
 import de.sakpaas.backend.service.OpenStreetMapService;
 import de.sakpaas.backend.service.PresenceService;
-import de.sakpaas.backend.service.UserService;
 import de.sakpaas.backend.v2.dto.LocationResultLocationDto;
 import de.sakpaas.backend.v2.dto.OccupancyReportDto;
 import de.sakpaas.backend.v2.mapper.LocationMapper;
@@ -54,7 +54,6 @@ public class LocationController {
   private final OccupancyService occupancyService;
   private final PresenceService presenceService;
   private final AtomicBoolean importState;
-  private final UserService userService;
 
 
   /**
@@ -65,18 +64,16 @@ public class LocationController {
    * @param locationMapper       An OSM Location to Location Mapper
    * @param occupancyService     The Occupancy Service
    * @param presenceService      The Presence Service
-   * @param userService          The User Service
    */
   public LocationController(LocationService locationService,
                             OpenStreetMapService openStreetMapService,
                             LocationMapper locationMapper, OccupancyService occupancyService,
-                            PresenceService presenceService, UserService userService) {
+                            PresenceService presenceService) {
     this.locationService = locationService;
     this.openStreetMapService = openStreetMapService;
     this.locationMapper = locationMapper;
     this.occupancyService = occupancyService;
     this.presenceService = presenceService;
-    this.userService = userService;
     this.importState = new AtomicBoolean(false);
   }
 
@@ -125,11 +122,9 @@ public class LocationController {
       @RequestHeader(value = "Authorization", required = false) String header) {
     Optional<UserInfoDto> user = getOptionalUserWhenLoggedIn(header);
 
-    Location location = locationService.getById(locationId).orElse(null);
+    Location location = locationService.getById(locationId)
+        .orElseThrow(() -> new InvalidLocationException(locationId));
 
-    if (location == null) {
-      return ResponseEntity.notFound().build();
-    }
 
     return user.map(
         userInfoDto -> new ResponseEntity<>(locationMapper.mapToOutputDto(location, userInfoDto),
