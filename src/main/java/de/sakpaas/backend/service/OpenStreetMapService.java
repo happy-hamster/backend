@@ -22,7 +22,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class OpenStreetMapService {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(LocationService.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(OpenStreetMapService.class);
   private final AtomicDouble importLocationProgress;
   private final AtomicDouble deleteLocationProgress;
   private final LocationApiSearchDas locationApiSearchDas;

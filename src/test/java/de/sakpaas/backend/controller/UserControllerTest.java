@@ -80,9 +80,12 @@ public class UserControllerTest {
         new UserInfoDto(user.toString(), "test", "test", "test", "test",
             "test@test.de"));
     Mockito.when(favoriteRepository.findByUserUuid(user)).thenReturn(favorites);
-    Mockito.when(locationMapper.mapToOutputDto(locations.get(0))).thenReturn(resultDtos.get(0));
-    Mockito.when(locationMapper.mapToOutputDto(locations.get(1))).thenReturn(resultDtos.get(1));
-    Mockito.when(locationMapper.mapToOutputDto(locations.get(2))).thenReturn(resultDtos.get(2));
+    Mockito.when(locationMapper.mapLocationToOutputDto(locations.get(0)))
+        .thenReturn(resultDtos.get(0));
+    Mockito.when(locationMapper.mapLocationToOutputDto(locations.get(1)))
+        .thenReturn(resultDtos.get(1));
+    Mockito.when(locationMapper.mapLocationToOutputDto(locations.get(2)))
+        .thenReturn(resultDtos.get(2));
 
     String resultJson =
         this.mockMvc.perform(get("/v2/users/self/favorites").header("Authorization", header))
