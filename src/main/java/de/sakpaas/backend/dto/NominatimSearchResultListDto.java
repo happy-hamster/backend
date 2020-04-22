@@ -20,6 +20,11 @@ public class NominatimSearchResultListDto {
     this.elements = elements;
   }
 
+  @Override
+  public String toString() {
+    return "NominatimSearchResultListDto{" + "elements=" + elements + '}';
+  }
+
   @Getter
   public static class NominatimResultLocationDto {
 
@@ -39,6 +44,11 @@ public class NominatimSearchResultListDto {
     ) {
       this.lat = lat;
       this.lon = lon;
+    }
+
+    @Override
+    public String toString() {
+      return "NominatimResultLocationDto{" + "lat=" + lat + ", lon=" + lon + '}';
     }
   }
 }

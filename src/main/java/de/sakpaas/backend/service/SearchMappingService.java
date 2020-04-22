@@ -4,7 +4,6 @@ import com.google.common.annotations.VisibleForTesting;
 import de.sakpaas.backend.dto.NominatimSearchResultListDto;
 import de.sakpaas.backend.dto.NominatimSearchResultListDto.NominatimResultLocationDto;
 import de.sakpaas.backend.model.CoordinateDetails;
-import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,11 +14,12 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.DefaultUriBuilderFactory;
 
 @Service
 public class SearchMappingService {
   private static final Logger LOGGER = LoggerFactory.getLogger(SearchMappingService.class);
+
+  private final RestTemplate restTemplate = new RestTemplate();
 
   @Value("${app.search-api-url}")
   private String searchApiUrl;
@@ -31,13 +31,14 @@ public class SearchMappingService {
    * @return The list of Locations in our database
    */
   public CoordinateDetails search(String key) {
-    // Makes a request to the Nominatim Microservice
     String url = this.searchApiUrl + "/search/" + key + "?format=json";
     LOGGER.info("URL: " + url);
 
-    final List<NominatimResultLocationDto> list = makeRequest(url);
+    final NominatimSearchResultListDto list = makeRequest(url);
     LOGGER.info("Liste: " + list);
-    return calculateCenter(list);
+//    return calculateCenter(list);
+    return new CoordinateDetails(list.getElements().get(0).getLat(),
+        list.getElements().get(0).getLon());
   }
 
   /**
@@ -47,29 +48,36 @@ public class SearchMappingService {
    * @return A List of NominatimResultLocationDto
    */
   @VisibleForTesting
-  protected List<NominatimResultLocationDto> makeRequest(String url) {
-    RestTemplate restTemplate = new RestTemplate();
+  protected NominatimSearchResultListDto makeRequest(String url) {
+    HttpEntity<String> header = setupRequest();
+    ResponseEntity<NominatimSearchResultListDto> response =
+        restTemplate
+            .exchange(url, HttpMethod.GET, header, NominatimSearchResultListDto.class);
+
+    return response.getBody();
+  }
+
+  /**
+   * Sets the HttpHeader for the request.
+   *
+   * @return The HttpHeader
+   */
+  private HttpEntity<String> setupRequest() {
     HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set(HttpHeaders.ACCEPT, "text/html");
-    HttpEntity<String> entityReq = new HttpEntity<>(httpHeaders);
-    ResponseEntity<NominatimSearchResultListDto> response =
-        restTemplate.exchange(url, HttpMethod.GET, entityReq, NominatimSearchResultListDto.class);
-    if (response.getBody() == null) {
-      return new ArrayList<>();
-    }
-
-    return response.getBody().getElements();
+    return new HttpEntity<>(httpHeaders);
   }
 
   /**
    * Calculates the central coordinates of a list of NominatimResultLocationDto.
    *
-   * @param list The list of NominatimResultLocationDto
+   * @param nominatimSearchResultListDto The NominatimSearchResultListDto
    * @return The central coordinates
    */
   @VisibleForTesting
-  protected CoordinateDetails calculateCenter(List<NominatimResultLocationDto> list) {
-
+  protected CoordinateDetails calculateCenter(
+      NominatimSearchResultListDto nominatimSearchResultListDto) {
+    List<NominatimResultLocationDto> list = nominatimSearchResultListDto.getElements();
     double latitude = list.stream()
         .map(NominatimResultLocationDto::getLat)
         .mapToDouble(lat -> lat)
