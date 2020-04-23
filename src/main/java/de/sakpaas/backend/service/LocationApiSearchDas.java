@@ -12,6 +12,12 @@ import org.springframework.web.client.RestTemplate;
 @Component
 public class LocationApiSearchDas {
 
+  private final RestTemplate restTemplate;
+
+  public LocationApiSearchDas(RestTemplate restTemplate) {
+    this.restTemplate = restTemplate;
+  }
+
   /**
    * Builds the query url to the overpass-api from data of application.yaml
    *
@@ -55,7 +61,6 @@ public class LocationApiSearchDas {
     String url = queryUrlBuilder(osmImportConfiguration);
 
     // make request
-    RestTemplate restTemplate = new RestTemplate();
     ResponseEntity<OsmResultLocationListDto> response =
         restTemplate.getForEntity(url, OsmResultLocationListDto.class);
 
