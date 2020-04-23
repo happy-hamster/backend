@@ -36,10 +36,10 @@ public class OsmResultLocationListDto {
      */
     @JsonCreator
     public OsmResultLocationDto(@JsonProperty("id") long id,
-        @JsonProperty("lat") double lat,
-        @JsonProperty("lon") double lon,
-        @JsonProperty("center") OsmResultCoordinatesDto center,
-        @JsonProperty("tags") OsmResultTagsDto tags) {
+                                @JsonProperty("lat") double lat,
+                                @JsonProperty("lon") double lon,
+                                @JsonProperty("center") OsmResultCoordinatesDto center,
+                                @JsonProperty("tags") OsmResultTagsDto tags) {
       this.id = id;
       this.tags = tags;
       this.coordinates = (center != null) ? center : new OsmResultCoordinatesDto(lat, lon);
@@ -74,7 +74,7 @@ public class OsmResultLocationListDto {
     }
 
     public String getType() {
-      return tags.getType();
+      return tags.getShop();
     }
 
     public String getBrand() {
@@ -95,7 +95,7 @@ public class OsmResultLocationListDto {
 
     @JsonCreator
     public OsmResultCoordinatesDto(@JsonProperty("lat") double lat,
-        @JsonProperty("lon") double lon) {
+                                   @JsonProperty("lon") double lon) {
       this.lat = lat;
       this.lon = lon;
     }
@@ -111,7 +111,7 @@ public class OsmResultLocationListDto {
     private final String housenumber;
     private final String postcode;
     private final String city;
-    private final String type;
+    private final String shop;
     private final String brand;
     private final String openingHours;
     private String country;
@@ -126,28 +126,28 @@ public class OsmResultLocationListDto {
      * @param city         the city of the address
      * @param country      the country of the address
      * @param place        currently unused
-     * @param type         the type of the location (eg. supermarket)
+     * @param shop         the type of the location (eg. supermarket)
      * @param brand        the brand of the location (eg. LIDL, ALDI)
      * @param openingHours the opening hours in human readable format
      */
     @JsonCreator
     public OsmResultTagsDto(@JsonProperty("name") String name,
-        @JsonProperty("addr:street") String street,
-        @JsonProperty("addr:housenumber") String housenumber,
-        @JsonProperty("addr:postcode") String postcode,
-        @JsonProperty("addr:city") String city,
-        @JsonProperty("addr:country") String country,
-        @JsonProperty("addr:place") String place,
-        @JsonProperty("shop") String type,
-        @JsonProperty("brand") String brand,
-        @JsonProperty("opening_hours") String openingHours) {
+                            @JsonProperty("addr:street") String street,
+                            @JsonProperty("addr:housenumber") String housenumber,
+                            @JsonProperty("addr:postcode") String postcode,
+                            @JsonProperty("addr:city") String city,
+                            @JsonProperty("addr:country") String country,
+                            @JsonProperty("addr:place") String place,
+                            @JsonProperty("shop") String shop,
+                            @JsonProperty("brand") String brand,
+                            @JsonProperty("opening_hours") String openingHours) {
       this.name = name;
       this.street = street != null ? street : place;
       this.housenumber = housenumber;
       this.postcode = postcode;
       this.city = city;
       this.country = country;
-      this.type = type;
+      this.shop = shop;
       this.brand = brand;
       this.openingHours = openingHours;
     }

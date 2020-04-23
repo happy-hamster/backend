@@ -36,7 +36,6 @@ class SearchMappingServiceTest extends HappyHamsterTest {
   private SearchMappingService searchMappingService;
 
 
-
   @Test
   void search() {
     SearchMappingService mockService = Mockito.spy(searchMappingService);

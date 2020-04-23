@@ -12,11 +12,12 @@ import lombok.Data;
 import lombok.Getter;
 
 @Getter
-@JsonPropertyOrder({"id", "name", "details", "coordinates", "occupancy", "address"})
+@JsonPropertyOrder({"id", "name", "favorite", "details", "coordinates", "occupancy", "address"})
 public class LocationResultLocationDto {
 
   private final long id;
   private final String name;
+  private final Boolean favorite;
   private final LocationResultLocationDetailsDto details;
   private final LocationResultCoordinatesDto coordinates;
   private final LocationResultOccupancyDto occupancy;
@@ -27,6 +28,7 @@ public class LocationResultLocationDto {
    *
    * @param id          the id
    * @param name        the name
+   * @param favorite    flag if Location is Favorite of user
    * @param details     the LocationResultLocationDetailsDto
    * @param coordinates the LocationResultCoordinatesDto
    * @param occupancy   the LocationResultOccupancyDto
@@ -34,15 +36,17 @@ public class LocationResultLocationDto {
    */
   @JsonCreator
   public LocationResultLocationDto(@JsonProperty("id") long id,
-      @JsonProperty("name") String name,
-      @JsonProperty("details")
-          LocationResultLocationDetailsDto details,
-      @JsonProperty("coordinates")
-          LocationResultCoordinatesDto coordinates,
-      @JsonProperty("occupancy") LocationResultOccupancyDto occupancy,
-      @JsonProperty("address") LocationResultAddressDto address) {
+                                   @JsonProperty("name") String name,
+                                   @JsonProperty("favorite") Boolean favorite,
+                                   @JsonProperty("details")
+                                         LocationResultLocationDetailsDto details,
+                                   @JsonProperty("coordinates")
+                                         LocationResultCoordinatesDto coordinates,
+                                   @JsonProperty("occupancy") LocationResultOccupancyDto occupancy,
+                                   @JsonProperty("address") LocationResultAddressDto address) {
     this.id = id;
     this.name = (name != null) ? name : "Supermarkt";
+    this.favorite = favorite;
     this.details = details;
     this.coordinates = coordinates;
     this.occupancy = occupancy;

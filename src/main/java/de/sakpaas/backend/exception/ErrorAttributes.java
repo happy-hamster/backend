@@ -17,34 +17,34 @@ import org.springframework.web.context.request.WebRequest;
 @Component
 public class ErrorAttributes extends DefaultErrorAttributes {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(ErrorAttributes.class);
-  private static final String LOG_PREFIX = "Debug:";
-
-  // Object Key in the Response for the Frontend
-  private static final String RESPONSE_OBJECT_KEY = "context";
-
-  @AllArgsConstructor
-  enum Error {
-    UNKNOWN("An unknown error occured."), 
-    INTERNAL("An internal error occured."), 
-    PERMISSION("You do not have permission to perform this action."), 
-    RESOURCE("The resource you were trying to access does not exist."), 
-    AUTHENTICATION("Please login to perform this action."), 
-    PARAMETER("The value for parameter %0% does not match the requirement.");
-
-    @Getter
-    private String message;
-  }
-
   /**
    * The String that is used as the prefix for the replacers.
    */
   static final String PLACEHOLDER_PRE = "%";
-
   /**
    * The String that is used as the suffix for the replacers.
    */
   static final String PLACEHOLDER_SUF = "%";
+  private static final Logger LOGGER = LoggerFactory.getLogger(ErrorAttributes.class);
+  private static final String LOG_PREFIX = "Debug:";
+  // Object Key in the Response for the Frontend
+  private static final String RESPONSE_OBJECT_KEY = "context";
+
+  /**
+   * Used to add the parameters into the placeholders of the message.
+   *
+   * @param message    the message the parameters shall be filled into
+   * @param parameters the parameters that shall replace the placeholders
+   * @return a String of the params
+   */
+  static String addParams(String message, Object... parameters) {
+    for (int i = 0; i < parameters.length; i++) {
+      message =
+          message.replace(ErrorAttributes.PLACEHOLDER_PRE + i + ErrorAttributes.PLACEHOLDER_SUF,
+              String.valueOf(parameters[i]));
+    }
+    return message;
+  }
 
   /**
    * Method that is called by Spring itself, every time an error occurs. Calls the default
@@ -123,20 +123,17 @@ public class ErrorAttributes extends DefaultErrorAttributes {
     return errorAttributes;
   }
 
-  /**
-   * Used to add the parameters into the placeholders of the message.
-   * 
-   * @param message the message the parameters shall be filled into
-   * @param parameters the parameters that shall replace the placeholders
-   * @return
-   */
-  static String addParams(String message, Object... parameters) {
-    for (int i = 0; i < parameters.length; i++) {
-      message =
-          message.replace(ErrorAttributes.PLACEHOLDER_PRE + i + ErrorAttributes.PLACEHOLDER_SUF,
-              String.valueOf(parameters[i]));
-    }
-    return message;
+  @AllArgsConstructor
+  enum Error {
+    UNKNOWN("An unknown error occured."),
+    INTERNAL("An internal error occured."),
+    PERMISSION("You do not have permission to perform this action."),
+    RESOURCE("The resource you were trying to access does not exist."),
+    AUTHENTICATION("Please login to perform this action."),
+    PARAMETER("The value for parameter %0% does not match the requirement.");
+
+    @Getter
+    private String message;
   }
 
   /**
