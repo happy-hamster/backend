@@ -99,7 +99,7 @@ public class LocationController {
   public ResponseEntity<List<LocationResultLocationDto>> getLocation(
       @RequestParam Double latitude, @RequestParam Double longitude,
       @RequestHeader(value = "Authorization", required = false) String header) {
-    Optional<UserInfoDto> user = getOptionalUserWhenLoggedIn(header);
+    Optional<UserInfoDto> user = userService.getOptionalUserInfo(header);
 
     List<Location> searchResult = locationService.findByCoordinates(latitude, longitude);
 
@@ -130,7 +130,7 @@ public class LocationController {
   public ResponseEntity<LocationResultLocationDto> getById(
       @PathVariable("locationId") Long locationId,
       @RequestHeader(value = "Authorization", required = false) String header) {
-    Optional<UserInfoDto> user = getOptionalUserWhenLoggedIn(header);
+    Optional<UserInfoDto> user = userService.getOptionalUserInfo(header);
 
     Location location = locationService.getById(locationId)
         .orElseThrow(() -> new InvalidLocationException(locationId));
@@ -220,7 +220,7 @@ public class LocationController {
   public ResponseEntity<SearchResultDto> searchForLocations(
       @PathVariable("key") String key,
       @RequestHeader(value = "Authorization", required = false) String header) {
-    Optional<UserInfoDto> user = getOptionalUserWhenLoggedIn(header);
+    Optional<UserInfoDto> user = userService.getOptionalUserInfo(header);
 
     final SearchResultObject resultObject = searchService.search(key);
 
@@ -230,11 +230,5 @@ public class LocationController {
         .orElseGet(
             () -> new ResponseEntity<>(searchResultMapper.mapSearchResultToOutputDto(resultObject),
                 OK));
-  }
-
-  private Optional<UserInfoDto> getOptionalUserWhenLoggedIn(String header) {
-    return (header == null)
-        ? Optional.empty()
-        : Optional.of(userService.getUserInfo(header));
   }
 }
