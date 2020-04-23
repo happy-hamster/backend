@@ -6,13 +6,16 @@ import de.sakpaas.backend.exception.NoSearchResultsException;
 import de.sakpaas.backend.model.CoordinateDetails;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
+import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StopWatch;
 import org.springframework.web.client.RestTemplate;
 
 @Service
@@ -32,10 +35,10 @@ public class SearchMappingService {
     this.restTemplate = restTemplate;
     this.meterRegistry = meterRegistry;
 
-    Timer timer = Timer
+    timer = Timer
         .builder("nominatim.request")
         .description("Times the duration of the Nominatim search requests")
-        .register(meterRegistry);
+        .register(this.meterRegistry);
 
   }
 
@@ -67,16 +70,16 @@ public class SearchMappingService {
    */
   @VisibleForTesting
   protected NominatimSearchResultListDto makeRequest(String url) {
+    StopWatch watch = new StopWatch();
     HttpEntity<String> header = setupRequest();
+    watch.start();
+    ResponseEntity<NominatimSearchResultListDto> response =
+        restTemplate
+            .exchange(url, HttpMethod.GET, header, NominatimSearchResultListDto.class);
+    watch.stop();
+    timer.record(watch.getLastTaskTimeMillis(), TimeUnit.MILLISECONDS);
 
-    try {
-      return timer.recordCallable(() -> restTemplate
-          .exchange(url, HttpMethod.GET, header, NominatimSearchResultListDto.class)).getBody();
-    } catch (Exception e) {
-      //sollte nicht vorkommen
-      e.printStackTrace();
-      return null;
-    }
+    return response.getBody();
   }
 
   /**
