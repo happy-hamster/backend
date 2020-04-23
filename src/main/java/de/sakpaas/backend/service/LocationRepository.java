@@ -15,7 +15,7 @@ public interface LocationRepository extends JpaRepository<Location, Long> {
                                                             Double lonMin, Double lonMax);
 
     List<Location> findByLatitudeBetweenAndLongitudeBetweenAndDetails_Type(Double latMin, Double latMax,
-                                                                           Double lonMin, Double lonMax, String Type);
+                                                                           Double lonMin, Double lonMax, List<String> type);
 
     @Query(value = "SELECT loc.id FROM LOCATION loc JOIN ADDRESS a ON loc.address_id = a.id "
             + "WHERE a.country=(:country)", nativeQuery = true)
