@@ -1,6 +1,8 @@
 package de.sakpaas.backend.v2.mapper;
 
+import de.sakpaas.backend.dto.UserInfoDto;
 import de.sakpaas.backend.model.Location;
+import de.sakpaas.backend.service.FavoriteRepository;
 import de.sakpaas.backend.service.OccupancyService;
 import de.sakpaas.backend.v2.dto.LocationResultLocationDto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,15 +12,12 @@ import org.springframework.stereotype.Component;
 public class LocationMapper {
 
   private final OccupancyService occupancyService;
+  private final FavoriteRepository favoriteRepository;
 
-  /**
-   * Maps a Location to a LocationResultLocationDto.
-   *
-   * @param occupancyService The occupancy service
-   */
   @Autowired
-  public LocationMapper(OccupancyService occupancyService) {
+  public LocationMapper(OccupancyService occupancyService, FavoriteRepository favoriteRepository) {
     this.occupancyService = occupancyService;
+    this.favoriteRepository = favoriteRepository;
   }
 
   /**
@@ -33,7 +32,33 @@ public class LocationMapper {
     }
 
     return new LocationResultLocationDto(
-        location.getId(), location.getName(),
+        location.getId(), location.getName(), null,
+        new LocationResultLocationDto.LocationResultLocationDetailsDto(location.getDetails()),
+        new LocationResultLocationDto.LocationResultCoordinatesDto(location.getLatitude(),
+            location.getLongitude()),
+        new LocationResultLocationDto.LocationResultOccupancyDto(
+            occupancyService.getOccupancyCalculation(location)),
+        new LocationResultLocationDto.LocationResultAddressDto(location.getAddress()));
+  }
+
+  /**
+   * Maps the given Location to a v2 LocationDto with favorite flag.
+   *
+   * @param location the Location to be mapped
+   * @param user     the user for which the flags should be set
+   * @return the mapped LocationDto
+   */
+  public LocationResultLocationDto mapLocationToOutputDto(Location location, UserInfoDto user) {
+    if (location == null) {
+      return null;
+    }
+
+    boolean flag = favoriteRepository.findByUserUuid(user.getId())
+        .stream()
+        .anyMatch(favorite -> favorite.getLocation() == location);
+
+    return new LocationResultLocationDto(
+        location.getId(), location.getName(), flag,
         new LocationResultLocationDto.LocationResultLocationDetailsDto(location.getDetails()),
         new LocationResultLocationDto.LocationResultCoordinatesDto(location.getLatitude(),
             location.getLongitude()),

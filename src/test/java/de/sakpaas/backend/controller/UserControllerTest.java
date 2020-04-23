@@ -19,6 +19,7 @@ import de.sakpaas.backend.service.OccupancyRepository;
 import de.sakpaas.backend.service.PresenceRepository;
 import de.sakpaas.backend.service.RequestRepository;
 import de.sakpaas.backend.service.UserService;
+import de.sakpaas.backend.util.KeycloakConfiguration;
 import de.sakpaas.backend.v2.controller.UserController;
 import de.sakpaas.backend.v2.dto.LocationResultLocationDto;
 import de.sakpaas.backend.v2.mapper.LocationMapper;
@@ -27,15 +28,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
+import org.keycloak.adapters.springboot.KeycloakSpringBootProperties;
 import org.keycloak.common.util.RandomString;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
 @WebMvcTest(UserController.class)
+@EnableConfigurationProperties(KeycloakSpringBootProperties.class)
 public class UserControllerTest {
   @Autowired
   private MockMvc mockMvc;
@@ -60,6 +64,8 @@ public class UserControllerTest {
   private OccupancyRepository occupancyRepository;
   @MockBean
   private MeterRegistry meterRegistry;
+  @MockBean
+  private KeycloakConfiguration keycloakConfiguration;
 
   @Test
   public void shouldGetLocationsForCurrentUser() throws Exception {
@@ -76,7 +82,7 @@ public class UserControllerTest {
       favorites.add(new Favorite(user, location));
     }
 
-    Mockito.when(userService.getUserInfo(header, null)).thenReturn(
+    Mockito.when(userService.getUserInfo(header)).thenReturn(
         new UserInfoDto(user.toString(), "test", "test", "test", "test",
             "test@test.de"));
     Mockito.when(favoriteRepository.findByUserUuid(user)).thenReturn(favorites);
@@ -104,6 +110,6 @@ public class UserControllerTest {
   }
 
   private LocationResultLocationDto resultDto(Long id) {
-    return new LocationResultLocationDto(id, "Location: " + id, null, null, null, null);
+    return new LocationResultLocationDto(id, "Location: " + id, false, null, null, null, null);
   }
 }
