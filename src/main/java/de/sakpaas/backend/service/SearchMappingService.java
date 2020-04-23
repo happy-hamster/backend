@@ -4,6 +4,9 @@ import com.google.common.annotations.VisibleForTesting;
 import de.sakpaas.backend.dto.NominatimSearchResultListDto;
 import de.sakpaas.backend.exception.NoSearchResultsException;
 import de.sakpaas.backend.model.CoordinateDetails;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
+import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,6 +15,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StopWatch;
 import org.springframework.web.client.RestTemplate;
 
 @Service
@@ -19,12 +23,24 @@ public class SearchMappingService {
   private static final Logger LOGGER = LoggerFactory.getLogger(SearchMappingService.class);
 
   private final RestTemplate restTemplate;
+  private final MeterRegistry meterRegistry;
+
 
   @Value("${app.search-api-url}")
   private String searchApiUrl;
 
-  public SearchMappingService(RestTemplate restTemplate) {
+  /**
+   * Default Constructor.
+   *
+   * @param restTemplate  The RestTemplate
+   * @param meterRegistry The MeterRegistry
+   */
+  public SearchMappingService(RestTemplate restTemplate,
+                              MeterRegistry meterRegistry) {
     this.restTemplate = restTemplate;
+    this.meterRegistry = meterRegistry;
+
+
   }
 
   /**
@@ -55,10 +71,21 @@ public class SearchMappingService {
    */
   @VisibleForTesting
   protected NominatimSearchResultListDto makeRequest(String url) {
+
+    Timer timer = Timer
+        .builder("nominatim.request")
+        .description("Times the duration of the Nominatim search requests")
+        .register(this.meterRegistry);
+
+
+    StopWatch watch = new StopWatch();
     HttpEntity<String> header = setupRequest();
+    watch.start();
     ResponseEntity<NominatimSearchResultListDto> response =
         restTemplate
             .exchange(url, HttpMethod.GET, header, NominatimSearchResultListDto.class);
+    watch.stop();
+    timer.record(watch.getLastTaskTimeMillis(), TimeUnit.MILLISECONDS);
 
     return response.getBody();
   }
