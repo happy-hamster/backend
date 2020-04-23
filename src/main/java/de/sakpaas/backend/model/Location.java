@@ -15,8 +15,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity(name = "LOCATION")
-@Table(name = "LOCATION", indexes = {
-    @Index(name = "lat_lon_index", columnList = "LATITUDE,LONGITUDE")})
+@Table(indexes = {@Index(name = "lat_lon_index", columnList = "LATITUDE,LONGITUDE")})
 public class Location {
 
   @Id
