@@ -30,6 +30,12 @@ public class SearchMappingService {
   @Value("${app.search-api-url}")
   private String searchApiUrl;
 
+  /**
+   * Default Constructor.
+   *
+   * @param restTemplate  The RestTemplate
+   * @param meterRegistry The MeterRegistry
+   */
   public SearchMappingService(RestTemplate restTemplate,
                               MeterRegistry meterRegistry) {
     this.restTemplate = restTemplate;
