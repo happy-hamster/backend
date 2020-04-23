@@ -5,7 +5,6 @@ import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.service.FavoriteRepository;
 import de.sakpaas.backend.service.OccupancyService;
 import de.sakpaas.backend.v2.dto.LocationResultLocationDto;
-import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -33,7 +32,7 @@ public class LocationMapper {
     }
 
     return new LocationResultLocationDto(
-        location.getId(), location.getName(), false,
+        location.getId(), location.getName(), null,
         new LocationResultLocationDto.LocationResultLocationDetailsDto(location.getDetails()),
         new LocationResultLocationDto.LocationResultCoordinatesDto(location.getLatitude(),
             location.getLongitude()),

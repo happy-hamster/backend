@@ -17,7 +17,7 @@ public class LocationResultLocationDto {
 
   private final long id;
   private final String name;
-  private final boolean favorite;
+  private final Boolean favorite;
   private final LocationResultLocationDetailsDto details;
   private final LocationResultCoordinatesDto coordinates;
   private final LocationResultOccupancyDto occupancy;
@@ -37,7 +37,7 @@ public class LocationResultLocationDto {
   @JsonCreator
   public LocationResultLocationDto(@JsonProperty("id") long id,
                                    @JsonProperty("name") String name,
-                                   @JsonProperty("favorite") boolean favorite,
+                                   @JsonProperty("favorite") Boolean favorite,
                                    @JsonProperty("details")
                                          LocationResultLocationDetailsDto details,
                                    @JsonProperty("coordinates")
