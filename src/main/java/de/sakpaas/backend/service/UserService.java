@@ -45,7 +45,8 @@ public class UserService {
   public UserInfoDto getUserInfo(String header) throws InvalidBearerTokenException {
     try {
       // Split token from "Bearer token" string
-      String token = TokenUtils.getTokenFromHeader(header);
+      String token =
+          TokenUtils.getTokenFromHeader(header).orElseThrow(InvalidBearerTokenException::new);
 
       // Validate and parse token
       AccessToken jwt = verifyToken(token);
@@ -64,9 +65,9 @@ public class UserService {
   }
 
   @VisibleForTesting
-  AccessToken verifyToken(String header) throws VerificationException {
+  AccessToken verifyToken(String token) throws VerificationException {
     return AdapterTokenVerifier.verifyToken(
-        TokenUtils.getTokenFromHeader(header),
+        token,
         keycloakConfiguration.getKeycloakDeployment());
   }
 }

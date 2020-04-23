@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import de.sakpaas.backend.HappyHamsterTest;
 import de.sakpaas.backend.dto.UserInfoDto;
+import de.sakpaas.backend.util.TokenUtils;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -45,7 +46,8 @@ class UserServiceTest extends HappyHamsterTest {
             + "S86TghON4FONXHuX_cF6FK8OFnn-gYG436WWJxG_jpiCqlU18hlBkZNgrd6Mt_YuiBxWM1yK_hgtfkbJTrkw"
             + "LqxtSuZhA96W66Jx7X1rycr2vNpO2I4fHNAX_z2Z5R5asUxd_nlm0ilGB-g";
     Mockito.when(userService.getUserInfo("Bearer " + token)).thenCallRealMethod();
-    Mockito.when(userService.verifyToken("Bearer " + token)).thenReturn(jwt());
+    String convertedToken = TokenUtils.getTokenFromHeader("Bearer " + token).orElse(null);
+    Mockito.when(userService.verifyToken(convertedToken)).thenReturn(jwt());
 
     UserInfoDto userInfoDto = userService.getUserInfo("Bearer " + token);
     assertThat(userInfoDto.getId())
