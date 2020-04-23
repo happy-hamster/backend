@@ -11,11 +11,9 @@ import org.springframework.context.annotation.Configuration;
 @Getter
 @Configuration
 public class KeycloakConfiguration extends KeycloakSpringBootConfigResolver {
-
   private final KeycloakDeployment keycloakDeployment;
 
   public KeycloakConfiguration(KeycloakSpringBootProperties properties) {
-    super();
     keycloakDeployment = KeycloakDeploymentBuilder.build(properties);
   }
 
@@ -23,5 +21,4 @@ public class KeycloakConfiguration extends KeycloakSpringBootConfigResolver {
   public KeycloakDeployment resolve(HttpFacade.Request facade) {
     return keycloakDeployment;
   }
-
 }

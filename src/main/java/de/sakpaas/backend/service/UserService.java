@@ -1,5 +1,6 @@
 package de.sakpaas.backend.service;
 
+import com.google.common.annotations.VisibleForTesting;
 import de.sakpaas.backend.dto.UserInfoDto;
 import de.sakpaas.backend.exception.InvalidBearerTokenException;
 import de.sakpaas.backend.util.KeycloakConfiguration;
@@ -26,10 +27,7 @@ public class UserService {
    */
   public UserInfoDto getUserInfo(String header) throws InvalidBearerTokenException {
     try {
-      AccessToken jwt = AdapterTokenVerifier.verifyToken(
-          TokenUtils.getTokenFromHeader(header),
-          keycloakConfiguration.getKeycloakDeployment()
-      );
+      AccessToken jwt = verifyToken(header);
 
       return new UserInfoDto(
           jwt.getSubject(),
@@ -42,5 +40,12 @@ public class UserService {
     } catch (VerificationException e) {
       throw new InvalidBearerTokenException();
     }
+  }
+
+  @VisibleForTesting
+  AccessToken verifyToken(String header) throws VerificationException {
+    return AdapterTokenVerifier.verifyToken(
+        TokenUtils.getTokenFromHeader(header),
+        keycloakConfiguration.getKeycloakDeployment());
   }
 }
