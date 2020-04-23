@@ -66,10 +66,11 @@ public class UserService {
   }
 
   /**
+   * Verifies and parses the given JWT.
    *
-   * @param token
-   * @return
-   * @throws VerificationException
+   * @param token the JWT to verify and parse
+   * @return the parsed {@link AccessToken}
+   * @throws VerificationException iff the given JWT is invalid
    */
   @VisibleForTesting
   AccessToken verifyToken(String token) throws VerificationException {
