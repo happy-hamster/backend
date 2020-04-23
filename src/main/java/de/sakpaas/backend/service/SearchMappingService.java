@@ -25,7 +25,6 @@ public class SearchMappingService {
   private final RestTemplate restTemplate;
   private final MeterRegistry meterRegistry;
 
-  private Timer timer;
 
   @Value("${app.search-api-url}")
   private String searchApiUrl;
@@ -41,10 +40,6 @@ public class SearchMappingService {
     this.restTemplate = restTemplate;
     this.meterRegistry = meterRegistry;
 
-    timer = Timer
-        .builder("nominatim.request")
-        .description("Times the duration of the Nominatim search requests")
-        .register(this.meterRegistry);
 
   }
 
@@ -76,6 +71,13 @@ public class SearchMappingService {
    */
   @VisibleForTesting
   protected NominatimSearchResultListDto makeRequest(String url) {
+
+    Timer timer = Timer
+        .builder("nominatim.request")
+        .description("Times the duration of the Nominatim search requests")
+        .register(this.meterRegistry);
+
+
     StopWatch watch = new StopWatch();
     HttpEntity<String> header = setupRequest();
     watch.start();
