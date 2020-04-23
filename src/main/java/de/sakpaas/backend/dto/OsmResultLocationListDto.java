@@ -74,7 +74,7 @@ public class OsmResultLocationListDto {
     }
 
     public String getType() {
-      return tags.getType();
+      return tags.getShop();
     }
 
     public String getBrand() {
@@ -111,7 +111,7 @@ public class OsmResultLocationListDto {
     private final String housenumber;
     private final String postcode;
     private final String city;
-    private final String type;
+    private final String shop;
     private final String brand;
     private final String openingHours;
     private String country;
@@ -126,7 +126,7 @@ public class OsmResultLocationListDto {
      * @param city         the city of the address
      * @param country      the country of the address
      * @param place        currently unused
-     * @param type         the type of the location (eg. supermarket)
+     * @param shop         the type of the location (eg. supermarket)
      * @param brand        the brand of the location (eg. LIDL, ALDI)
      * @param openingHours the opening hours in human readable format
      */
@@ -138,7 +138,7 @@ public class OsmResultLocationListDto {
                             @JsonProperty("addr:city") String city,
                             @JsonProperty("addr:country") String country,
                             @JsonProperty("addr:place") String place,
-                            @JsonProperty("shop") String type,
+                            @JsonProperty("shop") String shop,
                             @JsonProperty("brand") String brand,
                             @JsonProperty("opening_hours") String openingHours) {
       this.name = name;
@@ -147,7 +147,7 @@ public class OsmResultLocationListDto {
       this.postcode = postcode;
       this.city = city;
       this.country = country;
-      this.type = type;
+      this.shop = shop;
       this.brand = brand;
       this.openingHours = openingHours;
     }
