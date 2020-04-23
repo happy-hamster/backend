@@ -3,8 +3,10 @@ package de.sakpaas.backend.model;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,6 +15,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity(name = "LOCATION")
+@Table(name = "LOCATION", indexes = {
+    @Index(name = "lat_lon_index", columnList = "LATITUDE,LONGITUDE")})
 public class Location {
 
   @Id
