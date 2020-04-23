@@ -32,6 +32,9 @@ app:
       - supermarket
       - chemist
       - beverages
+      - kiosk
+      - newsagent
+      - convenience
   version: dev
   commit: dev
 management:
