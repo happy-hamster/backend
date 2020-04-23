@@ -3,6 +3,7 @@ package de.sakpaas.backend.service;
 import com.google.common.annotations.VisibleForTesting;
 import de.sakpaas.backend.dto.UserInfoDto;
 import de.sakpaas.backend.exception.InvalidBearerTokenException;
+import de.sakpaas.backend.exception.NoKeycloakDeploymentException;
 import de.sakpaas.backend.util.KeycloakConfiguration;
 import de.sakpaas.backend.util.TokenUtils;
 import java.util.Optional;
@@ -64,10 +65,18 @@ public class UserService {
     }
   }
 
+  /**
+   *
+   * @param token
+   * @return
+   * @throws VerificationException
+   */
   @VisibleForTesting
   AccessToken verifyToken(String token) throws VerificationException {
     return AdapterTokenVerifier.verifyToken(
         token,
-        keycloakConfiguration.getKeycloakDeployment());
+        keycloakConfiguration.getKeycloakDeployment()
+            .orElseThrow(NoKeycloakDeploymentException::new)
+    );
   }
 }
