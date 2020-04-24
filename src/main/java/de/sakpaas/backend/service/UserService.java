@@ -3,6 +3,7 @@ package de.sakpaas.backend.service;
 import com.google.common.annotations.VisibleForTesting;
 import de.sakpaas.backend.dto.UserInfoDto;
 import de.sakpaas.backend.exception.InvalidBearerTokenException;
+import de.sakpaas.backend.exception.NoKeycloakDeploymentException;
 import de.sakpaas.backend.util.KeycloakConfiguration;
 import de.sakpaas.backend.util.TokenUtils;
 import java.util.Optional;
@@ -39,15 +40,21 @@ public class UserService {
    *
    * @param header Authorization Header from the Request
    * @return UserInformationDto
-   * @throws InvalidBearerTokenException If the given Authentication Header does not container a
-   *                                     valid Bearer Token, this exception will be thrown.
+   * @throws InvalidBearerTokenException If the given Authentication Header is null or does not
+   *                                     container a valid Bearer Token, this exception will be
+   *                                     thrown.
    */
   public UserInfoDto getUserInfo(String header) throws InvalidBearerTokenException {
-    try {
-      // Split token from "Bearer token" string
-      String token =
-          TokenUtils.getTokenFromHeader(header).orElseThrow(InvalidBearerTokenException::new);
+    // If no header is set, we can not parse the JWT and we should fail
+    if (header == null) {
+      throw new InvalidBearerTokenException();
+    }
 
+    // Extract token from "Bearer TOKEN" string or fail
+    String token = TokenUtils.getTokenFromHeader(header)
+        .orElseThrow(InvalidBearerTokenException::new);
+
+    try {
       // Validate and parse token
       AccessToken jwt = verifyToken(token);
 
@@ -64,10 +71,19 @@ public class UserService {
     }
   }
 
+  /**
+   * Verifies and parses the given JWT.
+   *
+   * @param token the JWT to verify and parse
+   * @return the parsed {@link AccessToken}
+   * @throws VerificationException iff the given JWT is invalid
+   */
   @VisibleForTesting
   AccessToken verifyToken(String token) throws VerificationException {
     return AdapterTokenVerifier.verifyToken(
         token,
-        keycloakConfiguration.getKeycloakDeployment());
+        keycloakConfiguration.getKeycloakDeployment()
+            .orElseThrow(NoKeycloakDeploymentException::new)
+    );
   }
 }
