@@ -36,7 +36,7 @@ class LocationRepositoryTest extends HappyHamsterTest {
 
 
     Address address =
-        new Address("testCountry", "testPostcode", "123456", "testStreet", "testNumber");
+        new Address("country", "testPostcode", "123456", "testStreet", "testNumber");
     Address savedAddress = addressRepository.save(address);
 
     LocationDetails locationDetails =
