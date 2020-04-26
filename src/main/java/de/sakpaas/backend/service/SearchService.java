@@ -38,7 +38,8 @@ public class SearchService {
 
 
   /**
-   * Extracts all Brands that exists in the Database and saves them to the knownBrands List. Also makes all brands lower case.
+   * Extracts all Brands that exists in the Database and saves them to the knownBrands List.
+   * Also makes all brands lower case.
    */
   protected void updateBrands() {
   }
