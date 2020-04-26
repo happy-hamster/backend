@@ -36,17 +36,6 @@ public class FavoriteService {
   }
 
   /**
-   * Creates a new Favorite and saves it.
-   *
-   * @param userId   the User for which the Favorite should be created.
-   * @param location the Location of the Favorite.
-   * @return the created and saved Favorite.
-   */
-  public Favorite addNewFavoriteForUserAndLocation(UUID userId, Location location) {
-    return save(new Favorite(userId, location));
-  }
-
-  /**
    * deletes a given Favorite.
    *
    * @param favorite the Favorite that should be deleted.
@@ -95,14 +84,8 @@ public class FavoriteService {
   }
 
 
-  public void deleteByIdAndUUID(Long id, UUID userid) {
-    Favorite favorite = favoriteRepository.findById(id).orElseThrow(EntityNotFoundException::new);
-    if (favorite.getUserUuid() == userid) {
-      delete(favorite);
-    } else {
-      //Exception Favorit eines anderen Users nicht löschbar
-    }
-
+  public void delete(Location location, UUID userId) {
+    favoriteRepository.deleteAll(favoriteRepository.findByUserUuidAndLocation(userId, location));
   }
 
 

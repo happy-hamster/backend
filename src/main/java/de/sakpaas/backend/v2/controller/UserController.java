@@ -3,10 +3,12 @@ package de.sakpaas.backend.v2.controller;
 import static org.springframework.http.HttpStatus.OK;
 
 import de.sakpaas.backend.dto.UserInfoDto;
+import de.sakpaas.backend.exception.InvalidLocationException;
 import de.sakpaas.backend.model.Favorite;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.service.FavoriteRepository;
 import de.sakpaas.backend.service.FavoriteService;
+import de.sakpaas.backend.service.LocationService;
 import de.sakpaas.backend.service.UserService;
 import de.sakpaas.backend.v2.dto.LocationResultLocationDto;
 import de.sakpaas.backend.v2.mapper.LocationMapper;
@@ -19,7 +21,6 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -32,17 +33,20 @@ public class UserController {
   final FavoriteRepository favoriteRepository;
   final LocationMapper locationMapper;
   final FavoriteService favoriteService;
+  final LocationService locationService;
 
   /**
    * Constructor for Services.
    */
   public UserController(UserService userService, FavoriteRepository favoriteRepository,
                         LocationMapper locationMapper,
-                        FavoriteService favoriteService) {
+                        FavoriteService favoriteService,
+                        LocationService locationService) {
     this.userService = userService;
     this.favoriteRepository = favoriteRepository;
     this.locationMapper = locationMapper;
     this.favoriteService = favoriteService;
+    this.locationService = locationService;
   }
 
   /**
@@ -75,22 +79,26 @@ public class UserController {
     return new ResponseEntity<>(response, OK);
   }
 
-  @PostMapping("/self/favorites")
-  public ResponseEntity<List<LocationResultLocationDto>> postFavorite(Principal principal,
-                                                                      @RequestBody
-                                                                          Location location) {
-    favoriteService
-        .addNewFavoriteForUserAndLocation(UUID.fromString(principal.getName()), location);
+  @PostMapping("/self/favorites/{id}")
+  public ResponseEntity<List<LocationResultLocationDto>> postFavorite(
+      @PathVariable("id") Long locationId, Principal principal) {
+    Location location = locationService.getById(locationId)
+        .orElseThrow(() -> new InvalidLocationException(locationId));
+    Favorite favorite = new Favorite(UUID.fromString(principal.getName()), location);
+    favoriteService.save(favorite);
     return new ResponseEntity<>(
         favoriteService.getFavoriteLocationByUserId(UUID.fromString(principal.getName())), OK);
   }
 
   //Abfrage auf User einbauen
   @DeleteMapping("/self/favorites/{id}")
-  public ResponseEntity<LocationResultLocationDto> deleteFavorite(@PathVariable("id") Long favoid,
-                                                                  Principal principal) {
-    //favoriteService.deleteById(favoid);
-    favoriteService.deleteByIdAndUUID(favoid, UUID.fromString(principal.getName()));
+  public ResponseEntity<?> deleteFavorite(
+      @PathVariable("id") Long locationId,
+      Principal principal) {
+    Location location = locationService.getById(locationId)
+        .orElseThrow(() -> new InvalidLocationException(locationId));
+
+    favoriteService.delete(location, UUID.fromString(principal.getName()));
     return new ResponseEntity<>(OK);
   }
 
