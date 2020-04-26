@@ -56,6 +56,17 @@ public class SearchService {
 
 
   /**
+   * Creates a new SearchRequest Object.
+   *
+   * @param query             The SearchQuery
+   * @param coordinateDetails The SearchCoordinates
+   * @return A new SearchRequest
+   */
+  protected SearchRequest createRequest(String query, CoordinateDetails coordinateDetails) {
+    return new SearchRequest();
+  }
+
+  /**
    * Possible Brand Names will be extracted from the Query and saved brands List.
    *
    * @param request The Request Object

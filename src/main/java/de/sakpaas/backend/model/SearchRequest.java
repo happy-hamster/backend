@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class SearchRequest {
-  private String query;
+  private List<String> query;
   private CoordinateDetails coordinates;
   private List<String> brands;
   private List<Location> locations;
