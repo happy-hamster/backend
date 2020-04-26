@@ -2,7 +2,6 @@ package de.sakpaas.backend.service;
 
 import com.google.common.annotations.VisibleForTesting;
 import de.sakpaas.backend.dto.NominatimSearchResultListDto;
-import de.sakpaas.backend.exception.NoSearchResultsException;
 import de.sakpaas.backend.model.CoordinateDetails;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
@@ -25,6 +24,8 @@ public class SearchMappingService {
   private final RestTemplate restTemplate;
   private final MeterRegistry meterRegistry;
 
+  private String url;
+
 
   @Value("${app.search-api-url}")
   private String searchApiUrl;
@@ -39,29 +40,52 @@ public class SearchMappingService {
                               MeterRegistry meterRegistry) {
     this.restTemplate = restTemplate;
     this.meterRegistry = meterRegistry;
-
-
   }
 
   /**
-   * Searches in the Nominatim Microservice for the given key.
+   * Searches in the Nominatim Microservice for the given query.
    *
-   * @param key The search parameter. Multiple words are separated with %20.
-   * @return The list of Locations in our database
+   * @param query The search parameter. Multiple words are separated with %20.
+   * @return The coordinates of the search request
+   * @throws IndexOutOfBoundsException Iff the the request returned nothing
    */
-  public CoordinateDetails search(String key) {
-    String url = this.searchApiUrl + "/search/" + key + "?format=json";
+  public CoordinateDetails search(String query) throws IndexOutOfBoundsException {
+    this.url = this.searchApiUrl + "/search/" + query + "?format=json&limit=1";
 
-    final NominatimSearchResultListDto list = makeRequest(url);
-
-    try {
-      return new CoordinateDetails(list.getElements().get(0).getLat(),
-          list.getElements().get(0).getLon());
-    } catch (IndexOutOfBoundsException e) {
-      throw new NoSearchResultsException(
-          "Under the URL (" + url + ") no coordinates could be calculated", url);
-    }
+    return returnCoordinates();
   }
+
+  /**
+   * Searches in the Nominatim Microservice for the given query.
+   *
+   * @param query The search parameter. Multiple words are separated with %20.
+   * @return The coordinates of the search request
+   * @throws IndexOutOfBoundsException Iff the the request returned nothing
+   */
+  public CoordinateDetails search(String query, CoordinateDetails coordinateDetails)
+      throws IndexOutOfBoundsException {
+    this.url =
+        this.searchApiUrl + "/search/" + query + "%2C" + coordinateDetails.getLatitude() + "%2C" +
+            coordinateDetails.getLongitude() + "?format=json&limit=1";
+
+    return returnCoordinates();
+  }
+
+  /**
+   * Helper method that merges the overloaded search methods and makes
+   * the request and returns coordinates.
+   *
+   * @return The coordinates of the search request
+   * @throws IndexOutOfBoundsException Iff the the request returned nothing
+   */
+  private CoordinateDetails returnCoordinates() throws IndexOutOfBoundsException {
+    this.url = this.url.replace(" ", ",");
+    final NominatimSearchResultListDto list = makeRequest(this.url);
+
+    return new CoordinateDetails(list.getElements().get(0).getLat(),
+        list.getElements().get(0).getLon());
+  }
+
 
   /**
    * Makes an REST request to the provided URL.

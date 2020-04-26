@@ -15,9 +15,9 @@ import org.springframework.stereotype.Service;
 public class SearchService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SearchService.class);
+  private static List<String> knownBrands;
   private final LocationService locationService;
   private final SearchMappingService searchMappingService;
-  private static List<String> knownBrands;
 
   /**
    * Searches for a specific key, calculates the central point as coordinates and returns
@@ -73,6 +73,16 @@ public class SearchService {
    * @return the updated Request Object
    */
   protected SearchRequest getCoordinatesFromNominatim(SearchRequest request) {
+
+    CoordinateDetails coordinateDetails = new CoordinateDetails(0.0, 0.0);
+    try {
+      coordinateDetails = searchMappingService.search(request.getQuery(), request.getCoordinates());
+    } catch (IndexOutOfBoundsException e) {
+      coordinateDetails = searchMappingService.search(request.getQuery());
+    } finally {
+      request.setCoordinates(coordinateDetails);
+    }
+
     return request;
   }
 
