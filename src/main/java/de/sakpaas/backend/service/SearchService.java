@@ -6,6 +6,7 @@ import de.sakpaas.backend.model.SearchRequest;
 import de.sakpaas.backend.model.SearchResultObject;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,8 @@ public class SearchService {
   private static final Logger LOGGER = LoggerFactory.getLogger(SearchService.class);
   private final LocationService locationService;
   private final SearchMappingService searchMappingService;
-  private static List<String> knownBrands;
+  @Getter
+  private List<String> knownBrands;
 
   /**
    * Searches for a specific key, calculates the central point as coordinates and returns
