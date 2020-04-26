@@ -6,6 +6,7 @@ import de.sakpaas.backend.model.SearchRequest;
 import de.sakpaas.backend.model.SearchResultObject;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ public class SearchService {
   private static final Logger LOGGER = LoggerFactory.getLogger(SearchService.class);
   private final LocationService locationService;
   private final SearchMappingService searchMappingService;
+  @Setter
   private static List<String> knownBrands;
 
   /**
@@ -52,6 +54,17 @@ public class SearchService {
     return new SearchResultObject(coordinateDetails, new ArrayList<>());
   }
 
+
+  /**
+   * Creates a new SearchRequest Object.
+   *
+   * @param query             The SearchQuery
+   * @param coordinateDetails The SearchCoordinates
+   * @return A new SearchRequest
+   */
+  protected SearchRequest createRequest(String query, CoordinateDetails coordinateDetails) {
+    return new SearchRequest();
+  }
 
   /**
    * Possible Brand Names will be extracted from the Query and saved brands List.
