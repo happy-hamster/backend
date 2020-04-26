@@ -2,10 +2,13 @@ package de.sakpaas.backend.service;
 
 import de.sakpaas.backend.exception.EmptySearchQueryException;
 import de.sakpaas.backend.model.CoordinateDetails;
+import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.SearchRequest;
 import de.sakpaas.backend.model.SearchResultObject;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +18,10 @@ import org.springframework.stereotype.Service;
 public class SearchService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SearchService.class);
+  @Setter
+  private List<String> knownBrands;
   private final LocationService locationService;
   private final SearchMappingService searchMappingService;
-  private static List<String> knownBrands;
 
   /**
    * Searches for a specific key, calculates the central point as coordinates and returns
@@ -97,6 +101,24 @@ public class SearchService {
    * @return the updated Request Object
    */
   protected SearchRequest getByCoordinates(SearchRequest request) {
+    // Get Locations
+    CoordinateDetails coordinateDetails = request.getCoordinates();
+    List<Location> locations = locationService
+        .findByCoordinates(coordinateDetails.getLatitude(), coordinateDetails.getLongitude());
+
+    // Filter by brand
+    if (knownBrands.isEmpty()) {
+      request.setLocations(locations);
+    } else {
+      List<Location> locationList = new ArrayList<>();
+      for (String brand : knownBrands) {
+        locationList.addAll(
+            locations.stream().filter(location -> location.getName().contains(brand))
+                .collect(Collectors.toList()));
+      }
+      request.setLocations(locationList);
+    }
+
     return request;
   }
 }
