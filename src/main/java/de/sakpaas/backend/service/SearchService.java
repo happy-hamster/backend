@@ -113,7 +113,13 @@ public class SearchService {
       List<Location> locationList = new ArrayList<>();
       for (String brand : knownBrands) {
         locationList.addAll(
-            locations.stream().filter(location -> location.getName().contains(brand))
+            locations.stream()
+                .filter(location -> location.getName().contains(brand))
+                .collect(Collectors.toList()));
+
+        locationList.addAll(
+            locations.stream()
+                .filter(location -> location.getDetails().getBrand().equals(brand))
                 .collect(Collectors.toList()));
       }
       request.setLocations(locationList);
