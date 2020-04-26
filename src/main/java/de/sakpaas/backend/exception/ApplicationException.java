@@ -27,15 +27,15 @@ public class ApplicationException extends ResponseStatusException {
 
   /**
    * Creates an ApplicationException with the given values.
-   * 
-   * @param status the response status that will be send
-   * @param message the message that will be in the log
-   * @param textId The ID that defines the Text
-   * @param internal Whether the error is internal
+   *
+   * @param status    the response status that will be send
+   * @param message   the message that will be in the log
+   * @param textId    The ID that defines the Text
+   * @param internal  Whether the error is internal
    * @param replacers replacers for the error message
    */
   public ApplicationException(HttpStatus status, String message, String textId, boolean internal,
-      Object... replacers) {
+                              Object... replacers) {
     super(status, message);
     this.message = ErrorAttributes.addParams(message, replacers);
     this.textId = textId;
