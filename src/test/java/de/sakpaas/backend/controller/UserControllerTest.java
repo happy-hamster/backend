@@ -106,4 +106,21 @@ public class UserControllerTest {
   private LocationResultLocationDto resultDto(Long id) {
     return new LocationResultLocationDto(id, "Location: " + id, null, null, null, null);
   }
+
+  @Test
+  public void postFavorite() {
+    //user und Favoriten-ID zum Testen finden und neuen User anlegen und testen ob dieser als Liste korrekt zurückkommt
+    //Favorit mit id löschen FavoriteService.deleteFavoriteByID();
+  }
+
+  @Test
+  public void deleteFavorite() {
+    //UUID testUser = UUID.fromString("550e8400-e29b-11d4-a716-446655440000"); => Joost
+    //Long testLocation = Location zum testen
+    //Favorite testFavorit = new Favorite(testUser,testLocation);
+
+    //endpoint ansprechen => wie?
+    //favorit hinzufügen und danach wieder löschen, danach testen ob noch vorhanden
+  }
+
 }
