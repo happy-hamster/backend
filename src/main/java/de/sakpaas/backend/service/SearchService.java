@@ -114,8 +114,8 @@ public class SearchService {
       for (String brand : knownBrands) {
         locationList.addAll(
             locations.stream()
-                .filter(location -> location.getName().contains(brand) ||
-                    location.getDetails().getBrand().equals(brand))
+                .filter(location -> location.getName().contains(brand)
+                    || location.getDetails().getBrand().equals(brand))
                 .collect(Collectors.toList()));
       }
       request.setLocations(locationList);
