@@ -55,7 +55,7 @@ class SearchServiceTest extends HappyHamsterTest {
     SearchService.setKnownBrands(getBrandList());
     SearchRequest resultRequest =
         searchService.checkForBrands(createSearchRequest("lidl edeka aldi"));
-    assertThat(resultRequest.getBrands().size()).as("").isEqualTo(3);
+    assertThat(resultRequest.getBrands().size()).isEqualTo(3);
     assertThat(resultRequest.getQuery().size()).isEqualTo(0);
     assertThat(resultRequest.getBrands().contains("lidl")).isTrue();
     assertThat(resultRequest.getBrands().contains("edeka")).isTrue();
