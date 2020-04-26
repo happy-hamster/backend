@@ -112,15 +112,4 @@ public class UserControllerTest {
   private LocationResultLocationDto resultDto(Long id) {
     return new LocationResultLocationDto(id, "Location: " + id, false, null, null, null, null);
   }
-
-  @Test
-  public void postFavorite() {
-
-  }
-
-  @Test
-  public void deleteFavorite() {
-
-  }
-
 }
