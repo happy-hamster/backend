@@ -110,14 +110,18 @@ public class SearchService {
     if (knownBrands.isEmpty()) {
       request.setLocations(locations);
     } else {
-      List<Location> locationList = new ArrayList<>();
-      for (String brand : knownBrands) {
-        locationList.addAll(
-            locations.stream()
-                .filter(location -> location.getName().contains(brand)
-                    || location.getDetails().getBrand().equals(brand))
-                .collect(Collectors.toList()));
-      }
+      List<Location> locationList = locations.stream()
+          .filter(location -> {
+            for (String brand : knownBrands) {
+              String lowerCaseBrand = brand.toLowerCase();
+              if (location.getName().toLowerCase().contains(lowerCaseBrand)
+                  || location.getDetails().getBrand().equals(lowerCaseBrand)) {
+                return true;
+              }
+            }
+            return false;
+          }).collect(Collectors.toList());
+
       request.setLocations(locationList);
     }
 
