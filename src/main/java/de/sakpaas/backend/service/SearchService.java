@@ -6,6 +6,7 @@ import de.sakpaas.backend.model.SearchRequest;
 import de.sakpaas.backend.model.SearchResultObject;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +39,7 @@ public class SearchService {
 
   /**
    * Extracts all Brands that exists in the Database and saves them to the knownBrands List.
+   * Also makes all brands lower case.
    */
   protected void updateBrands() {
   }
@@ -56,13 +58,14 @@ public class SearchService {
 
 
   /**
-   * Creates a new SearchRequest Object.
+   * Creates a new SearchRequest Object. Also makes all query entrys lower case.
    *
    * @param query             The SearchQuery
    * @param coordinateDetails The SearchCoordinates
    * @return A new SearchRequest
    */
-  protected SearchRequest createRequest(String query, CoordinateDetails coordinateDetails) {
+  protected SearchRequest createRequest(String query, CoordinateDetails coordinateDetails)
+      throws EmptySearchQueryException {
     return new SearchRequest();
   }
 
@@ -74,7 +77,12 @@ public class SearchService {
    * @throws EmptySearchQueryException Will be thrown if the Query is
    *                                   Empty(needs to be implemented)
    */
-  protected SearchRequest checkForBrands(SearchRequest request) throws EmptySearchQueryException {
+  protected SearchRequest checkForBrands(SearchRequest request) {
+    request.setBrands(
+        request.getQuery().stream().filter(queryElement -> knownBrands.contains(queryElement))
+            .collect(
+                Collectors.toSet()));
+    request.getQuery().removeAll(request.getBrands());
     return request;
   }
 
