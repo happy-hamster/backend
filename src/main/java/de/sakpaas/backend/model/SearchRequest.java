@@ -1,13 +1,14 @@
 package de.sakpaas.backend.model;
 
 import java.util.List;
+import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
 public class SearchRequest {
-  private List<String> query;
+  private Set<String> query;
   private CoordinateDetails coordinates;
   private List<String> brands;
   private List<Location> locations;
