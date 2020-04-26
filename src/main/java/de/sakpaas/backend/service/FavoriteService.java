@@ -40,7 +40,7 @@ public class FavoriteService {
   }
 
   /**
-   * Deletes the favorite of an user at a given location
+   * Deletes the favorite of an user at a given location.
    *
    * @param userId   the UUID of the User
    * @param location the location of the favorite
