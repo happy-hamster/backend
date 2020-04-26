@@ -81,7 +81,7 @@ public class SearchServiceTest extends HappyHamsterTest {
     final SearchRequest searchRequest1 = searchService.getByCoordinates(searchRequest);
 
     assertThat(searchRequest1.getLocations())
-        .isEqualTo(new ArrayList<>(Collections.singletonList(locationList)));
+        .isEqualTo(locationList);
   }
 
   @Test
