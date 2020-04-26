@@ -88,13 +88,22 @@ public class UserController {
    * @return Returns a ResponseEntity
    */
   @PostMapping("/self/favorites/{id}")
-  public ResponseEntity<?> postFavorite(
+  public ResponseEntity<List<LocationResultLocationDto>> postFavorite(
       @PathVariable("id") Long locationId, Principal principal) {
+
+    UUID userId = UUID.fromString(principal.getName());
+
     Location location = locationService.getById(locationId)
         .orElseThrow(() -> new InvalidLocationException(locationId));
-    Favorite favorite = new Favorite(UUID.fromString(principal.getName()), location);
+    Favorite favorite = new Favorite(userId, location);
     favoriteService.save(favorite);
-    return new ResponseEntity<>(OK);
+
+    List<Favorite> favorites = favoriteRepository.findByUserUuid(userId);
+    List<LocationResultLocationDto> response = favorites.stream()
+        .map(fav -> locationMapper.mapLocationToOutputDto(fav.getLocation()))
+        .collect(Collectors.toList());
+
+    return new ResponseEntity<>(response, OK);
   }
 
   /**
