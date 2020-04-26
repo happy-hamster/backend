@@ -1,7 +1,7 @@
 alter table address
 	alter column country type varchar(10),
 	alter column city type varchar(60),
-	alter column postcode type varchar(20),
+	alter column postcode type varchar(10),
 	alter column street type varchar(75),
 	alter column housenumber type varchar(50);
 	
