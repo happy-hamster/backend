@@ -37,10 +37,15 @@ public class SearchServiceTest extends HappyHamsterTest {
     searchRequest.setCoordinates(coordinateDetails);
     searchService.setKnownBrands(Arrays.asList(knownBrands));
 
+    final LocationDetails locationDetails = new LocationDetails();
+    locationDetails.setBrand("");
+
     final Location location = new Location();
     location.setLatitude(1.0);
     location.setLongitude(1.0);
     location.setName("2");
+    location.setDetails(locationDetails);
+
     final List<Location> locationList = new ArrayList<>(Collections.singletonList(location));
 
     // mock LocationService
