@@ -45,6 +45,16 @@ public class FavoriteService {
   }
 
   /**
+   * Returns all Favorites of the given User.
+   *
+   * @param userId the UUID of the User
+   * @return the Favorites of the User
+   */
+  public List<Favorite> findByUserUuid(UUID userId) {
+    return favoriteRepository.findByUserUuid(userId);
+  }
+
+  /**
    * deletes a given Favorite.
    *
    * @param favorite the Favorite that should be deleted.

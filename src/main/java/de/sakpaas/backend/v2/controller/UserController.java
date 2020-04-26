@@ -6,7 +6,6 @@ import de.sakpaas.backend.dto.UserInfoDto;
 import de.sakpaas.backend.exception.InvalidLocationException;
 import de.sakpaas.backend.model.Favorite;
 import de.sakpaas.backend.model.Location;
-import de.sakpaas.backend.service.FavoriteRepository;
 import de.sakpaas.backend.service.FavoriteService;
 import de.sakpaas.backend.service.LocationService;
 import de.sakpaas.backend.service.UserService;
@@ -30,7 +29,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
   final UserService userService;
-  final FavoriteRepository favoriteRepository;
   final LocationMapper locationMapper;
   final FavoriteService favoriteService;
   final LocationService locationService;
@@ -38,12 +36,11 @@ public class UserController {
   /**
    * Constructor for Services.
    */
-  public UserController(UserService userService, FavoriteRepository favoriteRepository,
+  public UserController(UserService userService,
                         LocationMapper locationMapper,
                         FavoriteService favoriteService,
                         LocationService locationService) {
     this.userService = userService;
-    this.favoriteRepository = favoriteRepository;
     this.locationMapper = locationMapper;
     this.favoriteService = favoriteService;
     this.locationService = locationService;
@@ -72,7 +69,7 @@ public class UserController {
 
     UserInfoDto userInfo = userService.getUserInfo(header);
 
-    List<Favorite> favorites = favoriteRepository.findByUserUuid(userInfo.getId());
+    List<Favorite> favorites = favoriteService.findByUserUuid(userInfo.getId());
     List<LocationResultLocationDto> response = favorites.stream()
         .map(favorite -> locationMapper.mapLocationToOutputDto(favorite.getLocation()))
         .collect(Collectors.toList());
@@ -98,7 +95,7 @@ public class UserController {
     Favorite favorite = new Favorite(userId, location);
     favoriteService.saveUnique(favorite);
 
-    List<Favorite> favorites = favoriteRepository.findByUserUuid(userId);
+    List<Favorite> favorites = favoriteService.findByUserUuid(userId);
     List<LocationResultLocationDto> response = favorites.stream()
         .map(fav -> locationMapper.mapLocationToOutputDto(fav.getLocation()))
         .collect(Collectors.toList());
