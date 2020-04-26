@@ -96,6 +96,4 @@ public class SearchService {
   protected SearchRequest getByCoordinates(SearchRequest request) {
     return request;
   }
-
-
 }
