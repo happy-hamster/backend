@@ -35,51 +35,51 @@ class SearchServiceTest extends HappyHamsterTest {
   @Test
   void checkForBrandsWithoutBrandsInQuery() {
     SearchService.setKnownBrands(getBrandList());
-    SearchRequest resultRequest = searchService.checkForBrands(createSearchRequest("Mannheim"));
+    SearchRequest resultRequest = searchService.checkForBrands(createSearchRequest("mannheim"));
     assertThat(resultRequest.getQuery().size()).isEqualTo(1);
-    assertThat(resultRequest.getQuery().contains("Mannheim")).isTrue();
+    assertThat(resultRequest.getQuery().contains("mannheim")).isTrue();
     assertThat(resultRequest.getBrands().size()).isEqualTo(0);
   }
 
   @Test
   void checkForBrandsWithOnlyBrandInQuery() {
     SearchService.setKnownBrands(getBrandList());
-    SearchRequest resultRequest = searchService.checkForBrands(createSearchRequest("Lidl"));
+    SearchRequest resultRequest = searchService.checkForBrands(createSearchRequest("lidl"));
     assertThat(resultRequest.getQuery().size()).isEqualTo(0);
     assertThat(resultRequest.getBrands().size()).isEqualTo(1);
-    assertThat(resultRequest.getBrands().contains("Lidl")).isTrue();
+    assertThat(resultRequest.getBrands().contains("lidl")).isTrue();
   }
 
   @Test
   void checkForBrandsWithMultipleBrandsInQuery() {
     SearchService.setKnownBrands(getBrandList());
     SearchRequest resultRequest =
-        searchService.checkForBrands(createSearchRequest("Lidl Edeka Aldi"));
+        searchService.checkForBrands(createSearchRequest("lidl edeka aldi"));
     assertThat(resultRequest.getBrands().size()).as("").isEqualTo(3);
     assertThat(resultRequest.getQuery().size()).isEqualTo(0);
-    assertThat(resultRequest.getBrands().contains("Lidl")).isTrue();
-    assertThat(resultRequest.getBrands().contains("Edeka")).isTrue();
-    assertThat(resultRequest.getBrands().contains("Aldi")).isTrue();
+    assertThat(resultRequest.getBrands().contains("lidl")).isTrue();
+    assertThat(resultRequest.getBrands().contains("edeka")).isTrue();
+    assertThat(resultRequest.getBrands().contains("aldi")).isTrue();
   }
 
   @Test
   void checkForBrandsWithBrandsAndNoneBrands() {
     SearchService.setKnownBrands(getBrandList());
     SearchRequest resultRequest =
-        searchService.checkForBrands(createSearchRequest("Mannheim Wasserturm Edeka Aldi"));
+        searchService.checkForBrands(createSearchRequest("mannheim wasserturm edeka aldi"));
     assertThat(resultRequest.getBrands().size()).isEqualTo(2);
-    assertThat(resultRequest.getBrands().contains("Edeka")).isTrue();
-    assertThat(resultRequest.getBrands().contains("Aldi")).isTrue();
+    assertThat(resultRequest.getBrands().contains("edeka")).isTrue();
+    assertThat(resultRequest.getBrands().contains("aldi")).isTrue();
     assertThat(resultRequest.getQuery().size()).isEqualTo(2);
-    assertThat(resultRequest.getQuery().contains("Mannheim")).isTrue();
-    assertThat(resultRequest.getQuery().contains("Wasserturm")).isTrue();
+    assertThat(resultRequest.getQuery().contains("mannheim")).isTrue();
+    assertThat(resultRequest.getQuery().contains("wasserturm")).isTrue();
   }
 
   void checkForBrandsWithDublicatedBrands() {
     SearchService.setKnownBrands(getBrandList());
     SearchRequest resultRequest =
-        searchService.checkForBrands(createSearchRequest("Lidl Lidl"));
+        searchService.checkForBrands(createSearchRequest("lidl lidl"));
     assertThat(resultRequest.getBrands().size()).isEqualTo(1);
-    assertThat(resultRequest.getBrands().contains("Lidl")).isTrue();
+    assertThat(resultRequest.getBrands().contains("lidl")).isTrue();
   }
 }

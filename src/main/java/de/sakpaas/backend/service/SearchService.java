@@ -38,7 +38,7 @@ public class SearchService {
 
 
   /**
-   * Extracts all Brands that exists in the Database and saves them to the knownBrands List.
+   * Extracts all Brands that exists in the Database and saves them to the knownBrands List. Also makes all brands lower case.
    */
   protected void updateBrands() {
   }
@@ -57,7 +57,7 @@ public class SearchService {
 
 
   /**
-   * Creates a new SearchRequest Object.
+   * Creates a new SearchRequest Object. Also makes all query entrys lower case.
    *
    * @param query             The SearchQuery
    * @param coordinateDetails The SearchCoordinates
@@ -81,9 +81,9 @@ public class SearchService {
         request.getQuery().stream().filter(queryElement -> knownBrands.contains(queryElement))
             .collect(
                 Collectors.toSet()));
-    for (String brand : request.getBrands()) {
-      request.getQuery().remove(brand);
-    }
+    request.setQuery(request.getQuery().stream()
+        .filter(queryElement -> !request.getBrands().contains(queryElement)).collect(
+            Collectors.toSet()));
     return request;
   }
 
