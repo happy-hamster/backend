@@ -2,11 +2,8 @@ package de.sakpaas.backend.service;
 
 import de.sakpaas.backend.model.Favorite;
 import de.sakpaas.backend.model.Location;
-import de.sakpaas.backend.v2.dto.LocationResultLocationDto;
-import de.sakpaas.backend.v2.mapper.LocationMapper;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import javax.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,13 +13,11 @@ import org.springframework.stereotype.Service;
 public class FavoriteService {
 
   private final FavoriteRepository favoriteRepository;
-  private final LocationMapper locationMapper;
+
 
   @Autowired
-  public FavoriteService(FavoriteRepository favoriteRepository,
-                         LocationMapper locationMapper) {
+  public FavoriteService(FavoriteRepository favoriteRepository) {
     this.favoriteRepository = favoriteRepository;
-    this.locationMapper = locationMapper;
   }
 
   /**
@@ -42,6 +37,17 @@ public class FavoriteService {
    */
   public void delete(Favorite favorite) {
     favoriteRepository.delete(favorite);
+  }
+
+  /**
+   * Deletes the favorite of an user at a given location
+   *
+   * @param userId   the UUID of the User
+   * @param location the location of the favorite
+   */
+
+  public void delete(Location location, UUID userId) {
+    favoriteRepository.deleteAll(favoriteRepository.findByUserUuidAndLocation(userId, location));
   }
 
   /**
@@ -74,18 +80,6 @@ public class FavoriteService {
   public void deleteByUserUuid(UUID userID) {
     List<Favorite> favorites = favoriteRepository.findByUserUuid(userID);
     favorites.forEach(favoriteRepository::delete);
-  }
-
-  public List<LocationResultLocationDto> getFavoriteLocationByUserId(UUID userid) {
-    List<Favorite> favorites = favoriteRepository.findByUserUuid(userid);
-    return favorites.stream()
-        .map(favorite -> locationMapper.mapLocationToOutputDto(favorite.getLocation()))
-        .collect(Collectors.toList());
-  }
-
-
-  public void delete(Location location, UUID userId) {
-    favoriteRepository.deleteAll(favoriteRepository.findByUserUuidAndLocation(userId, location));
   }
 
 

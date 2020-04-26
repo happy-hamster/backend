@@ -79,18 +79,30 @@ public class UserController {
     return new ResponseEntity<>(response, OK);
   }
 
+  /**
+   * Post Endpoint that creates a favorite.
+   *
+   * @param locationId the location Id of the new favorite
+   * @param principal  the principal of the User
+   * @return Returns a ResponseEntity
+   */
   @PostMapping("/self/favorites/{id}")
-  public ResponseEntity<List<LocationResultLocationDto>> postFavorite(
+  public ResponseEntity<?> postFavorite(
       @PathVariable("id") Long locationId, Principal principal) {
     Location location = locationService.getById(locationId)
         .orElseThrow(() -> new InvalidLocationException(locationId));
     Favorite favorite = new Favorite(UUID.fromString(principal.getName()), location);
     favoriteService.save(favorite);
-    return new ResponseEntity<>(
-        favoriteService.getFavoriteLocationByUserId(UUID.fromString(principal.getName())), OK);
+    return new ResponseEntity<>(OK);
   }
 
-  //Abfrage auf User einbauen
+  /**
+   * Delete Endpoint that deletes a favorite.
+   *
+   * @param locationId the location Id of the new favorite
+   * @param principal  the principal of the User
+   * @return Returns a ResponseEntity
+   */
   @DeleteMapping("/self/favorites/{id}")
   public ResponseEntity<?> deleteFavorite(
       @PathVariable("id") Long locationId,
