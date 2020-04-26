@@ -1,8 +1,10 @@
 package de.sakpaas.backend.service;
 
+import de.sakpaas.backend.exception.EmptySearchQueryException;
 import de.sakpaas.backend.model.CoordinateDetails;
-import de.sakpaas.backend.model.Location;
+import de.sakpaas.backend.model.SearchRequest;
 import de.sakpaas.backend.model.SearchResultObject;
+import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +17,7 @@ public class SearchService {
   private static final Logger LOGGER = LoggerFactory.getLogger(SearchService.class);
   private final LocationService locationService;
   private final SearchMappingService searchMappingService;
+  private static List<String> knownBrands;
 
   /**
    * Searches for a specific key, calculates the central point as coordinates and returns
@@ -30,21 +33,70 @@ public class SearchService {
     this.searchMappingService = searchMappingService;
   }
 
-  /**
-   * Handles the query key. Delegates the REST request and gets the locations based on the central
-   * coordinates of the search result.
-   *
-   * @param key The query key
-   * @return An object with the central coordinates and a list of locations
-   */
-  public SearchResultObject search(String key) {
-    CoordinateDetails nominatimResultLocationDtoList =
-        searchMappingService.search(key);
-    List<Location> locationList =
-        locationService.findByCoordinates(nominatimResultLocationDtoList.getLatitude(),
-            nominatimResultLocationDtoList.getLongitude());
 
-    return new SearchResultObject(nominatimResultLocationDtoList, locationList);
+  /**
+   * Extracts all Brands that exists in the Database and saves them to the knownBrands List.
+   */
+  protected void updateBrands() {
   }
 
+
+  /**
+   * Main search Method. Handles all the search logic
+   *
+   * @param query             Search Query
+   * @param coordinateDetails Coordinates to assist the search
+   * @return Result Locations
+   */
+  public SearchResultObject search(String query, CoordinateDetails coordinateDetails) {
+    return new SearchResultObject(coordinateDetails, new ArrayList<>());
+  }
+
+
+  /**
+   * Possible Brand Names will be extracted from the Query and saved brands List.
+   *
+   * @param request The Request Object
+   * @return the updated Request Object
+   * @throws EmptySearchQueryException Will be thrown if the Query is
+   *                                   Empty(needs to be implemented)
+   */
+  protected SearchRequest checkForBrands(SearchRequest request) throws EmptySearchQueryException {
+    return request;
+  }
+
+
+  /**
+   * Creates a Nominatim Request and executes it. It updates the Coordinates of the Request.
+   *
+   * @param request The Request Object
+   * @return the updated Request Object
+   */
+  protected SearchRequest getCoordinatesFromNominatim(SearchRequest request) {
+    return request;
+  }
+
+
+  /**
+   * Searches the Database for Locations that match at least one Brand of the Brand list in the.
+   * Name or the Brand-Field.
+   *
+   * @param request The Request Object
+   * @return the updated Request Object
+   */
+  protected SearchRequest dbBrandSearch(SearchRequest request) {
+    return request;
+  }
+
+
+  /**
+   * Gets all Locations from the database, near specific coordinates. It will also filter by the
+   * Brand-Names if there are any.
+   *
+   * @param request The Request Object
+   * @return the updated Request Object
+   */
+  protected SearchRequest getByCoordinates(SearchRequest request) {
+    return request;
+  }
 }

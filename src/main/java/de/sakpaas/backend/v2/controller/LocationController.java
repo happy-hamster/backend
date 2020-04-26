@@ -7,6 +7,7 @@ import static org.springframework.http.HttpStatus.OK;
 import de.sakpaas.backend.BackendApplication;
 import de.sakpaas.backend.dto.UserInfoDto;
 import de.sakpaas.backend.exception.InvalidLocationException;
+import de.sakpaas.backend.model.CoordinateDetails;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.Occupancy;
 import de.sakpaas.backend.model.SearchResultObject;
@@ -222,7 +223,8 @@ public class LocationController {
       @RequestHeader(value = "Authorization", required = false) String header) {
     Optional<UserInfoDto> user = userService.getOptionalUserInfo(header);
 
-    final SearchResultObject resultObject = searchService.search(key);
+    //ToDo Get Coordinates from Request
+    final SearchResultObject resultObject = searchService.search(key, new CoordinateDetails(1, 1));
 
     return user.map(
         userInfoDto -> new ResponseEntity<>(
