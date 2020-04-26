@@ -18,10 +18,10 @@ import org.springframework.stereotype.Service;
 public class SearchService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SearchService.class);
-  @Setter
-  private List<String> knownBrands;
   private final LocationService locationService;
   private final SearchMappingService searchMappingService;
+  @Setter
+  private List<String> knownBrands;
 
   /**
    * Searches for a specific key, calculates the central point as coordinates and returns
@@ -114,12 +114,8 @@ public class SearchService {
       for (String brand : knownBrands) {
         locationList.addAll(
             locations.stream()
-                .filter(location -> location.getName().contains(brand))
-                .collect(Collectors.toList()));
-
-        locationList.addAll(
-            locations.stream()
-                .filter(location -> location.getDetails().getBrand().equals(brand))
+                .filter(location -> location.getName().contains(brand) ||
+                    location.getDetails().getBrand().equals(brand))
                 .collect(Collectors.toList()));
       }
       request.setLocations(locationList);

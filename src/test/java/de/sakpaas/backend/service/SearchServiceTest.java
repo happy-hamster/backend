@@ -57,6 +57,34 @@ public class SearchServiceTest extends HappyHamsterTest {
   }
 
   @Test
+  public void testDoubleInsertion() {
+    final String[] knownBrands = {"1"};
+    final CoordinateDetails coordinateDetails = new CoordinateDetails(1, 1);
+    final SearchRequest searchRequest = new SearchRequest();
+    searchRequest.setCoordinates(coordinateDetails);
+    searchService.setKnownBrands(Arrays.asList(knownBrands));
+
+    final LocationDetails locationDetails = new LocationDetails();
+    locationDetails.setBrand("1");
+
+    final Location location = new Location();
+    location.setLatitude(1.0);
+    location.setLongitude(1.0);
+    location.setName("1");
+    location.setDetails(locationDetails);
+
+    final List<Location> locationList = new ArrayList<>(Collections.singletonList(location));
+
+    // mock LocationService
+    Mockito.when(locationService.findByCoordinates(1.0, 1.0)).thenReturn(locationList);
+
+    final SearchRequest searchRequest1 = searchService.getByCoordinates(searchRequest);
+
+    assertThat(searchRequest1.getLocations())
+        .isEqualTo(new ArrayList<>(Collections.singletonList(locationList)));
+  }
+
+  @Test
   public void testFilterUnwantedLocationsByBrand() {
     final String[] knownBrands = {"1"};
     final CoordinateDetails coordinateDetails = new CoordinateDetails(1, 1);
