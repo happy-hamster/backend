@@ -58,7 +58,8 @@ public class SearchService {
    *
    * @param request The Request Object
    * @return the updated Request Object
-   * @throws EmptySearchQueryException Will be thrown if the Query is Empty (needs to be implemented)
+   * @throws EmptySearchQueryException Will be thrown if the Query is
+   *                                   Empty(needs to be implemented)
    */
   protected SearchRequest checkForBrands(SearchRequest request) throws EmptySearchQueryException {
     return request;
@@ -77,7 +78,8 @@ public class SearchService {
 
 
   /**
-   * Searches the Database for Locations that match at least one Brand of the Brand list in the Name or the Brand-Field
+   * Searches the Database for Locations that match at least one Brand of the Brand list in the.
+   * Name or the Brand-Field.
    *
    * @param request The Request Object
    * @return the updated Request Object
@@ -88,7 +90,8 @@ public class SearchService {
 
 
   /**
-   * Gets all Locations from the database, near specific coordinates. It will also filter by the Brand-Names if there are any.
+   * Gets all Locations from the database, near specific coordinates. It will also filter by the
+   * Brand-Names if there are any.
    *
    * @param request The Request Object
    * @return the updated Request Object
