@@ -2,8 +2,8 @@ package de.sakpaas.backend.service;
 
 import de.sakpaas.backend.exception.EmptySearchQueryException;
 import de.sakpaas.backend.model.CoordinateDetails;
-import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.SearchRequest;
+import de.sakpaas.backend.model.SearchResultObject;
 import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
@@ -48,8 +48,8 @@ public class SearchService {
    * @param coordinateDetails Coordinates to assist the search
    * @return Result Locations
    */
-  public List<Location> search(String query, CoordinateDetails coordinateDetails) {
-    return new ArrayList<>();
+  public SearchResultObject search(String query, CoordinateDetails coordinateDetails) {
+    return new SearchResultObject(coordinateDetails, new ArrayList<>());
   }
 
 
