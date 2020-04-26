@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.UUID;
 import javax.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 
 
@@ -28,6 +29,19 @@ public class FavoriteService {
    */
   public Favorite save(Favorite favorite) {
     return favoriteRepository.save(favorite);
+  }
+
+  /**
+   * Saves the given Favorite but only if there is not already a Favorite for this user and
+   * Location.
+   *
+   * @param favorite the Favorite to save
+   * @return the saved Favorite
+   */
+  public Favorite saveUnique(Favorite favorite) {
+    return favoriteRepository.exists(Example.of(favorite))
+        ? null
+        : save(favorite);
   }
 
   /**

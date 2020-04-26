@@ -96,7 +96,7 @@ public class UserController {
     Location location = locationService.getById(locationId)
         .orElseThrow(() -> new InvalidLocationException(locationId));
     Favorite favorite = new Favorite(userId, location);
-    favoriteService.save(favorite);
+    favoriteService.saveUnique(favorite);
 
     List<Favorite> favorites = favoriteRepository.findByUserUuid(userId);
     List<LocationResultLocationDto> response = favorites.stream()
