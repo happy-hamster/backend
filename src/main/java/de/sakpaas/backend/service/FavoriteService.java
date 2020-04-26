@@ -81,6 +81,4 @@ public class FavoriteService {
     List<Favorite> favorites = favoriteRepository.findByUserUuid(userID);
     favorites.forEach(favoriteRepository::delete);
   }
-
-
 }
