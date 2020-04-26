@@ -62,7 +62,8 @@ public class SearchService {
    * @param coordinateDetails The SearchCoordinates
    * @return A new SearchRequest
    */
-  protected SearchRequest createRequest(String query, CoordinateDetails coordinateDetails) {
+  protected SearchRequest createRequest(String query, CoordinateDetails coordinateDetails)
+      throws EmptySearchQueryException {
     return new SearchRequest();
   }
 
@@ -74,7 +75,7 @@ public class SearchService {
    * @throws EmptySearchQueryException Will be thrown if the Query is
    *                                   Empty(needs to be implemented)
    */
-  protected SearchRequest checkForBrands(SearchRequest request) throws EmptySearchQueryException {
+  protected SearchRequest checkForBrands(SearchRequest request) {
     return request;
   }
 

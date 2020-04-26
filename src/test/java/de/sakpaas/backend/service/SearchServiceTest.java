@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import de.sakpaas.backend.exception.EmptySearchQueryException;
 import de.sakpaas.backend.model.SearchRequest;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -18,7 +19,7 @@ class SearchServiceTest {
 
   private SearchRequest createSearchRequest(String query) {
     SearchRequest searchRequest = new SearchRequest();
-    searchRequest.setQuery(query);
+    searchRequest.setQuery(new ArrayList<>(Arrays.asList(query.split(" "))));
     return searchRequest;
   }
 
@@ -48,6 +49,8 @@ class SearchServiceTest {
     SearchService mockSearchService = Mockito.spy(searchService);
     Mockito.doReturn(getBrandList()).when(searchService).getKnownBrands();
     SearchRequest resultRequest = mockSearchService.checkForBrands(createSearchRequest("Mannheim"));
+    assertThat(resultRequest.getQuery().size()).isEqualTo(1);
+    assertThat(resultRequest.getQuery().contains("Mannheim")).isTrue();
     assertThat(resultRequest.getBrands().size()).isEqualTo(0);
   }
 
@@ -56,8 +59,9 @@ class SearchServiceTest {
     SearchService mockSearchService = Mockito.spy(searchService);
     Mockito.doReturn(getBrandList()).when(searchService).getKnownBrands();
     SearchRequest resultRequest = mockSearchService.checkForBrands(createSearchRequest("Lidl"));
-    assertThat(resultRequest.getBrands().size()).as("").isEqualTo(1);
-    assertThat(resultRequest.getBrands().get(0)).isEqualTo("Lidl");
+    assertThat(resultRequest.getQuery().size()).isEqualTo(0);
+    assertThat(resultRequest.getBrands().size()).isEqualTo(1);
+    assertThat(resultRequest.getBrands().contains("Lidl")).isTrue();
   }
 
   @Test
@@ -67,8 +71,32 @@ class SearchServiceTest {
     SearchRequest resultRequest =
         mockSearchService.checkForBrands(createSearchRequest("Lidl Edeka Aldi"));
     assertThat(resultRequest.getBrands().size()).as("").isEqualTo(3);
-    assertThat(resultRequest.getBrands().get(0)).isEqualTo("Lidl");
-    assertThat(resultRequest.getBrands().get(1)).isEqualTo("Edeka");
-    assertThat(resultRequest.getBrands().get(2)).isEqualTo("Aldi");
+    assertThat(resultRequest.getQuery().size()).isEqualTo(0);
+    assertThat(resultRequest.getBrands().contains("Lidl")).isTrue();
+    assertThat(resultRequest.getBrands().contains("Edeka")).isTrue();
+    assertThat(resultRequest.getBrands().contains("Aldi")).isTrue();
+  }
+
+  @Test
+  void checkForBrandsWithBrandsAndNoneBrands() {
+    SearchService mockSearchService = Mockito.spy(searchService);
+    Mockito.doReturn(getBrandList()).when(searchService).getKnownBrands();
+    SearchRequest resultRequest =
+        mockSearchService.checkForBrands(createSearchRequest("Mannheim Wasserturm Edeka Aldi"));
+    assertThat(resultRequest.getBrands().size()).isEqualTo(2);
+    assertThat(resultRequest.getBrands().contains("Edeka")).isTrue();
+    assertThat(resultRequest.getBrands().contains("Aldi")).isTrue();
+    assertThat(resultRequest.getQuery().size()).isEqualTo(2);
+    assertThat(resultRequest.getQuery().contains("Mannheim")).isTrue();
+    assertThat(resultRequest.getQuery().contains("Wasserturm")).isTrue();
+  }
+
+  void checkForBrandsWithDublicatedBrands() {
+    SearchService mockSearchService = Mockito.spy(searchService);
+    Mockito.doReturn(getBrandList()).when(searchService).getKnownBrands();
+    SearchRequest resultRequest =
+        mockSearchService.checkForBrands(createSearchRequest("Lidl Lidl"));
+    assertThat(resultRequest.getBrands().size()).isEqualTo(1);
+    assertThat(resultRequest.getBrands().contains("Lidl")).isTrue();
   }
 }
