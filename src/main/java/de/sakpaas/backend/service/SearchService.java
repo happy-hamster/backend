@@ -81,9 +81,7 @@ public class SearchService {
         request.getQuery().stream().filter(queryElement -> knownBrands.contains(queryElement))
             .collect(
                 Collectors.toSet()));
-    request.setQuery(request.getQuery().stream()
-        .filter(queryElement -> !request.getBrands().contains(queryElement)).collect(
-            Collectors.toSet()));
+    request.getQuery().removeAll(request.getBrands());
     return request;
   }
 

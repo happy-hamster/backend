@@ -26,9 +26,9 @@ class SearchServiceTest extends HappyHamsterTest {
 
   private List<String> getBrandList() {
     List<String> brands = new ArrayList<>();
-    brands.add("Lidl");
-    brands.add("Aldi");
-    brands.add("Edeka");
+    brands.add("lidl");
+    brands.add("aldi");
+    brands.add("edeka");
     return brands;
   }
 
@@ -63,7 +63,7 @@ class SearchServiceTest extends HappyHamsterTest {
   }
 
   @Test
-  void checkForBrandsWithBrandsAndNoneBrands() {
+  void checkForBrandsWithBrandsAndNoneBrandsInQuery() {
     SearchService.setKnownBrands(getBrandList());
     SearchRequest resultRequest =
         searchService.checkForBrands(createSearchRequest("mannheim wasserturm edeka aldi"));
@@ -75,7 +75,8 @@ class SearchServiceTest extends HappyHamsterTest {
     assertThat(resultRequest.getQuery().contains("wasserturm")).isTrue();
   }
 
-  void checkForBrandsWithDublicatedBrands() {
+  @Test
+  void checkForBrandsWithDublicatedBrandsInQuery() {
     SearchService.setKnownBrands(getBrandList());
     SearchRequest resultRequest =
         searchService.checkForBrands(createSearchRequest("lidl lidl"));
