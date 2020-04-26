@@ -6,6 +6,7 @@ import de.sakpaas.backend.model.SearchRequest;
 import de.sakpaas.backend.model.SearchResultObject;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,6 +77,13 @@ public class SearchService {
    *                                   Empty(needs to be implemented)
    */
   protected SearchRequest checkForBrands(SearchRequest request) {
+    request.setBrands(
+        request.getQuery().stream().filter(queryElement -> knownBrands.contains(queryElement))
+            .collect(
+                Collectors.toSet()));
+    for (String brand : request.getBrands()) {
+      request.getQuery().remove(brand);
+    }
     return request;
   }
 

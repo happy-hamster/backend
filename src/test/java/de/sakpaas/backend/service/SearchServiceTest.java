@@ -1,9 +1,7 @@
 package de.sakpaas.backend.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import de.sakpaas.backend.exception.EmptySearchQueryException;
 import de.sakpaas.backend.model.SearchRequest;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,23 +30,9 @@ class SearchServiceTest {
   }
 
   @Test
-  void checkForBrandsAndExpectException() {
-    SearchService mockSearchService = Mockito.spy(searchService);
-    Mockito.doReturn(getBrandList()).when(searchService).getKnownBrands();
-    assertThrows(EmptySearchQueryException.class, () -> {
-      mockSearchService.checkForBrands(createSearchRequest(""));
-    });
-
-    assertThrows(EmptySearchQueryException.class, () -> {
-      mockSearchService.checkForBrands(createSearchRequest(" "));
-    });
-  }
-
-  @Test
   void checkForBrandsWithoutBrandsInQuery() {
-    SearchService mockSearchService = Mockito.spy(searchService);
-    Mockito.doReturn(getBrandList()).when(searchService).getKnownBrands();
-    SearchRequest resultRequest = mockSearchService.checkForBrands(createSearchRequest("Mannheim"));
+    SearchService.setKnownBrands(getBrandList());
+    SearchRequest resultRequest = searchService.checkForBrands(createSearchRequest("Mannheim"));
     assertThat(resultRequest.getQuery().size()).isEqualTo(1);
     assertThat(resultRequest.getQuery().contains("Mannheim")).isTrue();
     assertThat(resultRequest.getBrands().size()).isEqualTo(0);
@@ -56,9 +40,8 @@ class SearchServiceTest {
 
   @Test
   void checkForBrandsWithOnlyBrandInQuery() {
-    SearchService mockSearchService = Mockito.spy(searchService);
-    Mockito.doReturn(getBrandList()).when(searchService).getKnownBrands();
-    SearchRequest resultRequest = mockSearchService.checkForBrands(createSearchRequest("Lidl"));
+    SearchService.setKnownBrands(getBrandList());
+    SearchRequest resultRequest = searchService.checkForBrands(createSearchRequest("Lidl"));
     assertThat(resultRequest.getQuery().size()).isEqualTo(0);
     assertThat(resultRequest.getBrands().size()).isEqualTo(1);
     assertThat(resultRequest.getBrands().contains("Lidl")).isTrue();
