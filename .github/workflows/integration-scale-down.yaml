@@ -1,0 +1,46 @@
+name: Integration (Scale down)
+
+on:
+  pull_request:
+    types:
+      - closed
+
+jobs:
+  environment:
+    name: Environment
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check (merge + release branch)
+        if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, "release/")
+        run: echo "Check passed!"
+
+      - name: Checkout
+        if: success()
+        uses: actions/checkout@master
+        with:
+          repository: 'SAKPaaS/deployment'
+
+      - name: Scale down (backend)
+        if: success()
+        uses: actions-hub/kubectl@master
+        env:
+          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+        with:
+          args: scale --replicas=0 -f backend/integration/deployment.yaml
+
+      - name: Scale down (support)
+        if: success()
+        uses: actions-hub/kubectl@master
+        env:
+          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+        with:
+          args: scale --replicas=0 -f backend/integration/support/deployment.yaml
+
+      - name: Delete PersistentVolumeClaim
+        if: success()
+        uses: actions-hub/kubectl@master
+        env:
+          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+        with:
+          args: delete -f backend/integration/support/persistent-volume-claim.yaml
