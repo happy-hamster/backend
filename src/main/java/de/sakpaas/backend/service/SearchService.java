@@ -113,9 +113,8 @@ public class SearchService {
       List<Location> locationList = locations.stream()
           .filter(location -> {
             for (String brand : knownBrands) {
-              String lowerCaseBrand = brand.toLowerCase();
-              if (location.getName().toLowerCase().contains(lowerCaseBrand)
-                  || location.getDetails().getBrand().equals(lowerCaseBrand)) {
+              if (location.getName().contains(brand)
+                  || location.getDetails().getBrand().equals(brand)) {
                 return true;
               }
             }
