@@ -6,12 +6,15 @@ import java.util.List;
 import java.util.UUID;
 import javax.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
+
 
 @Service
 public class FavoriteService {
 
   private final FavoriteRepository favoriteRepository;
+
 
   @Autowired
   public FavoriteService(FavoriteRepository favoriteRepository) {
@@ -29,14 +32,26 @@ public class FavoriteService {
   }
 
   /**
-   * Creates a new Favorite and saves it.
+   * Saves the given Favorite but only if there is not already a Favorite for this user and
+   * Location.
    *
-   * @param userId   the User for which the Favorite should be created.
-   * @param location the Location of the Favorite.
-   * @return the created and saved Favorite.
+   * @param favorite the Favorite to save
+   * @return the saved Favorite
    */
-  public Favorite addNewFavoriteForUserAndLocation(UUID userId, Location location) {
-    return save(new Favorite(userId, location));
+  public Favorite saveUnique(Favorite favorite) {
+    return favoriteRepository.exists(Example.of(favorite))
+        ? null
+        : save(favorite);
+  }
+
+  /**
+   * Returns all Favorites of the given User.
+   *
+   * @param userId the UUID of the User
+   * @return the Favorites of the User
+   */
+  public List<Favorite> findByUserUuid(UUID userId) {
+    return favoriteRepository.findByUserUuid(userId);
   }
 
   /**
@@ -46,6 +61,17 @@ public class FavoriteService {
    */
   public void delete(Favorite favorite) {
     favoriteRepository.delete(favorite);
+  }
+
+  /**
+   * Deletes the favorite of an user at a given location.
+   *
+   * @param userId   the UUID of the User
+   * @param location the location of the favorite
+   */
+
+  public void delete(Location location, UUID userId) {
+    favoriteRepository.deleteAll(favoriteRepository.findByUserUuidAndLocation(userId, location));
   }
 
   /**
