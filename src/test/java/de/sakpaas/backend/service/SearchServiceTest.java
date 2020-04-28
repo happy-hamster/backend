@@ -4,10 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import de.sakpaas.backend.HappyHamsterTest;
 import de.sakpaas.backend.model.SearchRequest;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -24,8 +23,8 @@ class SearchServiceTest extends HappyHamsterTest {
     return searchRequest;
   }
 
-  private List<String> getBrandList() {
-    List<String> brands = new ArrayList<>();
+  private Set<String> getBrandList() {
+    Set<String> brands = new HashSet<>();
     brands.add("lidl");
     brands.add("aldi");
     brands.add("edeka");
