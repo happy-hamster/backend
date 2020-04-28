@@ -39,6 +39,7 @@ public class SearchService {
     this.locationService = locationService;
     this.searchMappingService = searchMappingService;
     this.locationDetailsRepository = locationDetailsRepository;
+    updateBrands();
   }
 
 
