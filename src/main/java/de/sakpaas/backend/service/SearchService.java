@@ -111,7 +111,7 @@ public class SearchService {
    * @param request The Request Object
    * @return the updated Request Object
    */
-  public SearchRequest dbBrandSearch(SearchRequest request) {
+  protected SearchRequest dbBrandSearch(SearchRequest request) {
     Set<String> brands = request.getBrands();
     Set<Location> locations = request.getLocations();
     if (locations == null) {
