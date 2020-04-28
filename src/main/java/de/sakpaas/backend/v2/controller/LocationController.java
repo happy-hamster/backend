@@ -79,7 +79,7 @@ public class LocationController {
   @ResponseBody
   public ResponseEntity<List<LocationResultLocationDto>> getLocation(@RequestParam Double latitude,
                                                                      @RequestParam Double longitude,
-                                                                     @RequestParam
+                                                                     @RequestParam(required = false)
                                                                          List<String> type) {
     List<Location> searchResult = locationService.findByCoordinates(latitude, longitude, type);
     List<LocationResultLocationDto> response = searchResult.stream()
