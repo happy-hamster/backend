@@ -55,15 +55,15 @@ public class SearchService {
    */
   public SearchResultObject search(String query, CoordinateDetails coordinateDetails) {
     SearchRequest request = createRequest(query, coordinateDetails);
-    if (request.getQuery().isEmpty()) {
+    if (!request.getQuery().isEmpty()) {
       request = getCoordinatesFromNominatim(request);
     } else {
-      if (request.getCoordinates() != null) {
-        request = getByCoordinates(request);
-      } else {
+      if (request.getCoordinates() == null) {
         request = dbBrandSearch(request);
+        return new SearchResultObject(request.getCoordinates(), request.getLocations());
       }
     }
+    request = getByCoordinates(request);
     return new SearchResultObject(request.getCoordinates(), request.getLocations());
   }
 

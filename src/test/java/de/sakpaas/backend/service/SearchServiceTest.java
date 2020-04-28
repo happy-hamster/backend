@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -82,5 +83,14 @@ class SearchServiceTest extends HappyHamsterTest {
         searchService.checkForBrands(createSearchRequest("lidl lidl"));
     assertThat(resultRequest.getBrands().size()).isEqualTo(1);
     assertThat(resultRequest.getBrands().contains("lidl")).isTrue();
+  }
+
+  @Test
+  void searchWithEmptyCoordinatesAndOnlyBrands() {
+    SearchService mockSearchService = Mockito.spy(searchService);
+    SearchRequest request = new SearchRequest();
+    request.setQuery(new HashSet<>(Arrays.asList("Mannheim")));
+    Mockito.doReturn(request).when(mockSearchService).getCoordinatesFromNominatim(Mockito.any());
+
   }
 }
