@@ -69,6 +69,7 @@ public class SearchService {
     return new SearchRequest();
   }
 
+  
   /**
    * Possible Brand Names will be extracted from the Query and saved brands List.
    *
@@ -94,7 +95,6 @@ public class SearchService {
    * @return the updated Request Object
    */
   protected SearchRequest getCoordinatesFromNominatim(SearchRequest request) {
-
     CoordinateDetails coordinateDetails = new CoordinateDetails(0.0, 0.0);
     try {
       coordinateDetails = searchMappingService.search(request.getQuery(), request.getCoordinates());
@@ -103,7 +103,6 @@ public class SearchService {
     } finally {
       request.setCoordinates(coordinateDetails);
     }
-
     return request;
   }
 
