@@ -2,10 +2,13 @@ package de.sakpaas.backend.service;
 
 import de.sakpaas.backend.exception.EmptySearchQueryException;
 import de.sakpaas.backend.model.CoordinateDetails;
+import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.SearchRequest;
 import de.sakpaas.backend.model.SearchResultObject;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Setter;
 import org.slf4j.Logger;
@@ -18,6 +21,7 @@ public class SearchService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SearchService.class);
   private final LocationService locationService;
+  private final LocationDetailsService locationDetailsService;
   private final SearchMappingService searchMappingService;
   @Setter
   private static List<String> knownBrands;
@@ -31,9 +35,11 @@ public class SearchService {
    */
   @Autowired
   public SearchService(LocationService locationService,
-                       SearchMappingService searchMappingService) {
+                       SearchMappingService searchMappingService,
+                       LocationDetailsService locationDetailsService) {
     this.locationService = locationService;
     this.searchMappingService = searchMappingService;
+    this.locationDetailsService = locationDetailsService;
   }
 
 
@@ -105,7 +111,20 @@ public class SearchService {
    * @param request The Request Object
    * @return the updated Request Object
    */
-  protected SearchRequest dbBrandSearch(SearchRequest request) {
+  public SearchRequest dbBrandSearch(SearchRequest request) {
+    Set<String> brands = request.getBrands();
+    Set<Location> locations = request.getLocations();
+    if (locations == null) {
+      locations = new HashSet<Location>();
+    }
+    
+    for (String brand : brands) {
+      if (!brand.equals("")) {
+        locations.addAll(
+            locationService.findByNameOrBrandLike("%" + brand + "%", request.getResultLimit()));
+      }
+    }
+    request.setLocations(locations);
     return request;
   }
 
