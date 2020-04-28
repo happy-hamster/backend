@@ -35,6 +35,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @CrossOrigin(origins = "*")
@@ -96,12 +97,12 @@ public class LocationController {
    */
   @GetMapping
   @ResponseBody
-  public ResponseEntity<List<LocationResultLocationDto>> getLocation(@RequestParam Double latitude,
-                                                                     @RequestParam Double longitude,
-                                                                     @RequestParam(required = false)
-                                                                         List<String> type,
-                                                                     @RequestHeader(value = "Authorization", required = false)
-                                                                         String header) {
+  public ResponseEntity<List<LocationResultLocationDto>> getLocation(
+      @RequestParam Double latitude,
+      @RequestParam Double longitude,
+      @RequestParam(required = false) List<String> type,
+      @RequestHeader(value = "Authorization", required = false) String header) {
+
     Optional<UserInfoDto> user = userService.getOptionalUserInfo(header);
 
     List<LocationResultLocationDto> response =
