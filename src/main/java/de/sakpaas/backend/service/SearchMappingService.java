@@ -46,34 +46,51 @@ public class SearchMappingService {
   /**
    * Searches in the Nominatim Microservice for the given query.
    *
-   * @param query The search parameter. Multiple words are separated with %20.
+   * @param query The search parameter
    * @return The coordinates of the search request
    * @throws IndexOutOfBoundsException Iff the the request returned nothing
    */
   public CoordinateDetails search(Set<String> query) throws IndexOutOfBoundsException {
-    String queryString = String.join(",", query);
-
-    this.url = this.searchApiUrl + "/search/" + queryString + "?format=json&limit=1";
-
+    this.url = this.searchApiUrl + "/search/" + encodeUrl(query) + "?format=json&limit=1";
     return returnCoordinates();
   }
 
   /**
    * Searches in the Nominatim Microservice for the given query.
    *
-   * @param query The search parameter. Multiple words are separated with %20.
+   * @param query The search parameter
    * @return The coordinates of the search request
    * @throws IndexOutOfBoundsException Iff the the request returned nothing
    */
   public CoordinateDetails search(Set<String> query, CoordinateDetails coordinateDetails)
       throws IndexOutOfBoundsException {
-    String queryString = String.join(",", query);
-    this.url =
-        this.searchApiUrl + "/search/" + queryString + "%2C" + coordinateDetails.getLatitude()
-            + "%2C"
-            + coordinateDetails.getLongitude() + "?format=json&limit=1";
-
+    this.url = this.searchApiUrl + "/search/" + encodeUrl(query, coordinateDetails)
+        + "?format=json&limit=1";
     return returnCoordinates();
+  }
+
+  /**
+   * Encodes the nominatim request query.
+   * To be implemented in TINF-272.
+   *
+   * @param query The search parameter
+   * @return The encoded search query
+   */
+  private String encodeUrl(Set<String> query) {
+    return String.join(",", query);
+  }
+
+  /**
+   * Encodes the nominatim request query.
+   * To be implemented in TINF-272.
+   *
+   * @param query             The search parameter
+   * @param coordinateDetails The current coordinates of the user
+   * @return The encoded search query
+   */
+  private String encodeUrl(Set<String> query, CoordinateDetails coordinateDetails) {
+    return encodeUrl(query) + "%2C" + coordinateDetails.getLatitude()
+        + "%2C" + coordinateDetails.getLongitude();
   }
 
   /**
