@@ -90,7 +90,7 @@ public class LocationService {
               lon + 0.1);
     } else {
       list = locationRepository
-          .findByLatitudeBetweenAndLongitudeBetweenAndDetails_Type(lat - 0.1, lat + 0.1,
+          .findByLatitudeBetweenAndLongitudeBetweenAndDetails_TypeIn(lat - 0.1, lat + 0.1,
               lon - 0.1,
               lon + 0.1, type);
     }

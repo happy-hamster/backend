@@ -58,8 +58,9 @@ class LocationRepositoryTest extends HappyHamsterTest {
   }
 
   @Test
-  void findByLatitudeBetweenAndLongitudeBetweenAndDetails_Type() {
+  void findByLatitudeBetweenAndLongitudeBetweenAndDetails_TypeIn() {
     locationRepository.deleteAll();
+    addressRepository.deleteAll();
     locationDetailsRepository.deleteAll();
 
     Address address =
@@ -87,7 +88,7 @@ class LocationRepositoryTest extends HappyHamsterTest {
 
     List<Location>
         list = locationRepository
-        .findByLatitudeBetweenAndLongitudeBetweenAndDetails_Type(30.D, 42.D, 6.D, 9.0,
+        .findByLatitudeBetweenAndLongitudeBetweenAndDetails_TypeIn(30.D, 42.D, 6.D, 9.0,
             Arrays.asList("testtype1"));
 
     assertThat(list.size()).isEqualTo(1);
