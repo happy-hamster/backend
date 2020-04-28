@@ -12,8 +12,7 @@ public interface LocationDetailsRepository extends JpaRepository<LocationDetails
 
   @Query(value = "SELECT lower(brand) "
       + "FROM location_details "
-      + "WHERE brand "
-      + "IS NOT null "
+      + "WHERE brand IS NOT null "
       + "GROUP BY lower(brand)",
       nativeQuery = true)
   Set<String> getAllBrandNamesLower();
