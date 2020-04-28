@@ -1,9 +1,13 @@
 package de.sakpaas.backend.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import de.sakpaas.backend.HappyHamsterTest;
+import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.SearchRequest;
+import de.sakpaas.backend.model.SearchResultObject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -88,9 +92,22 @@ class SearchServiceTest extends HappyHamsterTest {
   @Test
   void searchWithEmptyCoordinatesAndOnlyBrands() {
     SearchService mockSearchService = Mockito.spy(searchService);
-    SearchRequest request = new SearchRequest();
-    request.setQuery(new HashSet<>(Arrays.asList("Mannheim")));
-    Mockito.doReturn(request).when(mockSearchService).getCoordinatesFromNominatim(Mockito.any());
 
+    SearchRequest request = new SearchRequest();
+    request.setQuery(new HashSet<>());
+    Mockito.doReturn(request).when(mockSearchService).createRequest(Mockito.any(), Mockito.any());
+
+    request.setLocations(
+        new HashSet<>(Arrays.asList(new Location(1L, "LIDL", 41.0D, 8.0D, null, null))));
+    Mockito.doReturn(request).when(mockSearchService).dbBrandSearch(Mockito.any());
+
+    SearchResultObject result = mockSearchService.search("testQuery", null);
+    assertThat(result.getLocationList().size()).isEqualTo(1);
+    assertThat(result.getCoordinates()).isNull();
+    //Count Method interactions
+    verify(mockSearchService, times(1)).createRequest(Mockito.any(), Mockito.any());
+    verify(mockSearchService, times(1)).dbBrandSearch(Mockito.any());
+    verify(mockSearchService, times(0)).getCoordinatesFromNominatim(Mockito.any());
+    verify(mockSearchService, times(0)).getCoordinatesFromNominatim(Mockito.any());
   }
 }
