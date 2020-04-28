@@ -51,7 +51,7 @@ public class SearchMappingService {
    * @throws IndexOutOfBoundsException Iff the the request returned nothing
    */
   public CoordinateDetails search(Set<String> query) throws IndexOutOfBoundsException {
-    this.url = this.searchApiUrl + "/search/" + encodeUrl(query) + "?format=json&limit=1";
+    encodeUrl(query);
     return returnCoordinates();
   }
 
@@ -64,8 +64,7 @@ public class SearchMappingService {
    */
   public CoordinateDetails search(Set<String> query, CoordinateDetails coordinateDetails)
       throws IndexOutOfBoundsException {
-    this.url = this.searchApiUrl + "/search/" + encodeUrl(query, coordinateDetails)
-        + "?format=json&limit=1";
+    encodeUrl(query, coordinateDetails);
     return returnCoordinates();
   }
 
@@ -74,10 +73,10 @@ public class SearchMappingService {
    * To be implemented in TINF-272.
    *
    * @param query The search parameter
-   * @return The encoded search query
    */
-  private String encodeUrl(Set<String> query) {
-    return String.join(",", query);
+  private void encodeUrl(Set<String> query) {
+    String queryString = String.join(",", query);
+    this.url = this.searchApiUrl + "/search/" + queryString + "?format=json&limit=1";
   }
 
   /**
@@ -86,11 +85,12 @@ public class SearchMappingService {
    *
    * @param query             The search parameter
    * @param coordinateDetails The current coordinates of the user
-   * @return The encoded search query
    */
-  private String encodeUrl(Set<String> query, CoordinateDetails coordinateDetails) {
-    return encodeUrl(query) + "%2C" + coordinateDetails.getLatitude()
-        + "%2C" + coordinateDetails.getLongitude();
+  private void encodeUrl(Set<String> query, CoordinateDetails coordinateDetails) {
+    String queryString = String.join(",", query)
+        + "," + coordinateDetails.getLatitude()
+        + "," + coordinateDetails.getLongitude();
+    this.url = this.searchApiUrl + "/search/" + queryString + "?format=json&limit=1";
   }
 
   /**
@@ -101,8 +101,7 @@ public class SearchMappingService {
    * @throws IndexOutOfBoundsException Iff the the request returned nothing
    */
   private CoordinateDetails returnCoordinates() throws IndexOutOfBoundsException {
-    this.url = this.url.replace(" ", ",");
-    final NominatimSearchResultListDto list = makeRequest(this.url);
+    final NominatimSearchResultListDto list = makeRequest();
 
     return new CoordinateDetails(list.getElements().get(0).getLat(),
         list.getElements().get(0).getLon());
@@ -112,11 +111,10 @@ public class SearchMappingService {
   /**
    * Makes an REST request to the provided URL.
    *
-   * @param url The URL the request points to
    * @return A List of NominatimResultLocationDto
    */
   @VisibleForTesting
-  protected NominatimSearchResultListDto makeRequest(String url) {
+  protected NominatimSearchResultListDto makeRequest() {
 
     Timer timer = Timer
         .builder("nominatim.request")
@@ -128,8 +126,8 @@ public class SearchMappingService {
     HttpEntity<String> header = setupRequest();
     watch.start();
     ResponseEntity<NominatimSearchResultListDto> response =
-        restTemplate
-            .exchange(url, HttpMethod.GET, header, NominatimSearchResultListDto.class);
+        this.restTemplate
+            .exchange(this.url, HttpMethod.GET, header, NominatimSearchResultListDto.class);
     watch.stop();
     timer.record(watch.getLastTaskTimeMillis(), TimeUnit.MILLISECONDS);
 
