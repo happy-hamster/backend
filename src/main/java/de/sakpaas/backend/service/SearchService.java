@@ -7,6 +7,7 @@ import de.sakpaas.backend.model.SearchResultObject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.validation.constraints.Null;
 import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +54,17 @@ public class SearchService {
    * @return Result Locations
    */
   public SearchResultObject search(String query, CoordinateDetails coordinateDetails) {
-    return new SearchResultObject(coordinateDetails, new ArrayList<>());
+    SearchRequest request = createRequest(query, coordinateDetails);
+    if (request.getQuery().isEmpty()) {
+      request = getCoordinatesFromNominatim(request);
+    } else {
+      if (request.getCoordinates() != null) {
+        request = getByCoordinates(request);
+      } else {
+        request = dbBrandSearch(request);
+      }
+    }
+    return new SearchResultObject(request.getCoordinates(), request.getLocations());
   }
 
 
