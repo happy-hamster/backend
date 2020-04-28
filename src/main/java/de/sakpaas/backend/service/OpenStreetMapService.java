@@ -28,6 +28,7 @@ public class OpenStreetMapService {
   private final LocationApiSearchDas locationApiSearchDas;
   private final LocationRepository locationRepository;
   private final LocationDetailsService locationDetailsService;
+  private final LocationDetailsRepository locationDetailsRepository;
   private final AddressService addressService;
   private final MeterRegistry meterRegistry;
   private final LocationService locationService;
@@ -40,16 +41,18 @@ public class OpenStreetMapService {
   /**
    * Handles the OpenStreetMap database import and update.
    *
-   * @param locationRepository     The Location Repository
-   * @param locationDetailsService The Location Details Service
-   * @param addressService         The Address Service
-   * @param meterRegistry          The Meter Registry
-   * @param locationApiSearchDas   The LocationApiSearchDas
-   * @param locationService        The Location Service
+   * @param locationRepository        The Location Repository
+   * @param locationDetailsService    The Location Details Service
+   * @param locationDetailsRepository
+   * @param addressService            The Address Service
+   * @param meterRegistry             The Meter Registry
+   * @param locationApiSearchDas      The LocationApiSearchDas
+   * @param locationService           The Location Service
    */
   @Autowired
   public OpenStreetMapService(LocationRepository locationRepository,
                               LocationDetailsService locationDetailsService,
+                              LocationDetailsRepository locationDetailsRepository,
                               AddressService addressService,
                               MeterRegistry meterRegistry,
                               LocationApiSearchDas locationApiSearchDas,
@@ -57,6 +60,7 @@ public class OpenStreetMapService {
                               OsmImportConfiguration osmImportConfiguration) {
     this.locationRepository = locationRepository;
     this.locationDetailsService = locationDetailsService;
+    this.locationDetailsRepository = locationDetailsRepository;
     this.addressService = addressService;
     this.locationApiSearchDas = locationApiSearchDas;
     this.meterRegistry = meterRegistry;
@@ -188,6 +192,8 @@ public class OpenStreetMapService {
     int locationCount =
         locationRepository.getAllIdsForCountry(osmImportConfiguration.getCountry()).size();
     LOGGER.info("After Update Location Count: ({})", locationCount);
+
+    SearchService.setKnownBrands(locationDetailsRepository.getAllBrandNamesLower());
   }
 
 
