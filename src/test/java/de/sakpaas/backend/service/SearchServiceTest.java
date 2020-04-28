@@ -101,7 +101,7 @@ class SearchServiceTest extends HappyHamsterTest {
    * Integration Test (dbBrandSearch in {@link SearchService.java})
    */
   @Test
-  void bla() {
+  void checkForBrandsInLocationNameAndLocationDetails() {
     locationDetailsRepository.deleteAll();
     locationRepository.deleteAll();
     addressRepository.deleteAll();
