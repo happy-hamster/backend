@@ -69,8 +69,8 @@ public class SearchMappingService {
       throws IndexOutOfBoundsException {
     String queryString = String.join(",", query);
     this.url =
-        this.searchApiUrl + "/search/" + queryString + "%2C" + coordinateDetails.getLatitude() +
-            "%2C"
+        this.searchApiUrl + "/search/" + queryString + "%2C" + coordinateDetails.getLatitude()
+            + "%2C"
             + coordinateDetails.getLongitude() + "?format=json&limit=1";
 
     return returnCoordinates();
