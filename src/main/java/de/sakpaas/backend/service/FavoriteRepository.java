@@ -10,4 +10,6 @@ public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
   List<Favorite> findByUserUuid(UUID userUuid);
 
   List<Favorite> findByLocation(Location location);
+
+  List<Favorite> findByUserUuidAndLocation(UUID userUuid, Location location);
 }
