@@ -7,8 +7,10 @@ import de.sakpaas.backend.model.CoordinateDetails;
 import de.sakpaas.backend.model.SearchRequest;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -31,7 +33,7 @@ class SearchServiceTest extends HappyHamsterTest {
   void getCoordinatesFromNominatimWithCoordinates() {
     final CoordinateDetails searchCoordinates = new CoordinateDetails(1.0, 1.0);
     final CoordinateDetails resultCoordinates = new CoordinateDetails(2.0, 2.0);
-    final String query = "test";
+    final Set<String> query = new HashSet<>(Collections.singleton("test"));
     final SearchRequest searchRequest = new SearchRequest();
     searchRequest.setQuery(query);
     searchRequest.setCoordinates(searchCoordinates);
@@ -48,7 +50,7 @@ class SearchServiceTest extends HappyHamsterTest {
   void getCoordinatesFromNominatimWithoutCoordinates() {
     final CoordinateDetails searchCoordinates = new CoordinateDetails(1.0, 1.0);
     final CoordinateDetails resultCoordinates = new CoordinateDetails(2.0, 2.0);
-    final String query = "test";
+    final Set<String> query = new HashSet<>(Collections.singleton("test"));
     final SearchRequest searchRequest = new SearchRequest();
     searchRequest.setQuery(query);
     searchRequest.setCoordinates(searchCoordinates);

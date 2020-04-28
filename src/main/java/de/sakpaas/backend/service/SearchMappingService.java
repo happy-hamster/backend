@@ -5,6 +5,7 @@ import de.sakpaas.backend.dto.NominatimSearchResultListDto;
 import de.sakpaas.backend.model.CoordinateDetails;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,8 +50,10 @@ public class SearchMappingService {
    * @return The coordinates of the search request
    * @throws IndexOutOfBoundsException Iff the the request returned nothing
    */
-  public CoordinateDetails search(String query) throws IndexOutOfBoundsException {
-    this.url = this.searchApiUrl + "/search/" + query + "?format=json&limit=1";
+  public CoordinateDetails search(Set<String> query) throws IndexOutOfBoundsException {
+    String queryString = String.join(",", query);
+
+    this.url = this.searchApiUrl + "/search/" + queryString + "?format=json&limit=1";
 
     return returnCoordinates();
   }
@@ -62,10 +65,12 @@ public class SearchMappingService {
    * @return The coordinates of the search request
    * @throws IndexOutOfBoundsException Iff the the request returned nothing
    */
-  public CoordinateDetails search(String query, CoordinateDetails coordinateDetails)
+  public CoordinateDetails search(Set<String> query, CoordinateDetails coordinateDetails)
       throws IndexOutOfBoundsException {
+    String queryString = String.join(",", query);
     this.url =
-        this.searchApiUrl + "/search/" + query + "%2C" + coordinateDetails.getLatitude() + "%2C"
+        this.searchApiUrl + "/search/" + queryString + "%2C" + coordinateDetails.getLatitude() +
+            "%2C"
             + coordinateDetails.getLongitude() + "?format=json&limit=1";
 
     return returnCoordinates();

@@ -13,6 +13,7 @@ import de.sakpaas.backend.model.CoordinateDetails;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -46,7 +47,7 @@ class SearchMappingServiceTest extends HappyHamsterTest {
     Mockito.doReturn(mockedList).when(mockService)
         .makeRequest(Mockito.any());
 
-    final CoordinateDetails result = mockService.search("");
+    final CoordinateDetails result = mockService.search(new HashSet<>(Collections.singleton("")));
     assertEquals(new CoordinateDetails(3, 5), result);
   }
 
