@@ -6,6 +6,7 @@ import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.SearchRequest;
 import de.sakpaas.backend.model.SearchResultObject;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.Setter;
@@ -18,10 +19,10 @@ import org.springframework.stereotype.Service;
 public class SearchService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SearchService.class);
-  private final LocationService locationService;
-  private final SearchMappingService searchMappingService;
   @Setter
   private static List<String> knownBrands;
+  private final LocationService locationService;
+  private final SearchMappingService searchMappingService;
 
   /**
    * Searches for a specific key, calculates the central point as coordinates and returns
@@ -125,10 +126,8 @@ public class SearchService {
         .findByCoordinates(coordinateDetails.getLatitude(), coordinateDetails.getLongitude());
 
     // Filter by brand
-    if (knownBrands.isEmpty()) {
-      request.setLocations(locations);
-    } else {
-      List<Location> locationList = locations.stream()
+    if (!knownBrands.isEmpty()) {
+      locations = locations.stream()
           .filter(location -> {
             for (String brand : knownBrands) {
               if (location.getName().contains(brand)
@@ -139,8 +138,8 @@ public class SearchService {
             return false;
           }).collect(Collectors.toList());
 
-      request.setLocations(locationList);
     }
+    request.setLocations(new HashSet<>(locations));
 
     return request;
   }

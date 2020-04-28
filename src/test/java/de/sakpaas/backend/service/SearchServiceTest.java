@@ -54,7 +54,7 @@ public class SearchServiceTest extends HappyHamsterTest {
 
     final SearchRequest searchRequest1 = searchService.getByCoordinates(searchRequest);
 
-    assertThat(searchRequest1.getLocations()).isEqualTo(new ArrayList<>());
+    assertThat(searchRequest1.getLocations()).isEqualTo(new HashSet<>());
   }
 
   @Test
@@ -81,34 +81,34 @@ public class SearchServiceTest extends HappyHamsterTest {
 
     final SearchRequest searchRequest1 = searchService.getByCoordinates(searchRequest);
 
-    assertThat(searchRequest1.getLocations())
-        .isEqualTo(locationList);
+    assertThat(searchRequest1.getLocations().toString())
+        .isEqualTo(locationList.toString());
   }
 
   @Test
   public void testFilterUnwantedLocationsByBrand() {
-    final String[] knownBrands = {"1"};
+    final String[] knownBrands = {"wanted Brand"};
     final CoordinateDetails coordinateDetails = new CoordinateDetails(1, 1);
     final SearchRequest searchRequest = new SearchRequest();
     searchRequest.setCoordinates(coordinateDetails);
     SearchService.setKnownBrands(Arrays.asList(knownBrands));
 
     final LocationDetails locationDetails = new LocationDetails();
-    locationDetails.setBrand("2");
+    locationDetails.setBrand("unwanted Brand");
 
     final LocationDetails locationDetails1 = new LocationDetails();
-    locationDetails1.setBrand("1");
+    locationDetails1.setBrand("wanted Brand");
 
     final Location location = new Location();
     location.setLatitude(1.0);
     location.setLongitude(1.0);
-    location.setName("2");
+    location.setName("unwanted");
     location.setDetails(locationDetails);
 
     final Location location1 = new Location();
     location1.setLatitude(1.0);
     location1.setLongitude(1.0);
-    location1.setName("2");
+    location1.setName("wanted");
     location1.setDetails(locationDetails1);
     final List<Location> locationList = new ArrayList<>(Arrays.asList(location, location1));
 
@@ -117,7 +117,7 @@ public class SearchServiceTest extends HappyHamsterTest {
 
     final SearchRequest searchRequest1 = searchService.getByCoordinates(searchRequest);
 
-    assertThat(searchRequest1.getLocations()).isEqualTo(Collections.singletonList(location1));
+    assertThat(searchRequest1.getLocations()).isEqualTo(Collections.singleton(location1));
   }
 
   @Test
@@ -137,7 +137,7 @@ public class SearchServiceTest extends HappyHamsterTest {
 
     final SearchRequest searchRequest1 = searchService.getByCoordinates(searchRequest);
 
-    assertThat(searchRequest1.getLocations()).isEqualTo(new ArrayList<>());
+    assertThat(searchRequest1.getLocations()).isEqualTo(new HashSet<>());
   }
 
 
@@ -156,7 +156,7 @@ public class SearchServiceTest extends HappyHamsterTest {
   }
 
   @Test
-  void checkForBrandsWithoutBrandsInQuery() {
+  public void checkForBrandsWithoutBrandsInQuery() {
     SearchService.setKnownBrands(getBrandList());
     SearchRequest resultRequest = searchService.checkForBrands(createSearchRequest("mannheim"));
     assertThat(resultRequest.getQuery().size()).isEqualTo(1);
@@ -165,7 +165,7 @@ public class SearchServiceTest extends HappyHamsterTest {
   }
 
   @Test
-  void checkForBrandsWithOnlyBrandInQuery() {
+  public void checkForBrandsWithOnlyBrandInQuery() {
     SearchService.setKnownBrands(getBrandList());
     SearchRequest resultRequest = searchService.checkForBrands(createSearchRequest("lidl"));
     assertThat(resultRequest.getQuery().size()).isEqualTo(0);
@@ -174,7 +174,7 @@ public class SearchServiceTest extends HappyHamsterTest {
   }
 
   @Test
-  void checkForBrandsWithMultipleBrandsInQuery() {
+  public void checkForBrandsWithMultipleBrandsInQuery() {
     SearchService.setKnownBrands(getBrandList());
     SearchRequest resultRequest =
         searchService.checkForBrands(createSearchRequest("lidl edeka aldi"));
@@ -186,7 +186,7 @@ public class SearchServiceTest extends HappyHamsterTest {
   }
 
   @Test
-  void checkForBrandsWithBrandsAndNoneBrandsInQuery() {
+  public void checkForBrandsWithBrandsAndNoneBrandsInQuery() {
     SearchService.setKnownBrands(getBrandList());
     SearchRequest resultRequest =
         searchService.checkForBrands(createSearchRequest("mannheim wasserturm edeka aldi"));
@@ -199,7 +199,7 @@ public class SearchServiceTest extends HappyHamsterTest {
   }
 
   @Test
-  void checkForBrandsWithDublicatedBrandsInQuery() {
+  public void checkForBrandsWithDublicatedBrandsInQuery() {
     SearchService.setKnownBrands(getBrandList());
     SearchRequest resultRequest =
         searchService.checkForBrands(createSearchRequest("lidl lidl"));
