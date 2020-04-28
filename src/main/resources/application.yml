@@ -13,7 +13,7 @@ spring:
     driver-class-name: org.postgresql.Driver
 
 app:
-  search-api-url: https://nominatim.openstreetmap.org
+  search-api-url: https://nominatim.openstreetmap.org/
   presence:
     duration: 20
   occupancy:
@@ -28,6 +28,13 @@ app:
     factorB: 150
   import:
     country: ${IMPORT_COUNTRY:"DE"}
+    shoptypes:
+      - supermarket
+      - chemist
+      - beverages
+      - kiosk
+      - newsagent
+      - convenience
   version: dev
   commit: dev
 management:
@@ -50,7 +57,7 @@ keycloak:
         - uma_authorization
       securityCollections:
         - patterns: /auth/*
-        - patterns: /v2/user/*
+        - patterns: /v2/users/*
     - securityCollections:
         - patterns: /v1/*
         - patterns: /v2/*

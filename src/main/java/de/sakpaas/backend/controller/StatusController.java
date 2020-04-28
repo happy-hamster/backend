@@ -1,6 +1,9 @@
 package de.sakpaas.backend.controller;
 
 import de.sakpaas.backend.dto.StatusDto;
+import javax.servlet.http.HttpServletRequest;
+import org.keycloak.KeycloakSecurityContext;
+import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

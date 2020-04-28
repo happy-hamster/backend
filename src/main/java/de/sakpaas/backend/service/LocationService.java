@@ -1,24 +1,14 @@
 package de.sakpaas.backend.service;
 
 import com.google.common.annotations.VisibleForTesting;
-import de.sakpaas.backend.dto.NominatimSearchResultListDto;
-import de.sakpaas.backend.dto.NominatimSearchResultListDto.NominatimResultLocationDto;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.util.CoordinatesUtils;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 @Service
 public class LocationService {
@@ -26,9 +16,7 @@ public class LocationService {
   private final LocationRepository locationRepository;
   private final PresenceRepository presenceRepository;
   private final OccupancyRepository occupancyRepository;
-
-  @Value("${app.search-api-url}")
-  private String searchApiUrl;
+  private final FavoriteService favoriteService;
 
   /**
    * Default Constructor. Handles the Dependency Injection and Meter Initialisation and Registering
@@ -38,10 +26,12 @@ public class LocationService {
   @Autowired
   public LocationService(LocationRepository locationRepository,
                          PresenceRepository presenceRepository,
-                         OccupancyRepository occupancyRepository) {
+                         OccupancyRepository occupancyRepository,
+                         FavoriteService favoriteService) {
     this.locationRepository = locationRepository;
     this.presenceRepository = presenceRepository;
     this.occupancyRepository = occupancyRepository;
+    this.favoriteService = favoriteService;
   }
 
   /**
@@ -103,39 +93,6 @@ public class LocationService {
         .collect(Collectors.toList());
   }
 
-
-  /**
-   * Searches in the Nominatim Microservice for the given key.
-   *
-   * @param key The search parameter. Multiple words are separated with %20.
-   * @return The list of Locations in our database
-   */
-  public List<Location> search(String key) {
-    // Makes a request to the Nominatim Microservice
-
-    final String url = this.searchApiUrl + "/search/" + key + "?format=json";
-    RestTemplate restTemplate = new RestTemplate();
-    HttpHeaders httpHeaders = new HttpHeaders();
-    // Nominatim kommt wohl nicht auf "application/json" klar.
-    httpHeaders.set(HttpHeaders.ACCEPT, "text/html");
-    HttpEntity<String> entityReq = new HttpEntity<String>(httpHeaders);
-    ResponseEntity<NominatimSearchResultListDto> response =
-        restTemplate.exchange(url, HttpMethod.GET, entityReq, NominatimSearchResultListDto.class);
-
-
-    if (response.getBody() == null) {
-      return Collections.emptyList();
-    }
-
-    List<NominatimResultLocationDto> list = response.getBody().getElements();
-
-    // Check if the ID is valid (is in database)
-    return list.stream()
-        .map(element -> getById(element.getOsmId()).orElse(null))
-        .filter(Objects::nonNull)
-        .collect(Collectors.toList());
-  }
-
   /**
    * Saves a Location to the Database.
    *
@@ -154,6 +111,7 @@ public class LocationService {
   protected void delete(Location location) {
     occupancyRepository.findByLocation(location).forEach(occupancyRepository::delete);
     presenceRepository.findByLocation(location).forEach(presenceRepository::delete);
+    favoriteService.deleteByLocation(location);
     locationRepository.delete(location);
   }
 }

@@ -1,10 +1,10 @@
 package de.sakpaas.backend.v2.mapper;
 
+import de.sakpaas.backend.dto.UserInfoDto;
 import de.sakpaas.backend.model.Location;
+import de.sakpaas.backend.service.FavoriteRepository;
 import de.sakpaas.backend.service.OccupancyService;
 import de.sakpaas.backend.v2.dto.LocationResultLocationDto;
-import java.util.ArrayList;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -12,10 +12,12 @@ import org.springframework.stereotype.Component;
 public class LocationMapper {
 
   private final OccupancyService occupancyService;
+  private final FavoriteRepository favoriteRepository;
 
   @Autowired
-  public LocationMapper(OccupancyService occupancyService) {
+  public LocationMapper(OccupancyService occupancyService, FavoriteRepository favoriteRepository) {
     this.occupancyService = occupancyService;
+    this.favoriteRepository = favoriteRepository;
   }
 
   /**
@@ -24,13 +26,13 @@ public class LocationMapper {
    * @param location the Location to be mapped
    * @return the mapped LocationDto
    */
-  public LocationResultLocationDto mapToOutputDto(Location location) {
+  public LocationResultLocationDto mapLocationToOutputDto(Location location) {
     if (location == null) {
       return null;
     }
 
     return new LocationResultLocationDto(
-        location.getId(), location.getName(),
+        location.getId(), location.getName(), null,
         new LocationResultLocationDto.LocationResultLocationDetailsDto(location.getDetails()),
         new LocationResultLocationDto.LocationResultCoordinatesDto(location.getLatitude(),
             location.getLongitude()),
@@ -40,16 +42,28 @@ public class LocationMapper {
   }
 
   /**
-   * Maps the given List of Locations to a List of v2 LocationDto.
+   * Maps the given Location to a v2 LocationDto with favorite flag.
    *
-   * @param locations the Location List to be mapped
-   * @return the mapped LocationDto List
+   * @param location the Location to be mapped
+   * @param user     the user for which the flags should be set
+   * @return the mapped LocationDto
    */
-  public List<LocationResultLocationDto> mapToOutputDto(List<Location> locations) {
-    List<LocationResultLocationDto> resultLocationDtoList = new ArrayList<>();
-    for (Location location : locations) {
-      resultLocationDtoList.add(mapToOutputDto(location));
+  public LocationResultLocationDto mapLocationToOutputDto(Location location, UserInfoDto user) {
+    if (location == null) {
+      return null;
     }
-    return resultLocationDtoList;
+
+    boolean flag = favoriteRepository.findByUserUuid(user.getId())
+        .stream()
+        .anyMatch(favorite -> favorite.getLocation() == location);
+
+    return new LocationResultLocationDto(
+        location.getId(), location.getName(), flag,
+        new LocationResultLocationDto.LocationResultLocationDetailsDto(location.getDetails()),
+        new LocationResultLocationDto.LocationResultCoordinatesDto(location.getLatitude(),
+            location.getLongitude()),
+        new LocationResultLocationDto.LocationResultOccupancyDto(
+            occupancyService.getOccupancyCalculation(location)),
+        new LocationResultLocationDto.LocationResultAddressDto(location.getAddress()));
   }
 }
