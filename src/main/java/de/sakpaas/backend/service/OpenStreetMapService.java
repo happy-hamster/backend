@@ -43,7 +43,7 @@ public class OpenStreetMapService {
    *
    * @param locationRepository        The Location Repository
    * @param locationDetailsService    The Location Details Service
-   * @param locationDetailsRepository
+   * @param locationDetailsRepository The Location Details Repository
    * @param addressService            The Address Service
    * @param meterRegistry             The Meter Registry
    * @param locationApiSearchDas      The LocationApiSearchDas

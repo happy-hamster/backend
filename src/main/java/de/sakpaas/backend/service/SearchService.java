@@ -27,9 +27,10 @@ public class SearchService {
    * Searches for a specific key, calculates the central point as coordinates and returns
    * additionally a list of locations around the coordinates.
    *
-   * @param locationService           The service for getting locations based on specific coordinates
+   * @param locationService           The service for getting locations based on specific
+   *                                  coordinates
    * @param searchMappingService      The service for actually making the REST request
-   * @param locationDetailsRepository
+   * @param locationDetailsRepository The Location Details Repository
    */
   @Autowired
   public SearchService(LocationService locationService,
