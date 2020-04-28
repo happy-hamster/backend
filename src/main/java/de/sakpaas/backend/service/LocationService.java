@@ -44,74 +44,74 @@ public class LocationService {
     this.occupancyRepository = occupancyRepository;
   }
 
-    /**
-     * Gets a Location by its ID from the Database.
-     *
-     * @param id Id of the requested location
-     * @return Location from the Database
-     */
-    public Optional<Location> getById(long id) {
-        return locationRepository.findById(id);
+  /**
+   * Gets a Location by its ID from the Database.
+   *
+   * @param id Id of the requested location
+   * @return Location from the Database
+   */
+  public Optional<Location> getById(long id) {
+    return locationRepository.findById(id);
+  }
+
+  /**
+   * Gets all Locations from a specific coordinate.
+   *
+   * @param lat Latitude of the Location.
+   * @param lon Longitude of the Location.
+   * @return List of max 100 Locations around the given coordinates.
+   */
+
+  public List<Location> findByCoordinates(Double lat, Double lon) {
+    List<Location> list = locationRepository
+        .findByLatitudeBetweenAndLongitudeBetween(lat - 0.1, lat + 0.1, lon - 0.1, lon + 0.1);
+    return list.stream()
+        .sorted(Comparator
+            .comparingDouble(
+                l -> CoordinatesUtils
+                    .distanceInKm(l.getLatitude(), l.getLongitude(), lat, lon)))
+        .limit(100)
+        .collect(Collectors.toList());
+  }
+
+  /**
+   * Gets all Locations from a specific coordinate.
+   *
+   * @param lat  Latitude of the Location.
+   * @param lon  Longitude of the Location.
+   * @param type types of Locations
+   * @return List of max 100 Locations around the given coordinates.
+   */
+  public List<Location> findByCoordinates(Double lat, Double lon, List<String> type) {
+    List<Location> list;
+    if (type == null || type.isEmpty()) {
+      list = locationRepository
+          .findByLatitudeBetweenAndLongitudeBetween(lat - 0.1, lat + 0.1, lon - 0.1,
+              lon + 0.1);
+    } else {
+      list = locationRepository
+          .findByLatitudeBetweenAndLongitudeBetweenAndDetails_Type(lat - 0.1, lat + 0.1,
+              lon - 0.1,
+              lon + 0.1, type);
     }
-
-    /**
-     * Gets all Locations from a specific coordinate.
-     *
-     * @param lat Latitude of the Location.
-     * @param lon Longitude of the Location.
-     * @return List of max 100 Locations around the given coordinates.
-     */
-
-    public List<Location> findByCoordinates(Double lat, Double lon) {
-        List<Location> list = locationRepository
-            .findByLatitudeBetweenAndLongitudeBetween(lat - 0.1, lat + 0.1, lon - 0.1, lon + 0.1);
-        return list.stream()
-            .sorted(Comparator
-                .comparingDouble(
-                    l -> CoordinatesUtils
-                        .distanceInKm(l.getLatitude(), l.getLongitude(), lat, lon)))
-            .limit(100)
-            .collect(Collectors.toList());
-    }
-
-    /**
-     * Gets all Locations from a specific coordinate.
-     *
-     * @param lat  Latitude of the Location.
-     * @param lon  Longitude of the Location.
-     * @param type types of Locations
-     * @return List of max 100 Locations around the given coordinates.
-     */
-    public List<Location> findByCoordinates(Double lat, Double lon, List<String> type) {
-        List<Location> list;
-        if (type == null || type.isEmpty()) {
-            list = locationRepository
-                .findByLatitudeBetweenAndLongitudeBetween(lat - 0.1, lat + 0.1, lon - 0.1,
-                    lon + 0.1);
-        } else {
-            list = locationRepository
-                .findByLatitudeBetweenAndLongitudeBetweenAndDetails_Type(lat - 0.1, lat + 0.1,
-                    lon - 0.1,
-                    lon + 0.1, type);
-        }
-        return list.stream()
-            .sorted(Comparator
-                .comparingDouble(
-                    l -> CoordinatesUtils
-                        .distanceInKm(l.getLatitude(), l.getLongitude(), lat, lon)))
-            .limit(100)
-            .collect(Collectors.toList());
-    }
+    return list.stream()
+        .sorted(Comparator
+            .comparingDouble(
+                l -> CoordinatesUtils
+                    .distanceInKm(l.getLatitude(), l.getLongitude(), lat, lon)))
+        .limit(100)
+        .collect(Collectors.toList());
+  }
 
 
-    /**
-     * Searches in the Nominatim Microservice for the given key.
-     *
-     * @param key The search parameter. Multiple words are separated with %20.
-     * @return The list of Locations in our database
-     */
-    public List<Location> search(String key) {
-        // Makes a request to the Nominatim Microservice
+  /**
+   * Searches in the Nominatim Microservice for the given key.
+   *
+   * @param key The search parameter. Multiple words are separated with %20.
+   * @return The list of Locations in our database
+   */
+  public List<Location> search(String key) {
+    // Makes a request to the Nominatim Microservice
 
     final String url = this.searchApiUrl + "/search/" + key + "?format=json";
     RestTemplate restTemplate = new RestTemplate();
