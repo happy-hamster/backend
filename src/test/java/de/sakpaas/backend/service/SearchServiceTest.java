@@ -10,6 +10,7 @@ import de.sakpaas.backend.model.SearchRequest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,7 +36,7 @@ public class SearchServiceTest extends HappyHamsterTest {
     final CoordinateDetails coordinateDetails = new CoordinateDetails(1, 1);
     final SearchRequest searchRequest = new SearchRequest();
     searchRequest.setCoordinates(coordinateDetails);
-    searchService.setKnownBrands(Arrays.asList(knownBrands));
+    SearchService.setKnownBrands(Arrays.asList(knownBrands));
 
     final LocationDetails locationDetails = new LocationDetails();
     locationDetails.setBrand("");
@@ -62,7 +63,7 @@ public class SearchServiceTest extends HappyHamsterTest {
     final CoordinateDetails coordinateDetails = new CoordinateDetails(1, 1);
     final SearchRequest searchRequest = new SearchRequest();
     searchRequest.setCoordinates(coordinateDetails);
-    searchService.setKnownBrands(Arrays.asList(knownBrands));
+    SearchService.setKnownBrands(Arrays.asList(knownBrands));
 
     final LocationDetails locationDetails = new LocationDetails();
     locationDetails.setBrand("1");
@@ -90,7 +91,7 @@ public class SearchServiceTest extends HappyHamsterTest {
     final CoordinateDetails coordinateDetails = new CoordinateDetails(1, 1);
     final SearchRequest searchRequest = new SearchRequest();
     searchRequest.setCoordinates(coordinateDetails);
-    searchService.setKnownBrands(Arrays.asList(knownBrands));
+    SearchService.setKnownBrands(Arrays.asList(knownBrands));
 
     final LocationDetails locationDetails = new LocationDetails();
     locationDetails.setBrand("2");
@@ -124,12 +125,12 @@ public class SearchServiceTest extends HappyHamsterTest {
     final CoordinateDetails coordinateDetails = new CoordinateDetails(1, 1);
     final SearchRequest searchRequest = new SearchRequest();
     searchRequest.setCoordinates(coordinateDetails);
-    searchService.setKnownBrands(new ArrayList<>());
+    SearchService.setKnownBrands(new ArrayList<>());
 
     final Location location = new Location();
     location.setLatitude(1.0);
     location.setLongitude(1.0);
-    searchRequest.setLocations(Collections.singletonList(location));
+    searchRequest.setLocations(Collections.singleton(location));
 
     // mock LocationService
     Mockito.when(locationService.findByCoordinates(1.0, 1.0)).thenReturn(new ArrayList<>());
