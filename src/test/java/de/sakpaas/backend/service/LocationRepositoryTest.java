@@ -83,15 +83,20 @@ class LocationRepositoryTest extends HappyHamsterTest {
         new LocationDetails("testType1", "testOpeningHours", "testBrand");
     LocationDetails savedLocationDetails1 = locationDetailsRepository.save(locationDetails1);
 
-    Location location1 = new Location(2L, "LIDL", 40.0D, 7.0D, savedLocationDetails, savedAddress);
+    Location location1 =
+        new Location(2L, "LIDL", 40.0D, 7.0D, savedLocationDetails1, savedAddress1);
     locationRepository.save(location1);
 
     List<Location>
         list = locationRepository
         .findByLatitudeBetweenAndLongitudeBetweenAndDetails_TypeIn(30.D, 42.D, 6.D, 9.0,
-            Arrays.asList("testtype1"));
+            Arrays.asList("testType1"));
 
     assertThat(list.size()).isEqualTo(1);
     assertThat(list.get(0)).isEqualTo(location1);
+
+    locationRepository.deleteAll();
+    addressRepository.deleteAll();
+    locationDetailsRepository.deleteAll();
   }
 }

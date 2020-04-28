@@ -8,6 +8,10 @@ import de.sakpaas.backend.model.Address;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.LocationDetails;
 import de.sakpaas.backend.model.Occupancy;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +37,10 @@ class LocationServiceTest extends HappyHamsterTest {
   private OccupancyService occupancyService;
   @Autowired
   private PresenceService presenceService;
+  @Autowired
+  private AddressRepository addressRepository;
+  @Autowired
+  private LocationDetailsRepository locationDetailsRepository;
 
   @Test
   void shouldDeleteLocations() {
@@ -65,5 +73,60 @@ class LocationServiceTest extends HappyHamsterTest {
     assertThat(locationRepository.count(), equalTo(0L));
     assertThat(presenceRepository.count(), equalTo(0L));
     assertThat(occupancyRepository.count(), equalTo(0L));
+  }
+
+  @Test
+  void findByCoordinates() {
+    locationRepository.deleteAll();
+    addressRepository.deleteAll();
+    locationDetailsRepository.deleteAll();
+
+    Address address =
+        new Address("testCountry", "testPostcode", "123456", "testStreet", "testNumber");
+    Address savedAddress = addressRepository.save(address);
+
+    LocationDetails locationDetails =
+        new LocationDetails("testType", "testOpeningHours", "testBrand");
+    LocationDetails savedLocationDetails = locationDetailsRepository.save(locationDetails);
+
+    Location location = new Location(1L, "LIDL", 29.95, 5.95, savedLocationDetails, savedAddress);
+    locationRepository.save(location);
+
+
+    Address address1 =
+        new Address("testCountry", "testPostcode", "123456", "testStreet", "testNumber");
+    Address savedAddress1 = addressRepository.save(address1);
+
+    LocationDetails locationDetails1 =
+        new LocationDetails("testType1", "testOpeningHours", "testBrand");
+    LocationDetails savedLocationDetails1 = locationDetailsRepository.save(locationDetails1);
+
+    Location location1 =
+        new Location(2L, "LIDL", 30.05, 6.05, savedLocationDetails1, savedAddress1);
+    locationRepository.save(location1);
+
+    List<Location>
+        list = locationService.findByCoordinates(30.D, 6.D, Collections.singletonList("testType1"));
+
+
+    Assertions.assertThat(list.size()).isEqualTo(1);
+    Assertions.assertThat(list.get(0)).isEqualTo(location1);
+
+    list = locationService.findByCoordinates(30.D, 6.D, null);
+
+    Assertions.assertThat(list.size()).isEqualTo(2);
+    Assertions.assertThat(list.contains(location)).isTrue();
+    Assertions.assertThat(list.contains(location1)).isTrue();
+
+    list = locationService.findByCoordinates(30.D, 6.D, new ArrayList<String>());
+
+    Assertions.assertThat(list.size()).isEqualTo(2);
+    Assertions.assertThat(list.contains(location)).isTrue();
+    Assertions.assertThat(list.contains(location1)).isTrue();
+
+    locationRepository.deleteAll();
+    addressRepository.deleteAll();
+    locationDetailsRepository.deleteAll();
+
   }
 }
