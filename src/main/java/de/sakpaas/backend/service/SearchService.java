@@ -117,6 +117,20 @@ public class SearchService {
    * @return the updated Request Object
    */
   protected SearchRequest dbBrandSearch(SearchRequest request) {
+    Set<String> brands = request.getBrands();
+    Set<Location> locations = request.getLocations();
+    if (locations == null) {
+      locations = new HashSet<Location>();
+    }
+    
+    for (String brand : brands) {
+      if (!brand.equals("")) {
+        brand = "%" + brand + "%";
+        locations.addAll(
+            locationService.findByNameOrBrandLike(brand, request.getResultLimit()));
+      }
+    }
+    request.setLocations(locations);
     return request;
   }
 
