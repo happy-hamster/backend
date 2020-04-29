@@ -70,8 +70,8 @@ class SearchServiceTest extends HappyHamsterTest {
     return searchRequest;
   }
 
-  private List<String> getBrandList() {
-    List<String> brands = new ArrayList<>();
+  private Set<String> getBrandList() {
+    Set<String> brands = new HashSet<>();
     brands.add("lidl");
     brands.add("aldi");
     brands.add("edeka");
