@@ -213,18 +213,28 @@ public class LocationController {
   /**
    * Get Endpoint to search for Locations.
    *
-   * @param key    the search query
-   * @param header the (optional) authentication
+   * @param query     the search query
+   * @param latitude  The latitude of the Coordinates
+   * @param longitude The Longitude of the Coordinates
+   * @param header    the (optional) authentication
    * @return a list of found locations
    */
   @GetMapping(value = MAPPING_SEARCH_LOCATION)
   public ResponseEntity<SearchResultDto> searchForLocations(
-      @PathVariable("key") String key,
+      @PathVariable("key") String query,
+      @RequestParam(required = false) Double latitude,
+      @RequestParam(required = false) Double longitude,
       @RequestHeader(value = "Authorization", required = false) String header) {
     Optional<UserInfoDto> user = userService.getOptionalUserInfo(header);
 
+    // Check if both of lat and long are set or not set
+    if ((latitude == null) != (longitude == null)) {
+      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
     //ToDo Get Coordinates from Request
-    final SearchResultObject resultObject = searchService.search(key, new CoordinateDetails(1, 1));
+    final SearchResultObject resultObject = searchService.search(query,
+        new CoordinateDetails(latitude, longitude));
 
     return user.map(
         userInfoDto -> new ResponseEntity<>(
