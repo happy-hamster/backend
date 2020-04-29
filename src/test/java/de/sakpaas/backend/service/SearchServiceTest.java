@@ -7,15 +7,15 @@ import de.sakpaas.backend.model.CoordinateDetails;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.LocationDetails;
 import de.sakpaas.backend.model.SearchRequest;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import java.util.Set;
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -33,11 +33,11 @@ public class SearchServiceTest extends HappyHamsterTest {
 
   @Test
   public void testFilterUnwantedLocationsByName() {
-    final String[] knownBrands = {"1"};
+    final Set<String> knownBrands = new HashSet<>(Collections.singleton("1"));
     final CoordinateDetails coordinateDetails = new CoordinateDetails(1, 1);
     final SearchRequest searchRequest = new SearchRequest();
     searchRequest.setCoordinates(coordinateDetails);
-    SearchService.setKnownBrands(Arrays.asList(knownBrands));
+    SearchService.setKnownBrands(knownBrands);
 
     final LocationDetails locationDetails = new LocationDetails();
     locationDetails.setBrand("");
@@ -48,7 +48,7 @@ public class SearchServiceTest extends HappyHamsterTest {
     location.setName("2");
     location.setDetails(locationDetails);
 
-    final List<Location> locationList = new ArrayList<>(Collections.singletonList(location));
+    final List<Location> locationList = Collections.singletonList(location);
 
     // mock LocationService
     Mockito.when(locationService.findByCoordinates(1.0, 1.0)).thenReturn(locationList);
@@ -60,11 +60,11 @@ public class SearchServiceTest extends HappyHamsterTest {
 
   @Test
   public void testDoubleInsertion() {
-    final String[] knownBrands = {"1"};
+    final Set<String> knownBrands = new HashSet<>(Collections.singleton("1"));
     final CoordinateDetails coordinateDetails = new CoordinateDetails(1, 1);
     final SearchRequest searchRequest = new SearchRequest();
     searchRequest.setCoordinates(coordinateDetails);
-    SearchService.setKnownBrands(Arrays.asList(knownBrands));
+    SearchService.setKnownBrands(knownBrands);
 
     final LocationDetails locationDetails = new LocationDetails();
     locationDetails.setBrand("1");
@@ -75,7 +75,7 @@ public class SearchServiceTest extends HappyHamsterTest {
     location.setName("1");
     location.setDetails(locationDetails);
 
-    final List<Location> locationList = new ArrayList<>(Collections.singletonList(location));
+    final List<Location> locationList = Collections.singletonList(location);
 
     // mock LocationService
     Mockito.when(locationService.findByCoordinates(1.0, 1.0)).thenReturn(locationList);
@@ -88,11 +88,11 @@ public class SearchServiceTest extends HappyHamsterTest {
 
   @Test
   public void testFilterUnwantedLocationsByBrand() {
-    final String[] knownBrands = {"wanted Brand"};
+    final Set<String> knownBrands = new HashSet<>(Collections.singleton("1"));
     final CoordinateDetails coordinateDetails = new CoordinateDetails(1, 1);
     final SearchRequest searchRequest = new SearchRequest();
     searchRequest.setCoordinates(coordinateDetails);
-    SearchService.setKnownBrands(Arrays.asList(knownBrands));
+    SearchService.setKnownBrands(knownBrands);
 
     final LocationDetails locationDetails = new LocationDetails();
     locationDetails.setBrand("unwanted Brand");
@@ -111,7 +111,7 @@ public class SearchServiceTest extends HappyHamsterTest {
     location1.setLongitude(1.0);
     location1.setName("wanted");
     location1.setDetails(locationDetails1);
-    final List<Location> locationList = new ArrayList<>(Arrays.asList(location, location1));
+    final List<Location> locationList = Arrays.asList(location, location1);
 
     // mock LocationService
     Mockito.when(locationService.findByCoordinates(1.0, 1.0)).thenReturn(locationList);
@@ -126,7 +126,7 @@ public class SearchServiceTest extends HappyHamsterTest {
     final CoordinateDetails coordinateDetails = new CoordinateDetails(1, 1);
     final SearchRequest searchRequest = new SearchRequest();
     searchRequest.setCoordinates(coordinateDetails);
-    SearchService.setKnownBrands(new ArrayList<>());
+    SearchService.setKnownBrands(new HashSet<>());
 
     final Location location = new Location();
     location.setLatitude(1.0);

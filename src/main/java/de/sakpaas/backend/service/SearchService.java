@@ -8,6 +8,7 @@ import de.sakpaas.backend.model.SearchResultObject;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Setter;
 import org.slf4j.Logger;
@@ -22,7 +23,8 @@ public class SearchService {
   @Setter
   private final LocationService locationService;
   private final SearchMappingService searchMappingService;
-  private static Set<String> knownBrands;
+  @Setter
+  protected static Set<String> knownBrands;
   private final LocationDetailsRepository locationDetailsRepository;
 
   /**
