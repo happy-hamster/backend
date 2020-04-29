@@ -58,7 +58,7 @@ public class SearchService {
     if (!request.getQuery().isEmpty()) {
       request = getCoordinatesFromNominatim(request);
     } else {
-      if (request.getCoordinates() == null) {
+      if (request.getCoordinates().getLatitude() == 0 || request.getCoordinates().getLongitude() == 0) {
         request = dbBrandSearch(request);
         return new SearchResultObject(request.getCoordinates(), request.getLocations());
       }
