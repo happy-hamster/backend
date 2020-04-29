@@ -23,7 +23,7 @@ public class SearchService {
   @Setter
   protected static Set<String> knownBrands;
   @Setter
-  private final LocationService locationService;
+  private LocationService locationService;
   private final SearchMappingService searchMappingService;
   private final LocationDetailsRepository locationDetailsRepository;
 
@@ -120,7 +120,7 @@ public class SearchService {
     Set<String> brands = request.getBrands();
     Set<Location> locations = request.getLocations();
     if (locations == null) {
-      locations = new HashSet<Location>();
+      locations = new HashSet<>();
     }
     
     for (String brand : brands) {
