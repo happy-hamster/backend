@@ -72,7 +72,7 @@ public class SearchMappingService {
    * @param query The search parameter
    */
   private void buildUrl(Set<String> query) {
-    this.url = UriComponentsBuilder.fromHttpUrl("http://nominatim.openstreetmap.org/search")
+    this.url = UriComponentsBuilder.fromHttpUrl(this.searchApiUrl)
         .queryParam("q", query)
         .queryParam("limit", 1)
         .queryParam("format", "json")
@@ -90,7 +90,7 @@ public class SearchMappingService {
     String urlQuery = String.join(",", query) + "," + coordinateDetails.getLatitude() + ","
         + coordinateDetails.getLongitude();
 
-    this.url = UriComponentsBuilder.fromHttpUrl("http://nominatim.openstreetmap.org/search")
+    this.url = UriComponentsBuilder.fromHttpUrl(this.searchApiUrl)
         .queryParam("q", urlQuery)
         .queryParam("limit", 1)
         .queryParam("format", "json")
