@@ -4,12 +4,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import de.sakpaas.backend.HappyHamsterTest;
 import de.sakpaas.backend.model.Address;
+import de.sakpaas.backend.model.CoordinateDetails;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.LocationDetails;
 import de.sakpaas.backend.model.SearchRequest;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,32 +41,35 @@ class SearchServiceTest extends HappyHamsterTest {
     brands.add("lidl");
     brands.add("aldi");
     brands.add("edeka");
+    brands.add("deutsche post");
     return brands;
   }
 
   @Test
-  void checkForBrandsWithoutBrandsInQuery() {
+  void createRequestWithOnlyBrandsInQuery() {
     SearchService.setKnownBrands(getBrandList());
-    SearchRequest resultRequest = searchService.checkForBrands(createSearchRequest("mannheim"));
+    SearchRequest resultRequest =
+        searchService.createRequest("Mannheim", new CoordinateDetails(2.0, 3.0));
     assertThat(resultRequest.getQuery().size()).isEqualTo(1);
     assertThat(resultRequest.getQuery().contains("mannheim")).isTrue();
     assertThat(resultRequest.getBrands().size()).isEqualTo(0);
   }
 
   @Test
-  void checkForBrandsWithOnlyBrandInQuery() {
+  void createRequestWithOnlyBrandInQuery() {
     SearchService.setKnownBrands(getBrandList());
-    SearchRequest resultRequest = searchService.checkForBrands(createSearchRequest("lidl"));
+    SearchRequest resultRequest =
+        searchService.createRequest("Lidl", new CoordinateDetails(2.0, 3.0));
     assertThat(resultRequest.getQuery().size()).isEqualTo(0);
     assertThat(resultRequest.getBrands().size()).isEqualTo(1);
     assertThat(resultRequest.getBrands().contains("lidl")).isTrue();
   }
 
   @Test
-  void checkForBrandsWithMultipleBrandsInQuery() {
+  void createRequestWithMultipleBrandsInQuery() {
     SearchService.setKnownBrands(getBrandList());
     SearchRequest resultRequest =
-        searchService.checkForBrands(createSearchRequest("lidl edeka aldi"));
+        searchService.createRequest("lidl edeka aldi aldi", new CoordinateDetails(2.0, 3.0));
     assertThat(resultRequest.getBrands().size()).isEqualTo(3);
     assertThat(resultRequest.getQuery().size()).isEqualTo(0);
     assertThat(resultRequest.getBrands().contains("lidl")).isTrue();
@@ -75,10 +78,10 @@ class SearchServiceTest extends HappyHamsterTest {
   }
 
   @Test
-  void checkForBrandsWithBrandsAndNoneBrandsInQuery() {
+  void createRequestWithBrandsAndNoneBrandsInQuery() {
     SearchService.setKnownBrands(getBrandList());
-    SearchRequest resultRequest =
-        searchService.checkForBrands(createSearchRequest("mannheim wasserturm edeka aldi"));
+    SearchRequest resultRequest = searchService
+        .createRequest("mannheim wasserturm edeka aldi", new CoordinateDetails(2.0, 3.0));
     assertThat(resultRequest.getBrands().size()).isEqualTo(2);
     assertThat(resultRequest.getBrands().contains("edeka")).isTrue();
     assertThat(resultRequest.getBrands().contains("aldi")).isTrue();
@@ -88,16 +91,26 @@ class SearchServiceTest extends HappyHamsterTest {
   }
 
   @Test
-  void checkForBrandsWithDublicatedBrandsInQuery() {
+  void createRequestWithSpaceInBrandName() {
     SearchService.setKnownBrands(getBrandList());
     SearchRequest resultRequest =
-        searchService.checkForBrands(createSearchRequest("lidl lidl"));
+        searchService.createRequest("Deutsche Post Mannheim", new CoordinateDetails(2.0, 3.0));
+    assertThat(resultRequest.getQuery().size()).isEqualTo(1);
     assertThat(resultRequest.getBrands().size()).isEqualTo(1);
-    assertThat(resultRequest.getBrands().contains("lidl")).isTrue();
+    assertThat(resultRequest.getBrands().contains("mannheim")).isTrue();
+    assertThat(resultRequest.getBrands().contains("deutsche post")).isTrue();
   }
-  
+
+  @Test
+  void createRequestWithoutCoordinates() {
+    SearchService.setKnownBrands(getBrandList());
+    SearchRequest resultRequest = searchService.createRequest("Deutsche Post Mannheim", null);
+    assertThat(resultRequest.getCoordinates()).isNull();
+  }
+
+
   /**
-   * Integration Test (dbBrandSearch in {@link SearchService.java})
+   * Integration Test (dbBrandSearch in {@link SearchService})
    */
   @Test
   void checkForBrandsInLocationNameAndLocationDetails() {
