@@ -6,6 +6,7 @@ import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.SearchRequest;
 import de.sakpaas.backend.model.SearchResultObject;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.Setter;
@@ -80,18 +81,50 @@ public class SearchService {
 
   protected SearchRequest createRequest(String query, CoordinateDetails coordinateDetails)
       throws EmptySearchQueryException {
-    String lowerquery = query.toLowerCase();
+
     SearchRequest searchRequest = new SearchRequest();
     HashSet<String> giveQuery = new HashSet<String>();
     HashSet<String> giveBrands = new HashSet<String>();
 
-
+    String lowerquery = query.toLowerCase();
+    ArrayList<String> brandsArray = new ArrayList<String>();
     for (String brand : knownBrands) {
+      brandsArray.add(brand);
+    }
+    Collections.sort(brandsArray, Collections.reverseOrder());
+
+    for (String brand : brandsArray) {
       if (lowerquery.contains(brand)) {
         lowerquery = lowerquery.replace(brand, "");
         giveBrands.add(brand);
       }
     }
+
+    // char space = ' ';
+    // for (String s : querysplit) {
+    String specialstuff = "!`\"§$%&/()=?#'}][{³²<>|,.;:-_~+*";
+    //for (int charindex = 63; charindex < 91; charindex++) { //big letters
+    for (int i = 0; i < specialstuff.length(); i++) { //löscht sonderzeichen
+      char special = specialstuff.charAt(i);
+
+      //char c = (char) charindex;
+      //if (c != space) {
+      if (lowerquery.contains("" + special)) {
+        lowerquery = lowerquery.replace(special + "", "");
+      }
+    }
+
+
+    /**
+     * for (int charindex = 97; charindex < 123; charindex++) { //small letters
+     * char c = (char) charindex;
+     * if (c != space) {
+     * if (!lowerquery.contains("" + c)) {
+     * lowerquery = lowerquery.replace(c + "", "");
+     * }
+     * }
+     * }
+     */
     String[] querysplit = lowerquery.split(" ");
 
     for (String s : querysplit) { //recognizes all strings not in giveBrands an add to give
