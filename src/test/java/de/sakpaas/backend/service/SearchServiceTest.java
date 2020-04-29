@@ -88,7 +88,7 @@ public class SearchServiceTest extends HappyHamsterTest {
 
   @Test
   public void testFilterUnwantedLocationsByBrand() {
-    final Set<String> knownBrands = new HashSet<>(Collections.singleton("1"));
+    final Set<String> knownBrands = new HashSet<>(Collections.singleton("wanted Brand"));
     final CoordinateDetails coordinateDetails = new CoordinateDetails(1, 1);
     final SearchRequest searchRequest = new SearchRequest();
     searchRequest.setCoordinates(coordinateDetails);

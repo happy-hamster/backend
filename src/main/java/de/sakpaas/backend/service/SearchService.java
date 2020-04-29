@@ -21,10 +21,10 @@ public class SearchService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SearchService.class);
   @Setter
+  protected static Set<String> knownBrands;
+  @Setter
   private final LocationService locationService;
   private final SearchMappingService searchMappingService;
-  @Setter
-  protected static Set<String> knownBrands;
   private final LocationDetailsRepository locationDetailsRepository;
 
   /**
@@ -131,9 +131,10 @@ public class SearchService {
   protected SearchRequest getByCoordinates(SearchRequest request) {
     // Get Locations
     CoordinateDetails coordinateDetails = request.getCoordinates();
+    LOGGER.info(request.getCoordinates().toString());
     List<Location> locations = locationService
         .findByCoordinates(coordinateDetails.getLatitude(), coordinateDetails.getLongitude());
-
+    LOGGER.info(locations.toString());
     // Filter by brand
     if (!knownBrands.isEmpty()) {
       locations = locations.stream()
@@ -146,7 +147,6 @@ public class SearchService {
             }
             return false;
           }).collect(Collectors.toList());
-
     }
     request.setLocations(new HashSet<>(locations));
 
