@@ -224,7 +224,8 @@ public class LocationController {
     Optional<UserInfoDto> user = userService.getOptionalUserInfo(header);
 
     //ToDo Get Coordinates from Request
-    final SearchResultObject resultObject = searchService.search(key, new CoordinateDetails(1, 1));
+    final SearchResultObject resultObject = searchService.search(key,
+        new CoordinateDetails(1.0, 1.0));
 
     return user.map(
         userInfoDto -> new ResponseEntity<>(
