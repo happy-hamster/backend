@@ -16,6 +16,8 @@ import java.util.Collections;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
@@ -29,6 +31,7 @@ import org.springframework.web.client.RestTemplate;
 @SpringBootTest
 class SearchMappingServiceTest extends HappyHamsterTest {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(SearchMappingServiceTest.class);
   @Autowired
   private RestTemplate restTemplate;
 
@@ -37,7 +40,7 @@ class SearchMappingServiceTest extends HappyHamsterTest {
 
 
   @Test
-  void search() {
+  void searchWithoutCoordinates() {
     SearchMappingService mockService = Mockito.spy(searchMappingService);
     NominatimSearchResultListDto mockedList =
         new NominatimSearchResultListDto(new ArrayList<>(
@@ -46,7 +49,22 @@ class SearchMappingServiceTest extends HappyHamsterTest {
     Mockito.doReturn(mockedList).when(mockService)
         .makeRequest();
 
-    final CoordinateDetails result = mockService.search(Collections.singleton(""));
+    final CoordinateDetails result = mockService.search(Collections.singleton("München"));
+    assertEquals(new CoordinateDetails(3, 5), result);
+  }
+
+  @Test
+  void searchWithCoordinates() {
+    SearchMappingService mockService = Mockito.spy(searchMappingService);
+    NominatimSearchResultListDto mockedList =
+        new NominatimSearchResultListDto(new ArrayList<>(
+            Collections
+                .singletonList(new NominatimSearchResultListDto.NominatimResultLocationDto(3, 5))));
+    Mockito.doReturn(mockedList).when(mockService)
+        .makeRequest();
+
+    final CoordinateDetails result =
+        mockService.search(Collections.singleton("München"), new CoordinateDetails(1.0, 1.0));
     assertEquals(new CoordinateDetails(3, 5), result);
   }
 
@@ -72,12 +90,5 @@ class SearchMappingServiceTest extends HappyHamsterTest {
     assertThat(nominatimSearchResultListDto.getElements().get(0).getLat()).isEqualTo(49.3190277);
     assertThat(nominatimSearchResultListDto.getElements().get(0).getLon())
         .isEqualTo(9.363421444681375);
-  }
-
-  @Test
-  void testEncoding() {
-    searchMappingService.url = "https://nominatim.openstreetmap.org/search/München";
-    searchMappingService.encodeUrl();
-    assertThat(searchMappingService.url).doesNotContain("ü");
   }
 }

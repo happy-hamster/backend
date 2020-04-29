@@ -5,9 +5,6 @@ import de.sakpaas.backend.dto.NominatimSearchResultListDto;
 import de.sakpaas.backend.model.CoordinateDetails;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
@@ -20,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
 public class SearchMappingService {
@@ -29,7 +27,6 @@ public class SearchMappingService {
   private final MeterRegistry meterRegistry;
 
   protected String url;
-
 
   @Value("${app.search-api-url}")
   private String searchApiUrl;
@@ -55,7 +52,6 @@ public class SearchMappingService {
    */
   public CoordinateDetails search(Set<String> query) throws IndexOutOfBoundsException {
     buildUrl(query);
-    encodeUrl();
     return returnCoordinates();
   }
 
@@ -69,7 +65,6 @@ public class SearchMappingService {
   public CoordinateDetails search(Set<String> query, CoordinateDetails coordinateDetails)
       throws IndexOutOfBoundsException {
     buildUrl(query, coordinateDetails);
-    encodeUrl();
     return returnCoordinates();
   }
 
@@ -80,8 +75,12 @@ public class SearchMappingService {
    * @param query The search parameter
    */
   private void buildUrl(Set<String> query) {
-    String queryString = String.join(",", query);
-    this.url = this.searchApiUrl + "/search/" + queryString + "?format=json&limit=1";
+    this.url = UriComponentsBuilder.fromHttpUrl("http://nominatim.openstreetmap.org/search")
+        .queryParam("q", query)
+        .queryParam("limit", 1)
+        .queryParam("format", "json")
+        .toUriString();
+    LOGGER.info(this.url);
   }
 
   /**
@@ -92,22 +91,16 @@ public class SearchMappingService {
    * @param coordinateDetails The current coordinates of the user
    */
   private void buildUrl(Set<String> query, CoordinateDetails coordinateDetails) {
-    String queryString = String.join(",", query)
-        + "," + coordinateDetails.getLatitude()
-        + "," + coordinateDetails.getLongitude();
-    this.url = this.searchApiUrl + "/search/" + queryString + "?format=json&limit=1";
-  }
 
-  /**
-   * Encodes the Url with the URLEncoder class method.
-   */
-  protected void encodeUrl() {
-    try {
-      this.url = URLEncoder.encode(url, StandardCharsets.UTF_8.toString());
-    } catch (UnsupportedEncodingException e) {
-      // Will not happen
-      e.printStackTrace();
-    }
+    String urlQuery = String.join(",", query) + "," + coordinateDetails.getLatitude() + ","
+        + coordinateDetails.getLongitude();
+
+    this.url = UriComponentsBuilder.fromHttpUrl("http://nominatim.openstreetmap.org/search")
+        .queryParam("q", urlQuery)
+        .queryParam("limit", 1)
+        .queryParam("format", "json")
+        .toUriString();
+    LOGGER.info(this.url);
   }
 
   /**
