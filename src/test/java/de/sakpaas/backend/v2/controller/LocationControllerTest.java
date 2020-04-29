@@ -8,6 +8,7 @@ import de.sakpaas.backend.model.CoordinateDetails;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.SearchResultObject;
 import de.sakpaas.backend.service.SearchService;
+import de.sakpaas.backend.v2.dto.LocationResultLocationDto;
 import de.sakpaas.backend.v2.dto.SearchResultDto;
 import de.sakpaas.backend.v2.mapper.SearchResultMapper;
 import java.util.ArrayList;
@@ -66,14 +67,13 @@ class LocationControllerTest extends HappyHamsterTest {
     Mockito.when(searchService.search("Mannheim", null))
         .thenReturn(getExampleSearchResult());
 
-
     Mockito.when(searchResultMapper.mapSearchResultToOutputDto(getExampleSearchResult()))
-        .thenReturn(new SearchResultDto());
+        .thenReturn(new SearchResultDto(
+            new LocationResultLocationDto.LocationResultCoordinatesDto(1d, 2d),
+            new ArrayList<>()));
 
     mvc.perform(get("/v2/locations/search?query=Mannheim")
         .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isBadRequest());
-
-
   }
 }
