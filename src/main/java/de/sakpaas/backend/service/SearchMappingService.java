@@ -67,7 +67,6 @@ public class SearchMappingService {
 
   /**
    * Encodes the nominatim request query.
-   * To be implemented in TINF-272.
    *
    * @param query The search parameter
    */
@@ -81,7 +80,6 @@ public class SearchMappingService {
 
   /**
    * Encodes the nominatim request query.
-   * To be implemented in TINF-272.
    *
    * @param query             The search parameter
    * @param coordinateDetails The current coordinates of the user
