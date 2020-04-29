@@ -7,17 +7,21 @@ import de.sakpaas.backend.model.SearchRequest;
 import de.sakpaas.backend.model.SearchResultObject;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
 
 @Service
 public class SearchService {
+  @Value("${app.search-result-limit}")
+  private Integer searchResultLimit;
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SearchService.class);
   private final LocationService locationService;
@@ -74,28 +78,48 @@ public class SearchService {
    * @param coordinateDetails The SearchCoordinates
    * @return A new SearchRequest
    */
+
+
   protected SearchRequest createRequest(String query, CoordinateDetails coordinateDetails)
       throws EmptySearchQueryException {
-    return new SearchRequest();
-  }
+    String lowerquery = query.toLowerCase();
 
-  /**
-   * Possible Brand Names will be extracted from the Query and saved brands List.
-   *
-   * @param request The Request Object
-   * @return the updated Request Object
-   * @throws EmptySearchQueryException Will be thrown if the Query is
-   *                                   Empty(needs to be implemented)
-   */
-  protected SearchRequest checkForBrands(SearchRequest request) {
-    request.setBrands(
-        request.getQuery().stream().filter(queryElement -> knownBrands.contains(queryElement))
-            .collect(
-                Collectors.toSet()));
-    request.getQuery().removeAll(request.getBrands());
-    return request;
-  }
+    SearchRequest searchRequest = new SearchRequest();
 
+
+    ArrayList<Integer> containsbrand = new ArrayList<Integer>();
+
+    HashSet<String> giveQuery = new HashSet<String>();
+    HashSet<String> giveBrands = new HashSet<String>();
+
+
+    for (String brand : knownBrands) {
+      Pattern word = Pattern.compile(brand);
+      Matcher match = word.matcher(lowerquery);
+
+      if (match.find()) {
+        lowerquery = lowerquery.replace(brand, "");
+        giveBrands.add(brand);
+      }
+    }
+    String[] querysplit = lowerquery.split(" ");
+
+    for (String s : querysplit) { //recognizes all strings not in giveBrands an add to give
+      if (!s.equals("")) {
+        if (!giveBrands.contains(s)) {
+          giveQuery.add(s);
+        }
+      }
+    }
+
+
+    searchRequest.setBrands(giveBrands);
+    searchRequest.setQuery(giveQuery);
+    searchRequest.setCoordinates(coordinateDetails);
+    searchRequest.setResultLimit(searchResultLimit);
+
+    return searchRequest;
+  }
 
   /**
    * Creates a Nominatim Request and executes it. It updates the Coordinates of the Request.
@@ -121,7 +145,7 @@ public class SearchService {
     if (locations == null) {
       locations = new HashSet<Location>();
     }
-    
+
     for (String brand : brands) {
       if (!brand.equals("")) {
         brand = "%" + brand + "%";
