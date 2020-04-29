@@ -17,7 +17,6 @@ import de.sakpaas.backend.service.LocationDetailsRepository;
 import de.sakpaas.backend.service.LocationRepository;
 import de.sakpaas.backend.service.OccupancyRepository;
 import de.sakpaas.backend.service.PresenceRepository;
-import de.sakpaas.backend.service.RequestRepository;
 import de.sakpaas.backend.service.UserService;
 import de.sakpaas.backend.util.KeycloakConfiguration;
 import de.sakpaas.backend.v2.controller.UserController;
@@ -50,8 +49,6 @@ public class UserControllerTest {
   private LocationMapper locationMapper;
   @MockBean
   private FavoriteRepository favoriteRepository;
-  @MockBean
-  private RequestRepository requestRepository;
   @MockBean
   private AddressRepository addressRepository;
   @MockBean
