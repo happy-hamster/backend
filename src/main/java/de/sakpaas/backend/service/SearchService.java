@@ -6,7 +6,9 @@ import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.SearchRequest;
 import de.sakpaas.backend.model.SearchResultObject;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Setter;
@@ -79,20 +81,36 @@ public class SearchService {
    */
 
 
-
   protected SearchRequest createRequest(String query, CoordinateDetails coordinateDetails)
       throws EmptySearchQueryException {
+    StringBuilder lowerquery = new StringBuilder(query.toLowerCase());
+    SearchRequest request = new SearchRequest();
+    request.setBrands(new HashSet<>());
+    request.setCoordinates(coordinateDetails);
+    List<String> brands = new ArrayList<>(knownBrands);
 
-    String lowerQuery = query.toLowerCase();
-    Set<String> brands = knownBrands.stream().filter(lowerQuery::contains).collect(
-        Collectors.toSet());
+    for (int n = 0; n < brands.size(); n++) {
+      String temp = lowerquery.toString();
+      if (temp.contains(brands.get(n))) {
+        int beginn = lowerquery.indexOf(brands.get(n));
+        int end = lowerquery.indexOf(brands.get(n)) + brands.get(n).length();
 
-    for (String brand : brands) {
-      int beginn = query.indexOf(brand);
-      int end = query.indexOf(brand) + brand.length();
-
-      if (beginn == 0 ||)
+        if (checkIfValidWord(beginn, end, lowerquery)) {
+          lowerquery.replace(beginn, end, "");
+          request.getBrands().add(brands.get(n));
+          n--;
+        }
+      }
     }
+
+    String resultQuery = lowerquery.toString();
+    resultQuery.trim();
+
+    request.setQuery(new HashSet<>(Arrays.asList(resultQuery.split(" "))).stream()
+        .filter(temp -> (!temp.equals(""))).collect(
+            Collectors.toSet()));
+
+
 
     /*SearchRequest searchRequest = new SearchRequest();
     HashSet<String> giveQuery = new HashSet<String>();
@@ -153,7 +171,22 @@ public class SearchService {
     searchRequest.setCoordinates(coordinateDetails);
     searchRequest.setResultLimit(searchResultLimit);
   */
-    return searchRequest;
+    return request;
+  }
+
+  /**
+   * Assisting Method for createRequest.
+   *
+   * @param beginn The beginning Index of the Word
+   * @param end    The ending Index of the Word
+   * @param query  The String the word contains
+   * @return Returns if word is valid
+   */
+  private Boolean checkIfValidWord(int beginn, int end, StringBuilder query) {
+    if (beginn == 0 || (query.charAt(beginn - 1) == ' ')) {
+      return (end == query.length()) || (query.charAt(end) == ' ');
+    }
+    return false;
   }
 
   /**
@@ -178,7 +211,7 @@ public class SearchService {
     Set<String> brands = request.getBrands();
     Set<Location> locations = request.getLocations();
     if (locations == null) {
-      locations = new HashSet<Location>();
+      locations = new HashSet<>();
     }
 
     for (String brand : brands) {

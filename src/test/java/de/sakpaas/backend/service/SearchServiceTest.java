@@ -137,11 +137,16 @@ class SearchServiceTest extends HappyHamsterTest {
     assertThat(resultRequest.getBrands().size()).isEqualTo(0);
     assertThat(resultRequest.getQuery().contains("biolade"));
 
-    brandSet = new HashSet<>();
-    brandSet.add("[: bioladen");
-    SearchService.setKnownBrands(getBrandSet());
 
-    resultRequest =
+  }
+
+  @Test
+  void createRequestWithQueryTricksRegexV2() {
+    HashSet<String> brandSet = new HashSet<>();
+    brandSet.add("[: bioladen");
+    SearchService.setKnownBrands(brandSet);
+
+    SearchRequest resultRequest =
         searchService.createRequest("[: Bioladen", new CoordinateDetails(2.0, 3.0));
     assertThat(resultRequest.getQuery().size()).isEqualTo(0);
     assertThat(resultRequest.getBrands().size()).isEqualTo(1);
@@ -186,7 +191,7 @@ class SearchServiceTest extends HappyHamsterTest {
     locationRepository.save(loc4);
 
     SearchRequest searchRequest = createSearchRequest("Lidl");
-    Set<String> brands = new HashSet<String>();
+    Set<String> brands = new HashSet<>();
     brands.add("lidl");
     searchRequest.setBrands(brands);
     searchRequest.setResultLimit(2);
