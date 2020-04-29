@@ -25,7 +25,7 @@ public class SearchMappingService {
   private final RestTemplate restTemplate;
   private final MeterRegistry meterRegistry;
 
-  private String url;
+  protected String url;
 
 
   @Value("${app.search-api-url}")

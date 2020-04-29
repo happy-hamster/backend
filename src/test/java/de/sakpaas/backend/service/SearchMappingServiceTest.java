@@ -13,7 +13,6 @@ import de.sakpaas.backend.model.CoordinateDetails;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -45,9 +44,9 @@ class SearchMappingServiceTest extends HappyHamsterTest {
             Collections
                 .singletonList(new NominatimSearchResultListDto.NominatimResultLocationDto(3, 5))));
     Mockito.doReturn(mockedList).when(mockService)
-        .makeRequest(Mockito.any());
+        .makeRequest();
 
-    final CoordinateDetails result = mockService.search(new HashSet<>(Collections.singleton("")));
+    final CoordinateDetails result = mockService.search(Collections.singleton(""));
     assertEquals(new CoordinateDetails(3, 5), result);
   }
 
@@ -65,8 +64,10 @@ class SearchMappingServiceTest extends HappyHamsterTest {
             .contentType(MediaType.APPLICATION_JSON)
             .body(responseBody));
 
+    searchMappingService.url = "test.de";
+
     NominatimSearchResultListDto nominatimSearchResultListDto =
-        searchMappingService.makeRequest("test.de");
+        searchMappingService.makeRequest();
     assertThat(nominatimSearchResultListDto.getElements().size()).isEqualTo(1);
     assertThat(nominatimSearchResultListDto.getElements().get(0).getLat()).isEqualTo(49.3190277);
     assertThat(nominatimSearchResultListDto.getElements().get(0).getLon())
