@@ -232,7 +232,7 @@ public class LocationController {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    //ToDo Get Coordinates from Request
+
     final SearchResultObject resultObject = searchService.search(query,
         new CoordinateDetails(latitude, longitude));
 

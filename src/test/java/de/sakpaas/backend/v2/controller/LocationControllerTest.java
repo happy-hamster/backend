@@ -1,5 +1,7 @@
 package de.sakpaas.backend.v2.controller;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -25,6 +27,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -50,30 +53,36 @@ class LocationControllerTest extends HappyHamsterTest {
   @SneakyThrows
   @Test
   void searchForLocationsTestWithOnlyLatOrOnlyLong() {
-    mvc.perform(get("/v2/locations/search?query=Mannheim&latitude=44.000000")
+    mvc.perform(get("/v2/locations/search/Mannheim?latitude=44.000000")
         .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isBadRequest());
 
-    mvc.perform(get("/v2/locations/search?query=Mannheim&longitude=44.000000")
+    mvc.perform(get("/v2/locations/search/Mannheim?longitude=44.000000")
         .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isBadRequest());
   }
 
   @SneakyThrows
   @Test
-  void searchForLocationsTestWithQueryAndCoordinates() {
-
-
-    Mockito.when(searchService.search("Mannheim", null))
+  void searchForLocationsTestWithQuery() {
+    Mockito.when(searchService.search("Mannheim", new CoordinateDetails(null, null)))
         .thenReturn(getExampleSearchResult());
 
-    Mockito.when(searchResultMapper.mapSearchResultToOutputDto(getExampleSearchResult()))
-        .thenReturn(new SearchResultDto(
-            new LocationResultLocationDto.LocationResultCoordinatesDto(1d, 2d),
-            new ArrayList<>()));
+    SearchResultDto searchResultDto = new SearchResultDto(
+        new LocationResultLocationDto.LocationResultCoordinatesDto(1d, 2d),
+        new ArrayList<>());
 
-    mvc.perform(get("/v2/locations/search?query=Mannheim")
+    Mockito.when(searchResultMapper.mapSearchResultToOutputDto(getExampleSearchResult()))
+        .thenReturn(searchResultDto);
+
+    String resultJson = mvc.perform(get("/v2/locations/search/Mannheim")
         .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isBadRequest());
+        .andExpect(status().isOk())
+        .andReturn()
+        .getResponse()
+        .getContentAsString();
+
+    String compareJson = new ObjectMapper().writeValueAsString(searchResultDto);
+    assertThat(compareJson, equalTo(resultJson));
   }
 }
