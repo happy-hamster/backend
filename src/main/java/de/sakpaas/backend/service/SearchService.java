@@ -120,8 +120,9 @@ public class SearchService {
     
     for (String brand : brands) {
       if (!brand.equals("")) {
+        brand = "%" + brand + "%";
         locations.addAll(
-            locationService.findByNameOrBrandLike("%" + brand + "%", request.getResultLimit()));
+            locationService.findByNameOrBrandLike(brand, request.getResultLimit()));
       }
     }
     request.setLocations(locations);
