@@ -7,8 +7,6 @@ import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -21,7 +19,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
 public class SearchMappingService {
-  private static final Logger LOGGER = LoggerFactory.getLogger(SearchMappingService.class);
 
   private final RestTemplate restTemplate;
   private final MeterRegistry meterRegistry;
@@ -80,7 +77,6 @@ public class SearchMappingService {
         .queryParam("limit", 1)
         .queryParam("format", "json")
         .toUriString();
-    LOGGER.info(this.url);
   }
 
   /**
@@ -91,7 +87,6 @@ public class SearchMappingService {
    * @param coordinateDetails The current coordinates of the user
    */
   private void buildUrl(Set<String> query, CoordinateDetails coordinateDetails) {
-
     String urlQuery = String.join(",", query) + "," + coordinateDetails.getLatitude() + ","
         + coordinateDetails.getLongitude();
 
@@ -100,7 +95,6 @@ public class SearchMappingService {
         .queryParam("limit", 1)
         .queryParam("format", "json")
         .toUriString();
-    LOGGER.info(this.url);
   }
 
   /**
