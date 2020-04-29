@@ -6,9 +6,9 @@ import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.SearchRequest;
 import de.sakpaas.backend.model.SearchResultObject;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,10 +79,22 @@ public class SearchService {
    */
 
 
+
   protected SearchRequest createRequest(String query, CoordinateDetails coordinateDetails)
       throws EmptySearchQueryException {
 
-    SearchRequest searchRequest = new SearchRequest();
+    String lowerQuery = query.toLowerCase();
+    Set<String> brands = knownBrands.stream().filter(lowerQuery::contains).collect(
+        Collectors.toSet());
+
+    for (String brand : brands) {
+      int beginn = query.indexOf(brand);
+      int end = query.indexOf(brand) + brand.length();
+
+      if (beginn == 0 ||)
+    }
+
+    /*SearchRequest searchRequest = new SearchRequest();
     HashSet<String> giveQuery = new HashSet<String>();
     HashSet<String> giveBrands = new HashSet<String>();
 
@@ -125,6 +137,7 @@ public class SearchService {
      * }
      * }
      */
+    /*
     String[] querysplit = lowerquery.split(" ");
 
     for (String s : querysplit) { //recognizes all strings not in giveBrands an add to give
@@ -139,7 +152,7 @@ public class SearchService {
     searchRequest.setQuery(giveQuery);
     searchRequest.setCoordinates(coordinateDetails);
     searchRequest.setResultLimit(searchResultLimit);
-
+  */
     return searchRequest;
   }
 

@@ -112,7 +112,7 @@ class SearchServiceTest extends HappyHamsterTest {
   void createRequestWithShorterBrandNameInLongerBrand() {
     HashSet<String> brandSet = new HashSet<>();
     brandSet.add("ed");
-    SearchService.setKnownBrands(getBrandSet());
+    SearchService.setKnownBrands(brandSet);
     SearchRequest resultRequest =
         searchService.createRequest("Edeka", new CoordinateDetails(2.0, 3.0));
     assertThat(resultRequest.getQuery().size()).isEqualTo(1);
