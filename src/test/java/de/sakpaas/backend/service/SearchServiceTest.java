@@ -3,14 +3,11 @@ package de.sakpaas.backend.service;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import de.sakpaas.backend.HappyHamsterTest;
-import de.sakpaas.backend.model.Address;
-import de.sakpaas.backend.model.Location;
-import de.sakpaas.backend.model.LocationDetails;
+import de.sakpaas.backend.model.CoordinateDetails;
 import de.sakpaas.backend.model.SearchRequest;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
