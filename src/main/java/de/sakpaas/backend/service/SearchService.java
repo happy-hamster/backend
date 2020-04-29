@@ -8,8 +8,6 @@ import de.sakpaas.backend.model.SearchResultObject;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,21 +81,13 @@ public class SearchService {
   protected SearchRequest createRequest(String query, CoordinateDetails coordinateDetails)
       throws EmptySearchQueryException {
     String lowerquery = query.toLowerCase();
-
     SearchRequest searchRequest = new SearchRequest();
-
-
-    ArrayList<Integer> containsbrand = new ArrayList<Integer>();
-
     HashSet<String> giveQuery = new HashSet<String>();
     HashSet<String> giveBrands = new HashSet<String>();
 
 
     for (String brand : knownBrands) {
-      Pattern word = Pattern.compile(brand);
-      Matcher match = word.matcher(lowerquery);
-
-      if (match.find()) {
+      if (lowerquery.contains(brand)) {
         lowerquery = lowerquery.replace(brand, "");
         giveBrands.add(brand);
       }
@@ -111,7 +101,6 @@ public class SearchService {
         }
       }
     }
-
 
     searchRequest.setBrands(giveBrands);
     searchRequest.setQuery(giveQuery);
