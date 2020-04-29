@@ -5,6 +5,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import de.sakpaas.backend.HappyHamsterTest;
+import de.sakpaas.backend.model.CoordinateDetails;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.SearchRequest;
 import de.sakpaas.backend.model.SearchResultObject;
@@ -95,15 +96,18 @@ class SearchServiceTest extends HappyHamsterTest {
 
     SearchRequest request = new SearchRequest();
     request.setQuery(new HashSet<>());
+    request.setCoordinates(new CoordinateDetails(null, null));
     Mockito.doReturn(request).when(mockSearchService).createRequest(Mockito.any(), Mockito.any());
 
     request.setLocations(
         new HashSet<>(Arrays.asList(new Location(1L, "LIDL", 41.0D, 8.0D, null, null))));
     Mockito.doReturn(request).when(mockSearchService).dbBrandSearch(Mockito.any());
 
-    SearchResultObject result = mockSearchService.search("testQuery", null);
+    SearchResultObject result =
+        mockSearchService.search("testQuery", new CoordinateDetails(null, null));
     assertThat(result.getLocationList().size()).isEqualTo(1);
-    assertThat(result.getCoordinates()).isNull();
+    assertThat(result.getCoordinates().getLatitude()).isNull();
+    assertThat(result.getCoordinates().getLongitude()).isNull();
     //Count Method interactions
     verify(mockSearchService, times(1)).createRequest(Mockito.any(), Mockito.any());
     verify(mockSearchService, times(1)).dbBrandSearch(Mockito.any());
