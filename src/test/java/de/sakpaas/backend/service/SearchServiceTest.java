@@ -7,7 +7,6 @@ import de.sakpaas.backend.model.Address;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.LocationDetails;
 import de.sakpaas.backend.model.SearchRequest;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -37,8 +36,8 @@ class SearchServiceTest extends HappyHamsterTest {
     return searchRequest;
   }
 
-  private List<String> getBrandList() {
-    List<String> brands = new ArrayList<>();
+  private Set<String> getBrandList() {
+    Set<String> brands = new HashSet<>();
     brands.add("lidl");
     brands.add("aldi");
     brands.add("edeka");
