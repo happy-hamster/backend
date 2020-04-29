@@ -1,4 +1,5 @@
 package de.sakpaas.backend;
 
-public class IntegrationTest {
+public class IntegrationTest extends HappyHamsterTest {
+
 }

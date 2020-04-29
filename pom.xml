@@ -54,11 +54,6 @@
 			<version>1.0.1.RELEASE</version>
 		</dependency>
 		<dependency>
-			<groupId>org.json</groupId>
-			<artifactId>json</artifactId>
-			<version>20190722</version>
-		</dependency>
-		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
 		</dependency>
@@ -80,7 +75,7 @@
 			<groupId>org.keycloak</groupId>
 			<artifactId>keycloak-spring-boot-starter</artifactId>
 		</dependency>
-	</dependencies>
+    </dependencies>
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
