@@ -85,11 +85,11 @@ class LocationServiceTest extends HappyHamsterTest {
     locationDetailsRepository.deleteAll();
 
     Address address =
-        new Address("testCountry", "testPostcode", "123456", "testStreet", "testNumber");
+        new Address("tc", "tp", "123456", "ts", "tn");
     Address savedAddress = addressRepository.save(address);
 
     LocationDetails locationDetails =
-        new LocationDetails("testType", "testOpeningHours", "testBrand");
+        new LocationDetails("tt", "toh", "tb");
     LocationDetails savedLocationDetails = locationDetailsRepository.save(locationDetails);
 
     Location location = new Location(1L, "LIDL", 29.95, 5.95, savedLocationDetails, savedAddress);
@@ -97,11 +97,11 @@ class LocationServiceTest extends HappyHamsterTest {
 
 
     Address address1 =
-        new Address("testCountry", "testPostcode", "123456", "testStreet", "testNumber");
+        new Address("tc", "tp", "123456", "ts", "tn");
     Address savedAddress1 = addressRepository.save(address1);
 
     LocationDetails locationDetails1 =
-        new LocationDetails("testType1", "testOpeningHours", "testBrand");
+        new LocationDetails("tt1", "toh", "tb");
     LocationDetails savedLocationDetails1 = locationDetailsRepository.save(locationDetails1);
 
     Location location1 =
@@ -109,7 +109,7 @@ class LocationServiceTest extends HappyHamsterTest {
     locationRepository.save(location1);
 
     List<Location>
-        list = locationService.findByCoordinates(30.D, 6.D, Collections.singletonList("testType1"));
+        list = locationService.findByCoordinates(30.D, 6.D, Collections.singletonList("tt1"));
 
 
     Assertions.assertThat(list.size()).isEqualTo(1);

@@ -38,11 +38,11 @@ class LocationRepositoryTest extends HappyHamsterTest {
 
 
     Address address =
-        new Address("testCountry", "testPostcode", "123456", "testStreet", "testNumber");
+        new Address("tc", "tp", "123456", "ts", "tn");
     Address savedAddress = addressRepository.save(address);
 
     LocationDetails locationDetails =
-        new LocationDetails("testType", "testOpeningHours", "testBrand");
+        new LocationDetails("tt", "toh", "tb");
     LocationDetails savedLocationDetails = locationDetailsRepository.save(locationDetails);
 
     Location location = new Location(1L, "LIDL", 41.0D, 8.0D, savedLocationDetails, savedAddress);
@@ -64,11 +64,11 @@ class LocationRepositoryTest extends HappyHamsterTest {
     locationDetailsRepository.deleteAll();
 
     Address address =
-        new Address("testCountry", "testPostcode", "123456", "testStreet", "testNumber");
+        new Address("tc", "tp", "123456", "ts", "tn");
     Address savedAddress = addressRepository.save(address);
 
     LocationDetails locationDetails =
-        new LocationDetails("testType", "testOpeningHours", "testBrand");
+        new LocationDetails("tt", "toh", "tb");
     LocationDetails savedLocationDetails = locationDetailsRepository.save(locationDetails);
 
     Location location = new Location(1L, "LIDL", 41.0D, 8.0D, savedLocationDetails, savedAddress);
@@ -76,11 +76,11 @@ class LocationRepositoryTest extends HappyHamsterTest {
 
 
     Address address1 =
-        new Address("testCountry", "testPostcode", "123456", "testStreet", "testNumber");
+        new Address("tc", "tp", "123456", "ts", "tn");
     Address savedAddress1 = addressRepository.save(address1);
 
     LocationDetails locationDetails1 =
-        new LocationDetails("testType1", "testOpeningHours", "testBrand");
+        new LocationDetails("tt1", "toh", "tb");
     LocationDetails savedLocationDetails1 = locationDetailsRepository.save(locationDetails1);
 
     Location location1 =
@@ -90,7 +90,7 @@ class LocationRepositoryTest extends HappyHamsterTest {
     List<Location>
         list = locationRepository
         .findByLatitudeBetweenAndLongitudeBetweenAndDetails_TypeIn(30.D, 42.D, 6.D, 9.0,
-            Arrays.asList("testType1"));
+            Arrays.asList("tt1"));
 
     assertThat(list.size()).isEqualTo(1);
     assertThat(list.get(0)).isEqualTo(location1);
