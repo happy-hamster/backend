@@ -3,22 +3,15 @@ package de.sakpaas.backend.service;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import de.sakpaas.backend.HappyHamsterTest;
-import de.sakpaas.backend.model.CoordinateDetails;
-import de.sakpaas.backend.model.Location;
-import de.sakpaas.backend.model.LocationDetails;
 import de.sakpaas.backend.model.Address;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.LocationDetails;
 import de.sakpaas.backend.model.SearchRequest;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -113,7 +106,7 @@ public class SearchServiceTest extends HappyHamsterTest {
    * Integration Test (dbBrandSearch in {@link SearchService.java})
    */
   @Test
-  void checkForBrandsInLocationNameAndLocationDetails() {
+  public void checkForBrandsInLocationNameAndLocationDetails() {
     locationDetailsRepository.deleteAll();
     locationRepository.deleteAll();
     addressRepository.deleteAll();
