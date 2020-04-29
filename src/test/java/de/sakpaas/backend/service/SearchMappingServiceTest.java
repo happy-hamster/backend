@@ -73,4 +73,11 @@ class SearchMappingServiceTest extends HappyHamsterTest {
     assertThat(nominatimSearchResultListDto.getElements().get(0).getLon())
         .isEqualTo(9.363421444681375);
   }
+
+  @Test
+  void testEncoding() {
+    searchMappingService.url = "https://nominatim.openstreetmap.org/search/München";
+    searchMappingService.encodeUrl();
+    assertThat(searchMappingService.url).doesNotContain("ü");
+  }
 }

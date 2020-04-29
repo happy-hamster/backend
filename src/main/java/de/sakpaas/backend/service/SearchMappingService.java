@@ -5,6 +5,9 @@ import de.sakpaas.backend.dto.NominatimSearchResultListDto;
 import de.sakpaas.backend.model.CoordinateDetails;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
@@ -51,7 +54,8 @@ public class SearchMappingService {
    * @throws IndexOutOfBoundsException Iff the the request returned nothing
    */
   public CoordinateDetails search(Set<String> query) throws IndexOutOfBoundsException {
-    encodeUrl(query);
+    buildUrl(query);
+    encodeUrl();
     return returnCoordinates();
   }
 
@@ -64,7 +68,8 @@ public class SearchMappingService {
    */
   public CoordinateDetails search(Set<String> query, CoordinateDetails coordinateDetails)
       throws IndexOutOfBoundsException {
-    encodeUrl(query, coordinateDetails);
+    buildUrl(query, coordinateDetails);
+    encodeUrl();
     return returnCoordinates();
   }
 
@@ -74,7 +79,7 @@ public class SearchMappingService {
    *
    * @param query The search parameter
    */
-  private void encodeUrl(Set<String> query) {
+  private void buildUrl(Set<String> query) {
     String queryString = String.join(",", query);
     this.url = this.searchApiUrl + "/search/" + queryString + "?format=json&limit=1";
   }
@@ -86,11 +91,23 @@ public class SearchMappingService {
    * @param query             The search parameter
    * @param coordinateDetails The current coordinates of the user
    */
-  private void encodeUrl(Set<String> query, CoordinateDetails coordinateDetails) {
+  private void buildUrl(Set<String> query, CoordinateDetails coordinateDetails) {
     String queryString = String.join(",", query)
         + "," + coordinateDetails.getLatitude()
         + "," + coordinateDetails.getLongitude();
     this.url = this.searchApiUrl + "/search/" + queryString + "?format=json&limit=1";
+  }
+
+  /**
+   * Encodes the Url with the URLEncoder class method.
+   */
+  protected void encodeUrl() {
+    try {
+      this.url = URLEncoder.encode(url, StandardCharsets.UTF_8.toString());
+    } catch (UnsupportedEncodingException e) {
+      // Will not happen
+      e.printStackTrace();
+    }
   }
 
   /**
@@ -120,7 +137,6 @@ public class SearchMappingService {
         .builder("nominatim.request")
         .description("Times the duration of the Nominatim search requests")
         .register(this.meterRegistry);
-
 
     StopWatch watch = new StopWatch();
     HttpEntity<String> header = setupRequest();
