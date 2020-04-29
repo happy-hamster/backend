@@ -7,7 +7,6 @@ import de.sakpaas.backend.model.CoordinateDetails;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.LocationDetails;
 import de.sakpaas.backend.model.SearchRequest;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -15,6 +14,8 @@ import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import java.util.Set;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -147,8 +148,8 @@ public class SearchServiceTest extends HappyHamsterTest {
     return searchRequest;
   }
 
-  private List<String> getBrandList() {
-    List<String> brands = new ArrayList<>();
+  private Set<String> getBrandList() {
+    Set<String> brands = new HashSet<>();
     brands.add("lidl");
     brands.add("aldi");
     brands.add("edeka");
@@ -205,6 +206,5 @@ public class SearchServiceTest extends HappyHamsterTest {
         searchService.checkForBrands(createSearchRequest("lidl lidl"));
     assertThat(resultRequest.getBrands().size()).isEqualTo(1);
     assertThat(resultRequest.getBrands().contains("lidl")).isTrue();
-
   }
 }

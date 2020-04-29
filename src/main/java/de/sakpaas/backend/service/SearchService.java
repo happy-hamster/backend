@@ -20,22 +20,28 @@ public class SearchService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SearchService.class);
   @Setter
-  private static List<String> knownBrands;
   private final LocationService locationService;
   private final SearchMappingService searchMappingService;
+  private static Set<String> knownBrands;
+  private final LocationDetailsRepository locationDetailsRepository;
 
   /**
    * Searches for a specific key, calculates the central point as coordinates and returns
    * additionally a list of locations around the coordinates.
    *
-   * @param locationService      The service for getting locations based on specific coordinates
-   * @param searchMappingService The service for actually making the REST request
+   * @param locationService           The service for getting locations based on specific
+   *                                  coordinates
+   * @param searchMappingService      The service for actually making the REST request
+   * @param locationDetailsRepository The Location Details Repository
    */
   @Autowired
   public SearchService(LocationService locationService,
-                       SearchMappingService searchMappingService) {
+                       SearchMappingService searchMappingService,
+                       LocationDetailsRepository locationDetailsRepository) {
     this.locationService = locationService;
     this.searchMappingService = searchMappingService;
+    this.locationDetailsRepository = locationDetailsRepository;
+    updateBrands();
   }
 
 
@@ -43,7 +49,8 @@ public class SearchService {
    * Extracts all Brands that exists in the Database and saves them to the knownBrands List.
    * Also makes all brands lower case.
    */
-  protected void updateBrands() {
+  public void updateBrands() {
+    knownBrands = locationDetailsRepository.getAllBrandNamesLower();
   }
 
 
