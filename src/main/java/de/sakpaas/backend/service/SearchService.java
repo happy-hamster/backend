@@ -21,7 +21,6 @@ public class SearchService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SearchService.class);
   private final LocationService locationService;
-  private final LocationDetailsService locationDetailsService;
   private final SearchMappingService searchMappingService;
   @Setter
   private static Set<String> knownBrands;
