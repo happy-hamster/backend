@@ -2,9 +2,12 @@ package de.sakpaas.backend.service;
 
 import de.sakpaas.backend.exception.EmptySearchQueryException;
 import de.sakpaas.backend.model.CoordinateDetails;
+import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.SearchRequest;
 import de.sakpaas.backend.model.SearchResultObject;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Setter;
@@ -122,6 +125,20 @@ public class SearchService {
    * @return the updated Request Object
    */
   protected SearchRequest dbBrandSearch(SearchRequest request) {
+    Set<String> brands = request.getBrands();
+    Set<Location> locations = request.getLocations();
+    if (locations == null) {
+      locations = new HashSet<Location>();
+    }
+    
+    for (String brand : brands) {
+      if (!brand.equals("")) {
+        brand = "%" + brand + "%";
+        locations.addAll(
+            locationService.findByNameOrBrandLike(brand, request.getResultLimit()));
+      }
+    }
+    request.setLocations(locations);
     return request;
   }
 
