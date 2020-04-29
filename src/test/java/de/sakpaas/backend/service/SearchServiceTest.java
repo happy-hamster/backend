@@ -36,7 +36,7 @@ class SearchServiceTest extends HappyHamsterTest {
     return searchRequest;
   }
 
-  private Set<String> getBrandList() {
+  private Set<String> getBrandSet() {
     Set<String> brands = new HashSet<>();
     brands.add("lidl");
     brands.add("aldi");
@@ -47,7 +47,7 @@ class SearchServiceTest extends HappyHamsterTest {
 
   @Test
   void createRequestWithOnlyBrandsInQuery() {
-    SearchService.setKnownBrands(getBrandList());
+    SearchService.setKnownBrands(getBrandSet());
     SearchRequest resultRequest =
         searchService.createRequest("Mannheim", new CoordinateDetails(2.0, 3.0));
     assertThat(resultRequest.getQuery().size()).isEqualTo(1);
@@ -57,7 +57,7 @@ class SearchServiceTest extends HappyHamsterTest {
 
   @Test
   void createRequestWithOnlyBrandInQuery() {
-    SearchService.setKnownBrands(getBrandList());
+    SearchService.setKnownBrands(getBrandSet());
     SearchRequest resultRequest =
         searchService.createRequest("Lidl", new CoordinateDetails(2.0, 3.0));
     assertThat(resultRequest.getQuery().size()).isEqualTo(0);
@@ -67,7 +67,7 @@ class SearchServiceTest extends HappyHamsterTest {
 
   @Test
   void createRequestWithMultipleBrandsInQuery() {
-    SearchService.setKnownBrands(getBrandList());
+    SearchService.setKnownBrands(getBrandSet());
     SearchRequest resultRequest =
         searchService.createRequest("lidl edeka aldi aldi", new CoordinateDetails(2.0, 3.0));
     assertThat(resultRequest.getBrands().size()).isEqualTo(3);
@@ -79,7 +79,7 @@ class SearchServiceTest extends HappyHamsterTest {
 
   @Test
   void createRequestWithBrandsAndNoneBrandsInQuery() {
-    SearchService.setKnownBrands(getBrandList());
+    SearchService.setKnownBrands(getBrandSet());
     SearchRequest resultRequest = searchService
         .createRequest("mannheim wasserturm edeka aldi", new CoordinateDetails(2.0, 3.0));
     assertThat(resultRequest.getBrands().size()).isEqualTo(2);
@@ -92,7 +92,7 @@ class SearchServiceTest extends HappyHamsterTest {
 
   @Test
   void createRequestWithSpaceInBrandName() {
-    SearchService.setKnownBrands(getBrandList());
+    SearchService.setKnownBrands(getBrandSet());
     SearchRequest resultRequest =
         searchService.createRequest("Deutsche Post Mannheim", new CoordinateDetails(2.0, 3.0));
     assertThat(resultRequest.getQuery().size()).isEqualTo(1);
@@ -103,11 +103,50 @@ class SearchServiceTest extends HappyHamsterTest {
 
   @Test
   void createRequestWithoutCoordinates() {
-    SearchService.setKnownBrands(getBrandList());
+    SearchService.setKnownBrands(getBrandSet());
     SearchRequest resultRequest = searchService.createRequest("Deutsche Post Mannheim", null);
     assertThat(resultRequest.getCoordinates()).isNull();
   }
 
+  @Test
+  void createRequestWithShorterBrandNameInLongerBrand() {
+    HashSet<String> brandSet = new HashSet<>();
+    brandSet.add("ed");
+    SearchService.setKnownBrands(getBrandSet());
+    SearchRequest resultRequest =
+        searchService.createRequest("Edeka", new CoordinateDetails(2.0, 3.0));
+    assertThat(resultRequest.getQuery().size()).isEqualTo(1);
+    assertThat(resultRequest.getBrands().size()).isEqualTo(0);
+    assertThat(resultRequest.getQuery().contains("edeka")).isTrue();
+  }
+
+  @Test
+  void createRequestWithQueryTricksRegex() {
+    HashSet<String> brandSet = new HashSet<>();
+    brandSet.add("bioladen*");
+    SearchService.setKnownBrands(brandSet);
+
+    SearchRequest resultRequest =
+        searchService.createRequest("Bioladen*", new CoordinateDetails(2.0, 3.0));
+    assertThat(resultRequest.getQuery().size()).isEqualTo(0);
+    assertThat(resultRequest.getBrands().size()).isEqualTo(1);
+
+    resultRequest =
+        searchService.createRequest("Biolade", new CoordinateDetails(2.0, 3.0));
+    assertThat(resultRequest.getQuery().size()).isEqualTo(1);
+    assertThat(resultRequest.getBrands().size()).isEqualTo(0);
+    assertThat(resultRequest.getQuery().contains("biolade"));
+
+    brandSet = new HashSet<>();
+    brandSet.add("[: bioladen");
+    SearchService.setKnownBrands(getBrandSet());
+
+    resultRequest =
+        searchService.createRequest("[: Bioladen", new CoordinateDetails(2.0, 3.0));
+    assertThat(resultRequest.getQuery().size()).isEqualTo(0);
+    assertThat(resultRequest.getBrands().size()).isEqualTo(1);
+    assertThat(resultRequest.getBrands().contains("[: bioladen"));
+  }
 
   /**
    * Integration Test (dbBrandSearch in {@link SearchService})
