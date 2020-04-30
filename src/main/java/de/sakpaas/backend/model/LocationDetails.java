@@ -28,13 +28,13 @@ public class LocationDetails {
   @Column(name = "ID", nullable = false)
   private Long id;
 
-  @Column(name = "TYPE")
+  @Column(name = "TYPE", length = 50)
   private String type;
 
   @Column(name = "OPENING_HOURS")
   private String openingHours;
 
-  @Column(name = "BRAND")
+  @Column(name = "BRAND", length = 50)
   private String brand;
 
   /**

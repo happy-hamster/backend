@@ -21,7 +21,6 @@ import de.sakpaas.backend.v2.dto.OccupancyReportDto;
 import de.sakpaas.backend.v2.dto.SearchResultDto;
 import de.sakpaas.backend.v2.mapper.LocationMapper;
 import de.sakpaas.backend.v2.mapper.SearchResultMapper;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -36,6 +35,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @CrossOrigin(origins = "*")
@@ -96,26 +96,26 @@ public class LocationController {
    * @return List of all Locations in the Area.
    */
   @GetMapping
+  @ResponseBody
   public ResponseEntity<List<LocationResultLocationDto>> getLocation(
-      @RequestParam Double latitude, @RequestParam Double longitude,
+      @RequestParam Double latitude,
+      @RequestParam Double longitude,
+      @RequestParam(required = false) List<String> type,
       @RequestHeader(value = "Authorization", required = false) String header) {
+
     Optional<UserInfoDto> user = userService.getOptionalUserInfo(header);
 
-    List<Location> searchResult = locationService.findByCoordinates(latitude, longitude);
-
-    if (searchResult.isEmpty()) {
-      return new ResponseEntity<>(new ArrayList<>(), OK);
-    }
-
-    List<LocationResultLocationDto> response = searchResult.stream()
-        .map(location -> {
-          if (user.isPresent()) {
-            return locationMapper.mapLocationToOutputDto(location, user.get());
-          } else {
-            return locationMapper.mapLocationToOutputDto(location);
-          }
-        })
-        .collect(toList());
+    List<LocationResultLocationDto> response =
+        locationService.findByCoordinates(latitude, longitude, type)
+            .stream()
+            .map(location -> {
+              if (user.isPresent()) {
+                return locationMapper.mapLocationToOutputDto(location, user.get());
+              } else {
+                return locationMapper.mapLocationToOutputDto(location);
+              }
+            })
+            .collect(toList());
 
     return new ResponseEntity<>(response, OK);
   }
