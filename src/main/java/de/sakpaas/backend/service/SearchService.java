@@ -6,25 +6,32 @@ import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.SearchRequest;
 import de.sakpaas.backend.model.SearchResultObject;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import javax.validation.constraints.Null;
 import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
 
 @Service
 public class SearchService {
-
   private static final Logger LOGGER = LoggerFactory.getLogger(SearchService.class);
-  private final LocationService locationService;
-  private final SearchMappingService searchMappingService;
   @Setter
-  private static Set<String> knownBrands;
+  protected static Set<String> knownBrands;
+  @Setter
+  private LocationService locationService;
   private final LocationDetailsRepository locationDetailsRepository;
+  @Value("${app.search-result-limit}")
+  private Integer searchResultLimit;
 
   /**
    * Searches for a specific key, calculates the central point as coordinates and returns
@@ -32,15 +39,12 @@ public class SearchService {
    *
    * @param locationService           The service for getting locations based on specific
    *                                  coordinates
-   * @param searchMappingService      The service for actually making the REST request
    * @param locationDetailsRepository The Location Details Repository
    */
   @Autowired
   public SearchService(LocationService locationService,
-                       SearchMappingService searchMappingService,
                        LocationDetailsRepository locationDetailsRepository) {
     this.locationService = locationService;
-    this.searchMappingService = searchMappingService;
     this.locationDetailsRepository = locationDetailsRepository;
     updateBrands();
   }
@@ -63,7 +67,18 @@ public class SearchService {
    * @return Result Locations
    */
   public SearchResultObject search(String query, CoordinateDetails coordinateDetails) {
-    return new SearchResultObject(coordinateDetails, new ArrayList<>());
+    SearchRequest request = createRequest(query, coordinateDetails);
+    if (!request.getQuery().isEmpty()) {
+      request = getCoordinatesFromNominatim(request);
+    } else {
+      if (request.getCoordinates().getLatitude() == null
+          || request.getCoordinates().getLongitude() == null) {
+        request = dbBrandSearch(request);
+        return new SearchResultObject(request.getCoordinates(), request.getLocations());
+      }
+    }
+    request = getByCoordinates(request);
+    return new SearchResultObject(request.getCoordinates(), request.getLocations());
   }
 
 
@@ -76,24 +91,38 @@ public class SearchService {
    */
   protected SearchRequest createRequest(String query, CoordinateDetails coordinateDetails)
       throws EmptySearchQueryException {
-    return new SearchRequest();
-  }
+    query = query.toLowerCase();
 
-  
-  /**
-   * Possible Brand Names will be extracted from the Query and saved brands List.
-   *
-   * @param request The Request Object
-   * @return the updated Request Object
-   * @throws EmptySearchQueryException Will be thrown if the Query is
-   *                                   Empty(needs to be implemented)
-   */
-  protected SearchRequest checkForBrands(SearchRequest request) {
-    request.setBrands(
-        request.getQuery().stream().filter(queryElement -> knownBrands.contains(queryElement))
-            .collect(
-                Collectors.toSet()));
-    request.getQuery().removeAll(request.getBrands());
+    // Stores all brands found in the query
+    Set<String> brands = new HashSet<>();
+
+    // Iterate over all brands, starting from the longest
+    for (String brand : knownBrands.stream()
+        .sorted((b1, b2) -> Integer.compare(b2.length(), b1.length()))
+        .collect(Collectors.toList())) {
+      // Matches all brands preceded ( ?> ) with the string start ( ^ ) or any whitespace ( \s )
+      // and trailed ( ?= ) by the string end ( $ ) or any whitespace ( \s )
+      String regex = "(?>^|\\s)(" + Pattern.quote(brand) + ")(?=\\s|$)";
+      Matcher matcher = Pattern.compile(regex).matcher(query);
+      // Check if the brand can be found
+      if (matcher.find()) {
+        // Add the brand
+        brands.add(brand);
+        // Remove the brand from the query
+        query = matcher.replaceAll(" ");
+      }
+    }
+
+    SearchRequest request = new SearchRequest();
+    request.setBrands(brands);
+    request.setCoordinates(coordinateDetails);
+    request.setResultLimit(searchResultLimit);
+    request.setQuery(
+        // Find all words (separated by any whitespace ( \s )) in query and remove empty words
+        Arrays.stream(query.split("\\s"))
+            .filter(temp -> !temp.isEmpty())
+            .collect(Collectors.toSet())
+    );
     return request;
   }
 
@@ -128,7 +157,7 @@ public class SearchService {
     Set<String> brands = request.getBrands();
     Set<Location> locations = request.getLocations();
     if (locations == null) {
-      locations = new HashSet<Location>();
+      locations = new HashSet<>();
     }
     
     for (String brand : brands) {
@@ -151,6 +180,25 @@ public class SearchService {
    * @return the updated Request Object
    */
   protected SearchRequest getByCoordinates(SearchRequest request) {
+    // Get Locations
+    CoordinateDetails coordinateDetails = request.getCoordinates();
+    List<Location> locations = locationService
+        .findByCoordinates(coordinateDetails.getLatitude(), coordinateDetails.getLongitude());
+    // Filter by brand
+    if (!knownBrands.isEmpty()) {
+      locations = locations.stream()
+          .filter(location -> {
+            for (String brand : knownBrands) {
+              if (location.getName().contains(brand)
+                  || location.getDetails().getBrand().equals(brand)) {
+                return true;
+              }
+            }
+            return false;
+          }).collect(Collectors.toList());
+    }
+    request.setLocations(new HashSet<>(locations));
+
     return request;
   }
 }

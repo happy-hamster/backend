@@ -23,19 +23,19 @@ public class Address {
   @Column(name = "ID", nullable = false)
   private Long id;
 
-  @Column(name = "COUNTRY")
+  @Column(name = "COUNTRY", length = 10)
   private String country;
 
-  @Column(name = "CITY")
+  @Column(name = "CITY", length = 60)
   private String city;
 
-  @Column(name = "POSTCODE")
+  @Column(name = "POSTCODE", length = 10)
   private String postcode;
 
-  @Column(name = "STREET")
+  @Column(name = "STREET", length = 75)
   private String street;
 
-  @Column(name = "HOUSENUMBER")
+  @Column(name = "HOUSENUMBER", length = 50)
   private String housenumber;
 
   /**

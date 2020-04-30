@@ -35,7 +35,7 @@ public class Occupancy {
   @Column(name = "TIMESTAMP")
   private ZonedDateTime timestamp;
 
-  @Column(name = "CLIENT_TYPE")
+  @Column(name = "CLIENT_TYPE", length = 10)
   private String clientType;
 
   /**

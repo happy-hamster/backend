@@ -65,7 +65,7 @@ class SearchMappingServiceTest extends HappyHamsterTest {
 
     final CoordinateDetails result =
         mockService.search(Collections.singleton("München"), new CoordinateDetails(1.0, 1.0));
-    assertEquals(new CoordinateDetails(3, 5), result);
+    assertEquals(new CoordinateDetails(3.0, 5.0), result);
   }
 
   @SneakyThrows
