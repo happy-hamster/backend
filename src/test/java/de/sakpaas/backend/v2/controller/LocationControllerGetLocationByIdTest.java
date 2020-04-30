@@ -15,7 +15,6 @@ import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.servlet.ResultMatcher;
 
 /**
  * Tests the endpoint <code>/v2/locations/{id}</code> if it conforms to the openAPI specification.
@@ -26,43 +25,37 @@ import org.springframework.test.web.servlet.ResultMatcher;
 class LocationControllerGetLocationByIdTest extends IntegrationTest {
 
   @Test
-  void getByIdMalformed() throws Exception {
-    mockMvc.perform(
-        get("/v2/locations/xxxx")
-            .header("Authorization", AUTHENTICATION_INVALID))
+  void getLocationByIdMalformed() throws Exception {
+    mockMvc.perform(get("/v2/locations/xxxx")
+        .header("Authorization", AUTHENTICATION_INVALID))
         .andExpect(status().isBadRequest());
 
-    mockMvc.perform(
-        get("/v2/locations/xxxx")
-            .header("Authorization", AUTHENTICATION_VALID))
+    mockMvc.perform(get("/v2/locations/xxxx")
+        .header("Authorization", AUTHENTICATION_VALID))
         .andExpect(status().isBadRequest());
 
-    mockMvc.perform(
-        get("/v2/locations/xxxx"))
+    mockMvc.perform(get("/v2/locations/xxxx"))
         // No Authentication
         .andExpect(status().isBadRequest());
   }
 
   @Test
-  void getByIdNotFound() throws Exception {
-    mockMvc.perform(
-        get("/v2/locations/1000")
-            .header("Authorization", AUTHENTICATION_INVALID))
+  void getLocationByIdNotFound() throws Exception {
+    mockMvc.perform(get("/v2/locations/1000")
+        .header("Authorization", AUTHENTICATION_INVALID))
         .andExpect(status().isUnauthorized());
 
-    mockMvc.perform(
-        get("/v2/locations/1000")
-            .header("Authorization", AUTHENTICATION_VALID))
+    mockMvc.perform(get("/v2/locations/1000")
+        .header("Authorization", AUTHENTICATION_VALID))
         .andExpect(status().isNotFound());
 
-    mockMvc.perform(
-        get("/v2/locations/1000"))
+    mockMvc.perform(get("/v2/locations/1000"))
         // No Authentication
         .andExpect(status().isNotFound());
   }
 
   @Test
-  void getByIdFound() throws Exception {
+  void getLocationByIdFound() throws Exception {
     // Setup test data
     Location location = new Location(1000L, "Edeka Eima", 42.0, 7.0,
         new LocationDetails("supermarket", "Mo-Fr 10-22", "Edeka"),
@@ -71,22 +64,19 @@ class LocationControllerGetLocationByIdTest extends IntegrationTest {
     super.insert(location);
 
     // Test all authentication possibilities
-    mockMvc.perform(
-        get("/v2/locations/1000")
-            .header("Authorization", AUTHENTICATION_INVALID))
+    mockMvc.perform(get("/v2/locations/1000")
+        .header("Authorization", AUTHENTICATION_INVALID))
         .andExpect(status().isUnauthorized());
 
-    mockMvc.perform(
-        get("/v2/locations/1000")
-            .header("Authorization", AUTHENTICATION_VALID))
+    mockMvc.perform(get("/v2/locations/1000")
+        .header("Authorization", AUTHENTICATION_VALID))
         .andExpect(super.expectSingleLocation(location))
         .andExpect(jsonPath("$.favorite").value(false))
         .andExpect(jsonPath("$.occupancy.value").doesNotExist())
         .andExpect(jsonPath("$.occupancy.count").value(0))
         .andExpect(jsonPath("$.occupancy.latestReport").doesNotExist());
 
-    mockMvc.perform(
-        get("/v2/locations/1000"))
+    mockMvc.perform(get("/v2/locations/1000"))
         // No Authentication
         .andExpect(super.expectSingleLocation(location))
         .andExpect(jsonPath("$.favorite").doesNotExist())
@@ -96,7 +86,7 @@ class LocationControllerGetLocationByIdTest extends IntegrationTest {
   }
 
   @Test
-  void getByIdFoundFavorite() throws Exception {
+  void getLocationByIdFoundFavorite() throws Exception {
     // Setup test data
     Location location = new Location(1000L, "Edeka Eima", 42.0, 7.0,
         new LocationDetails("supermarket", "Mo-Fr 10-22", "Edeka"),
@@ -107,22 +97,19 @@ class LocationControllerGetLocationByIdTest extends IntegrationTest {
     super.insert(favorite);
 
     // Test all authentication possibilities
-    mockMvc.perform(
-        get("/v2/locations/1000")
-            .header("Authorization", AUTHENTICATION_INVALID))
+    mockMvc.perform(get("/v2/locations/1000")
+        .header("Authorization", AUTHENTICATION_INVALID))
         .andExpect(status().isUnauthorized());
 
-    mockMvc.perform(
-        get("/v2/locations/1000")
-            .header("Authorization", AUTHENTICATION_VALID))
+    mockMvc.perform(get("/v2/locations/1000")
+        .header("Authorization", AUTHENTICATION_VALID))
         .andExpect(super.expectSingleLocation(location))
         .andExpect(jsonPath("$.favorite").value(true))
         .andExpect(jsonPath("$.occupancy.value").doesNotExist())
         .andExpect(jsonPath("$.occupancy.count").value(0))
         .andExpect(jsonPath("$.occupancy.latestReport").doesNotExist());
 
-    mockMvc.perform(
-        get("/v2/locations/1000"))
+    mockMvc.perform(get("/v2/locations/1000"))
         // No Authentication
         .andExpect(super.expectSingleLocation(location))
         .andExpect(jsonPath("$.favorite").doesNotExist())
@@ -132,7 +119,7 @@ class LocationControllerGetLocationByIdTest extends IntegrationTest {
   }
 
   @Test
-  void getByIdFoundOccupancy() throws Exception {
+  void getLocationByIdFoundOccupancy() throws Exception {
     // Setup test data
     Location location = new Location(1000L, "Edeka Eima", 42.0, 7.0,
         new LocationDetails("supermarket", "Mo-Fr 10-22", "Edeka"),
@@ -143,22 +130,19 @@ class LocationControllerGetLocationByIdTest extends IntegrationTest {
     super.insert(occupancy);
 
     // Test all authentication possibilities
-    mockMvc.perform(
-        get("/v2/locations/1000")
-            .header("Authorization", AUTHENTICATION_INVALID))
+    mockMvc.perform(get("/v2/locations/1000")
+        .header("Authorization", AUTHENTICATION_INVALID))
         .andExpect(status().isUnauthorized());
 
-    mockMvc.perform(
-        get("/v2/locations/1000")
-            .header("Authorization", AUTHENTICATION_VALID))
+    mockMvc.perform(get("/v2/locations/1000")
+        .header("Authorization", AUTHENTICATION_VALID))
         .andExpect(super.expectSingleLocation(location))
         .andExpect(jsonPath("$.favorite").value(false))
         .andExpect(jsonPath("$.occupancy.value").value(occupancy.getOccupancy()))
         .andExpect(jsonPath("$.occupancy.count").value(1))
         .andExpect(jsonPath("$.occupancy.latestReport").isString());
 
-    mockMvc.perform(
-        get("/v2/locations/1000"))
+    mockMvc.perform(get("/v2/locations/1000"))
         // No Authentication
         .andExpect(super.expectSingleLocation(location))
         .andExpect(jsonPath("$.favorite").doesNotExist())
