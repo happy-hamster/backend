@@ -5,7 +5,6 @@ import de.sakpaas.backend.model.CoordinateDetails;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.SearchRequest;
 import de.sakpaas.backend.model.SearchResultObject;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -13,10 +12,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import javax.validation.constraints.Null;
 import lombok.Setter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -24,11 +20,10 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class SearchService {
-  private static final Logger LOGGER = LoggerFactory.getLogger(SearchService.class);
   @Setter
   protected static Set<String> knownBrands;
-  @Setter
-  private LocationService locationService;
+  private final LocationService locationService;
+  private final SearchMappingService searchMappingService;
   private final LocationDetailsRepository locationDetailsRepository;
   @Value("${app.search-result-limit}")
   private Integer searchResultLimit;
@@ -39,12 +34,15 @@ public class SearchService {
    *
    * @param locationService           The service for getting locations based on specific
    *                                  coordinates
+   * @param searchMappingService      The SearchMapping Service
    * @param locationDetailsRepository The Location Details Repository
    */
   @Autowired
   public SearchService(LocationService locationService,
+                       SearchMappingService searchMappingService,
                        LocationDetailsRepository locationDetailsRepository) {
     this.locationService = locationService;
+    this.searchMappingService = searchMappingService;
     this.locationDetailsRepository = locationDetailsRepository;
     updateBrands();
   }
@@ -134,14 +132,20 @@ public class SearchService {
    * @return the updated Request Object
    */
   protected SearchRequest getCoordinatesFromNominatim(SearchRequest request) {
-    CoordinateDetails coordinateDetails = new CoordinateDetails(0.0, 0.0);
-    try {
-      coordinateDetails = searchMappingService.search(request.getQuery(), request.getCoordinates());
-    } catch (IndexOutOfBoundsException e) {
+    CoordinateDetails coordinateDetails;
+
+    if (request.getCoordinates().getLongitude() != null) {
+      try {
+        coordinateDetails =
+            searchMappingService.search(request.getQuery(), request.getCoordinates());
+      } catch (IndexOutOfBoundsException e) {
+        coordinateDetails = searchMappingService.search(request.getQuery());
+      }
+    } else {
       coordinateDetails = searchMappingService.search(request.getQuery());
-    } finally {
-      request.setCoordinates(coordinateDetails);
     }
+    request.setCoordinates(coordinateDetails);
+
     return request;
   }
 
@@ -159,7 +163,7 @@ public class SearchService {
     if (locations == null) {
       locations = new HashSet<>();
     }
-    
+
     for (String brand : brands) {
       if (!brand.equals("")) {
         brand = "%" + brand + "%";
