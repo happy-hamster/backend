@@ -101,8 +101,6 @@ public class IntegrationTest extends HappyHamsterTest {
 
   protected ResultMatcher expectErrorObject() {
     return result -> {
-      System.out.println(result);
-      System.out.println(result.getResponse().getContentAsString());
       ResultMatcher[] matcher = new ResultMatcher[] {
           jsonPath("$.timestamp").exists(),
           jsonPath("$.status").isNumber(),
