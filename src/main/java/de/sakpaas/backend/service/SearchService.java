@@ -36,7 +36,6 @@ public class SearchService {
    *
    * @param locationService           The service for getting locations based on specific
    *                                  coordinates
-   * @param searchMappingService      The service for actually making the REST request
    * @param locationDetailsRepository The Location Details Repository
    */
   @Autowired
