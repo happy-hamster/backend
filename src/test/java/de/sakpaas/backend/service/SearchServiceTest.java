@@ -3,7 +3,6 @@ package de.sakpaas.backend.service;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import de.sakpaas.backend.HappyHamsterTest;
-import de.sakpaas.backend.model.Address;
 import de.sakpaas.backend.model.CoordinateDetails;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.LocationDetails;
@@ -12,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -35,7 +35,7 @@ class SearchServiceTest extends HappyHamsterTest {
     return searchRequest;
   }
 
-  private Set<String> getBrandList() {
+  private Set<String> getBrandSet() {
     Set<String> brands = new HashSet<>();
     brands.add("lidl");
     brands.add("aldi");
