@@ -89,12 +89,12 @@ public class SearchService {
     request.setCoordinates(coordinateDetails);
     List<String> brands = new ArrayList<>(knownBrands);
 
+    //Brand Names are Cut out if Query String and Copied into Brands Set
     for (int n = 0; n < brands.size(); n++) {
       String temp = lowerquery.toString();
       if (temp.contains(brands.get(n))) {
         int beginn = lowerquery.indexOf(brands.get(n));
         int end = lowerquery.indexOf(brands.get(n)) + brands.get(n).length();
-
         if (checkIfValidWord(beginn, end, lowerquery)) {
           lowerquery.replace(beginn, end, "");
           request.getBrands().add(brands.get(n));
@@ -103,74 +103,13 @@ public class SearchService {
       }
     }
 
+    // Einfügen der übrigen Wörter aus der Query in das Query Set
     String resultQuery = lowerquery.toString();
     resultQuery.trim();
-
     request.setQuery(new HashSet<>(Arrays.asList(resultQuery.split(" "))).stream()
-        .filter(temp -> (!temp.equals(""))).collect(
-            Collectors.toSet()));
+        .filter(temp -> (!temp.equals(""))) // Deletion of empty fields(If Space is last char)
+        .collect(Collectors.toSet()));
 
-
-
-    /*SearchRequest searchRequest = new SearchRequest();
-    HashSet<String> giveQuery = new HashSet<String>();
-    HashSet<String> giveBrands = new HashSet<String>();
-
-    String lowerquery = query.toLowerCase();
-    ArrayList<String> brandsArray = new ArrayList<String>();
-    for (String brand : knownBrands) {
-      brandsArray.add(brand);
-    }
-    Collections.sort(brandsArray, Collections.reverseOrder());
-
-    for (String brand : brandsArray) {
-      if (lowerquery.contains(brand)) {
-        lowerquery = lowerquery.replace(brand, "");
-        giveBrands.add(brand);
-      }
-    }
-
-    // char space = ' ';
-    // for (String s : querysplit) {
-    String specialstuff = "!`\"§$%&/()=?#'}][{³²<>|,.;:-_~+*";
-    //for (int charindex = 63; charindex < 91; charindex++) { //big letters
-    for (int i = 0; i < specialstuff.length(); i++) { //löscht sonderzeichen
-      char special = specialstuff.charAt(i);
-
-      //char c = (char) charindex;
-      //if (c != space) {
-      if (lowerquery.contains("" + special)) {
-        lowerquery = lowerquery.replace(special + "", "");
-      }
-    }
-
-
-    /**
-     * for (int charindex = 97; charindex < 123; charindex++) { //small letters
-     * char c = (char) charindex;
-     * if (c != space) {
-     * if (!lowerquery.contains("" + c)) {
-     * lowerquery = lowerquery.replace(c + "", "");
-     * }
-     * }
-     * }
-     */
-    /*
-    String[] querysplit = lowerquery.split(" ");
-
-    for (String s : querysplit) { //recognizes all strings not in giveBrands an add to give
-      if (!s.equals("")) {
-        if (!giveBrands.contains(s)) {
-          giveQuery.add(s);
-        }
-      }
-    }
-
-    searchRequest.setBrands(giveBrands);
-    searchRequest.setQuery(giveQuery);
-    searchRequest.setCoordinates(coordinateDetails);
-    searchRequest.setResultLimit(searchResultLimit);
-  */
     return request;
   }
 
