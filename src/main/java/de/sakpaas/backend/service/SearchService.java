@@ -26,7 +26,6 @@ public class SearchService {
   @Setter
   private static Set<String> knownBrands;
   private final LocationService locationService;
-  private final SearchMappingService searchMappingService;
   private final LocationDetailsRepository locationDetailsRepository;
   @Value("${app.search-result-limit}")
   private Integer searchResultLimit;
@@ -42,10 +41,8 @@ public class SearchService {
    */
   @Autowired
   public SearchService(LocationService locationService,
-                       SearchMappingService searchMappingService,
                        LocationDetailsRepository locationDetailsRepository) {
     this.locationService = locationService;
-    this.searchMappingService = searchMappingService;
     this.locationDetailsRepository = locationDetailsRepository;
     updateBrands();
   }
@@ -108,6 +105,7 @@ public class SearchService {
     SearchRequest request = new SearchRequest();
     request.setBrands(brands);
     request.setCoordinates(coordinateDetails);
+    request.setResultLimit(searchResultLimit);
     request.setQuery(
         // Find all words (separated by any whitespace ( \s )) in query and remove empty words
         Arrays.stream(query.split("\\s"))
