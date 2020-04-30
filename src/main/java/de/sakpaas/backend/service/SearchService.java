@@ -105,9 +105,9 @@ public class SearchService {
 
     // Einfügen der übrigen Wörter aus der Query in das Query Set
     String resultQuery = lowerquery.toString();
-    resultQuery.trim();
-    request.setQuery(new HashSet<>(Arrays.asList(resultQuery.split(" "))).stream()
-        .filter(temp -> (!temp.equals(""))) // Deletion of empty fields(If Space is last char)
+    resultQuery = resultQuery.trim();
+    request.setQuery(Arrays.stream(resultQuery.split(" "))
+        .filter(temp -> (!temp.isEmpty())) // Deletion of empty fields(If Space is last char)
         .collect(Collectors.toSet()));
 
     return request;
