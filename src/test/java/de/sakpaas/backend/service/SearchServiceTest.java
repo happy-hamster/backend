@@ -46,7 +46,7 @@ class SearchServiceTest extends HappyHamsterTest {
   @Test
   public void testFilterUnwantedLocationsByName() {
     final Set<String> knownBrands = Collections.singleton("1");
-    final CoordinateDetails coordinateDetails = new CoordinateDetails(1, 1);
+    final CoordinateDetails coordinateDetails = new CoordinateDetails(1.0, 1.0);
     final SearchRequest searchRequest = new SearchRequest();
     searchRequest.setCoordinates(coordinateDetails);
     SearchService.setKnownBrands(knownBrands);
@@ -67,7 +67,7 @@ class SearchServiceTest extends HappyHamsterTest {
   @Test
   public void testDoubleInsertion() {
     final Set<String> knownBrands = Collections.singleton("1");
-    final CoordinateDetails coordinateDetails = new CoordinateDetails(1, 1);
+    final CoordinateDetails coordinateDetails = new CoordinateDetails(1.0, 1.0);
     final SearchRequest searchRequest = new SearchRequest();
     searchRequest.setCoordinates(coordinateDetails);
     SearchService.setKnownBrands(knownBrands);
@@ -89,7 +89,7 @@ class SearchServiceTest extends HappyHamsterTest {
   @Test
   public void testFilterUnwantedLocationsByBrand() {
     final Set<String> knownBrands = Collections.singleton("wanted Brand");
-    final CoordinateDetails coordinateDetails = new CoordinateDetails(1, 1);
+    final CoordinateDetails coordinateDetails = new CoordinateDetails(1.0, 1.0);
     final SearchRequest searchRequest = new SearchRequest();
     searchRequest.setCoordinates(coordinateDetails);
     SearchService.setKnownBrands(knownBrands);
@@ -116,7 +116,7 @@ class SearchServiceTest extends HappyHamsterTest {
 
   @Test
   public void testEmptyKnownBrands() {
-    final CoordinateDetails coordinateDetails = new CoordinateDetails(1, 1);
+    final CoordinateDetails coordinateDetails = new CoordinateDetails(1.0, 1.0);
     final SearchRequest searchRequest = new SearchRequest();
     searchRequest.setCoordinates(coordinateDetails);
     SearchService.setKnownBrands(new HashSet<>());
