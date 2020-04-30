@@ -6,6 +6,7 @@ import static org.springframework.http.HttpStatus.OK;
 
 import de.sakpaas.backend.BackendApplication;
 import de.sakpaas.backend.dto.UserInfoDto;
+import de.sakpaas.backend.exception.IncompleteCoordinateException;
 import de.sakpaas.backend.exception.InvalidLocationException;
 import de.sakpaas.backend.model.CoordinateDetails;
 import de.sakpaas.backend.model.Location;
@@ -229,7 +230,7 @@ public class LocationController {
 
     // Check if both of lat and long are set or not set
     if ((latitude == null) != (longitude == null)) {
-      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+      throw new IncompleteCoordinateException();
     }
 
 
