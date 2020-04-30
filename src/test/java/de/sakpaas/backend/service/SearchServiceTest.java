@@ -3,32 +3,31 @@ package de.sakpaas.backend.service;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import de.sakpaas.backend.HappyHamsterTest;
-import de.sakpaas.backend.model.Address;
 import de.sakpaas.backend.model.CoordinateDetails;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.LocationDetails;
 import de.sakpaas.backend.model.SearchRequest;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 @SpringBootTest
 class SearchServiceTest extends HappyHamsterTest {
 
+  @MockBean
+  LocationService locationService;
+
   @Autowired
   private SearchService searchService;
 
-  @Autowired
-  private LocationRepository locationRepository;
-
-  @Autowired
-  private LocationDetailsRepository locationDetailsRepository;
-
-  @Autowired
-  private AddressRepository addressRepository;
 
   private SearchRequest createSearchRequest(String query) {
     SearchRequest searchRequest = new SearchRequest();
@@ -43,6 +42,93 @@ class SearchServiceTest extends HappyHamsterTest {
     brands.add("edeka");
     brands.add("deutsche post");
     return brands;
+  }
+
+  @Test
+  public void testFilterUnwantedLocationsByName() {
+    final Set<String> knownBrands = Collections.singleton("1");
+    final CoordinateDetails coordinateDetails = new CoordinateDetails(1.0, 1.0);
+    final SearchRequest searchRequest = new SearchRequest();
+    searchRequest.setCoordinates(coordinateDetails);
+    SearchService.setKnownBrands(knownBrands);
+    final LocationDetails locationDetails = new LocationDetails();
+    locationDetails.setBrand("");
+    final Location location = new Location();
+    location.setLatitude(1.0);
+    location.setLongitude(1.0);
+    location.setName("2");
+    location.setDetails(locationDetails);
+    final List<Location> locationList = new ArrayList<>(Collections.singletonList(location));
+    // mock LocationService
+    Mockito.when(locationService.findByCoordinates(1.0, 1.0)).thenReturn(locationList);
+    final SearchRequest searchRequest1 = searchService.getByCoordinates(searchRequest);
+    assertThat(searchRequest1.getLocations()).isEqualTo(new HashSet<>());
+  }
+
+  @Test
+  public void testDoubleInsertion() {
+    final Set<String> knownBrands = Collections.singleton("1");
+    final CoordinateDetails coordinateDetails = new CoordinateDetails(1.0, 1.0);
+    final SearchRequest searchRequest = new SearchRequest();
+    searchRequest.setCoordinates(coordinateDetails);
+    SearchService.setKnownBrands(knownBrands);
+    final LocationDetails locationDetails = new LocationDetails();
+    locationDetails.setBrand("1");
+    final Location location = new Location();
+    location.setLatitude(1.0);
+    location.setLongitude(1.0);
+    location.setName("1");
+    location.setDetails(locationDetails);
+    final List<Location> locationList = new ArrayList<>(Collections.singletonList(location));
+    // mock LocationService
+    Mockito.when(locationService.findByCoordinates(1.0, 1.0)).thenReturn(locationList);
+    final SearchRequest searchRequest1 = searchService.getByCoordinates(searchRequest);
+    assertThat(searchRequest1.getLocations().toString())
+        .isEqualTo(locationList.toString());
+  }
+
+  @Test
+  public void testFilterUnwantedLocationsByBrand() {
+    final Set<String> knownBrands = Collections.singleton("wanted Brand");
+    final CoordinateDetails coordinateDetails = new CoordinateDetails(1.0, 1.0);
+    final SearchRequest searchRequest = new SearchRequest();
+    searchRequest.setCoordinates(coordinateDetails);
+    SearchService.setKnownBrands(knownBrands);
+    final LocationDetails locationDetails = new LocationDetails();
+    locationDetails.setBrand("unwanted Brand");
+    final LocationDetails locationDetails1 = new LocationDetails();
+    locationDetails1.setBrand("wanted Brand");
+    final Location location = new Location();
+    location.setLatitude(1.0);
+    location.setLongitude(1.0);
+    location.setName("unwanted");
+    location.setDetails(locationDetails);
+    final Location location1 = new Location();
+    location1.setLatitude(1.0);
+    location1.setLongitude(1.0);
+    location1.setName("wanted");
+    location1.setDetails(locationDetails1);
+    final List<Location> locationList = new ArrayList<>(Arrays.asList(location, location1));
+    // mock LocationService
+    Mockito.when(locationService.findByCoordinates(1.0, 1.0)).thenReturn(locationList);
+    final SearchRequest searchRequest1 = searchService.getByCoordinates(searchRequest);
+    assertThat(searchRequest1.getLocations()).isEqualTo(Collections.singleton(location1));
+  }
+
+  @Test
+  public void testEmptyKnownBrands() {
+    final CoordinateDetails coordinateDetails = new CoordinateDetails(1.0, 1.0);
+    final SearchRequest searchRequest = new SearchRequest();
+    searchRequest.setCoordinates(coordinateDetails);
+    SearchService.setKnownBrands(new HashSet<>());
+    final Location location = new Location();
+    location.setLatitude(1.0);
+    location.setLongitude(1.0);
+    searchRequest.setLocations(Collections.singleton(location));
+    // mock LocationService
+    Mockito.when(locationService.findByCoordinates(1.0, 1.0)).thenReturn(new ArrayList<>());
+    final SearchRequest searchRequest1 = searchService.getByCoordinates(searchRequest);
+    assertThat(searchRequest1.getLocations()).isEqualTo(new HashSet<>());
   }
 
   @Test
@@ -151,72 +237,5 @@ class SearchServiceTest extends HappyHamsterTest {
     assertThat(resultRequest.getQuery().size()).isEqualTo(0);
     assertThat(resultRequest.getBrands().size()).isEqualTo(1);
     assertThat(resultRequest.getBrands().contains("[: bioladen"));
-  }
-
-  /**
-   * Integration Test (dbBrandSearch in {@link SearchService})
-   */
-  @Test
-  void checkForBrandsInLocationNameAndLocationDetails() {
-    locationDetailsRepository.deleteAll();
-    locationRepository.deleteAll();
-    addressRepository.deleteAll();
-
-
-    LocationDetails locd1 = new LocationDetails("supermarket", "irrelevant", "Shop");
-    LocationDetails locd2 = new LocationDetails("supermarket", "irrelevant", "Aldi");
-    LocationDetails locd3 = new LocationDetails("supermarket", "irrelevant", "Lidl");
-    LocationDetails locd4 = new LocationDetails("supermarket", "irrelevant", "Lidl");
-    locationDetailsRepository.save(locd1);
-    locationDetailsRepository.save(locd2);
-    locationDetailsRepository.save(locd3);
-    locationDetailsRepository.save(locd4);
-
-    Address address1 = new Address("A", "B", "C", "D", "E");
-    Address address2 = new Address("A", "B", "C", "D", "E");
-    Address address3 = new Address("A", "B", "C", "D", "E");
-    Address address4 = new Address("A", "B", "C", "D", "E");
-    addressRepository.save(address1);
-    addressRepository.save(address2);
-    addressRepository.save(address3);
-    addressRepository.save(address4);
-
-    Location loc1 = new Location(1L, "Test Lidl", 4.0, 4.0, locd1, address1);
-    Location loc2 = new Location(2L, "Test Aldi", 4.0, 4.0, locd2, address2);
-    Location loc3 = new Location(3L, "Test Supermarket", 4.0, 4.0, locd3, address3);
-    Location loc4 = new Location(4L, "Test Lidl", 4.0, 4.0, locd4, address4);
-    locationRepository.save(loc1);
-    locationRepository.save(loc2);
-    locationRepository.save(loc3);
-    locationRepository.save(loc4);
-
-    SearchRequest searchRequest = createSearchRequest("Lidl");
-    Set<String> brands = new HashSet<>();
-    brands.add("lidl");
-    searchRequest.setBrands(brands);
-    searchRequest.setResultLimit(2);
-
-
-    Set<Location> locations = searchService.dbBrandSearch(searchRequest).getLocations();
-    assertThat(locations.size()).isEqualTo(2);
-
-    searchRequest.getLocations().clear();
-    searchRequest.setResultLimit(3);
-
-    Set<Location> locations2 = searchService.dbBrandSearch(searchRequest).getLocations();
-    assertThat(locations2.size()).isEqualTo(3);
-
-    searchRequest.getLocations().clear();
-    brands.clear();
-    brands.add("");
-    searchRequest.setBrands(brands);
-
-    Set<Location> locations3 = searchService.dbBrandSearch(searchRequest).getLocations();
-    System.out.println(locations3.size());
-    assertThat(locations3.size()).isEqualTo(0);
-
-    locationRepository.deleteAll();
-    addressRepository.deleteAll();
-    locationDetailsRepository.deleteAll();
   }
 }

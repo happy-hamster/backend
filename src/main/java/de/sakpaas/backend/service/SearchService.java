@@ -8,6 +8,7 @@ import de.sakpaas.backend.model.SearchResultObject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -24,8 +25,9 @@ import org.springframework.stereotype.Service;
 public class SearchService {
   private static final Logger LOGGER = LoggerFactory.getLogger(SearchService.class);
   @Setter
-  private static Set<String> knownBrands;
-  private final LocationService locationService;
+  protected static Set<String> knownBrands;
+  @Setter
+  private LocationService locationService;
   private final LocationDetailsRepository locationDetailsRepository;
   @Value("${app.search-result-limit}")
   private Integer searchResultLimit;
@@ -75,8 +77,6 @@ public class SearchService {
    * @param coordinateDetails The SearchCoordinates
    * @return A new SearchRequest
    */
-
-
   protected SearchRequest createRequest(String query, CoordinateDetails coordinateDetails)
       throws EmptySearchQueryException {
     query = query.toLowerCase();
@@ -114,6 +114,7 @@ public class SearchService {
     return request;
   }
 
+
   /**
    * Creates a Nominatim Request and executes it. It updates the Coordinates of the Request.
    *
@@ -138,7 +139,7 @@ public class SearchService {
     if (locations == null) {
       locations = new HashSet<>();
     }
-
+    
     for (String brand : brands) {
       if (!brand.equals("")) {
         brand = "%" + brand + "%";
@@ -159,6 +160,25 @@ public class SearchService {
    * @return the updated Request Object
    */
   protected SearchRequest getByCoordinates(SearchRequest request) {
+    // Get Locations
+    CoordinateDetails coordinateDetails = request.getCoordinates();
+    List<Location> locations = locationService
+        .findByCoordinates(coordinateDetails.getLatitude(), coordinateDetails.getLongitude());
+    // Filter by brand
+    if (!knownBrands.isEmpty()) {
+      locations = locations.stream()
+          .filter(location -> {
+            for (String brand : knownBrands) {
+              if (location.getName().contains(brand)
+                  || location.getDetails().getBrand().equals(brand)) {
+                return true;
+              }
+            }
+            return false;
+          }).collect(Collectors.toList());
+    }
+    request.setLocations(new HashSet<>(locations));
+
     return request;
   }
 }
