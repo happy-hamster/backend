@@ -1,5 +1,6 @@
 package de.sakpaas.backend;
 
+import static org.hamcrest.Matchers.anything;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import de.sakpaas.backend.model.Favorite;
@@ -11,8 +12,12 @@ import de.sakpaas.backend.service.LocationDetailsRepository;
 import de.sakpaas.backend.service.LocationRepository;
 import de.sakpaas.backend.service.OccupancyRepository;
 import de.sakpaas.backend.service.UserService;
+import java.util.List;
 import java.util.UUID;
 import lombok.SneakyThrows;
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
+import net.minidev.json.JSONValue;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -124,13 +129,13 @@ public class IntegrationTest extends HappyHamsterTest {
    * @param location the baseline {@link Location}
    * @return the {@link ResultMatcher}
    */
-  protected ResultMatcher expectSingleLocation(Location location) {
+  protected ResultMatcher expectLocation(Location location) {
     return result -> {
       ResultMatcher[] matcher = new ResultMatcher[] {
           jsonPath("$.id").value(location.getId()),
           jsonPath("$.name").value(location.getName()),
           // Favorite (unknown contents)
-          jsonPath("$.favorite").exists(),
+          jsonPath("$.favorite", anything()),
           // Coordinates
           jsonPath("$.coordinates.latitude").value(location.getLatitude()),
           jsonPath("$.coordinates.longitude").value(location.getLongitude()),
@@ -140,9 +145,9 @@ public class IntegrationTest extends HappyHamsterTest {
           jsonPath("$.details.openingHours")
               .value(location.getDetails().getOpeningHours()),
           // Occupancy (unknown contents)
-          jsonPath("$.occupancy.value").exists(),
-          jsonPath("$.occupancy.count").exists(),
-          jsonPath("$.occupancy.latestReport").exists(),
+          jsonPath("$.occupancy.value", anything()),
+          jsonPath("$.occupancy.count", anything()),
+          jsonPath("$.occupancy.latestReport", anything()),
           // Address
           jsonPath("$.address.country").value(location.getAddress().getCountry()),
           jsonPath("$.address.city").value(location.getAddress().getCity()),
@@ -154,6 +159,66 @@ public class IntegrationTest extends HappyHamsterTest {
       };
       for (ResultMatcher resultMatcher : matcher) {
         resultMatcher.match(result);
+      }
+    };
+  }
+
+
+  /**
+   * Checks if the given {@link org.springframework.test.web.servlet.MvcResult} has the form of a
+   * List of Locations as defined in the openAPI specification. The fields given in the locations
+   * parameter have to be correct.
+   *
+   * @param locations the baseline {@link List} of {@link Location}s
+   * @return the {@link ResultMatcher}
+   */
+  protected ResultMatcher expectLocationList(List<Location> locations) {
+    return result -> {
+      // Check if the result is an array
+      jsonPath("$").isArray().match(result);
+
+      // Find correct Location for array element
+      JSONArray array = (JSONArray) JSONValue.parse(result.getResponse().getContentAsString());
+      for (int i = 0; i < array.size(); i++) {
+        long id = ((JSONObject) array.get(i))
+            .getAsNumber("id")
+            .longValue();
+        Location location = locations.stream()
+            .filter(loc -> loc.getId() == id)
+            .findAny()
+            .orElseThrow(() -> new AssertionError("Unknown LocationId in result."));
+
+        // Define assertions
+        ResultMatcher[] matcher = new ResultMatcher[] {
+            jsonPath("$[" + i + "].id").value(location.getId()),
+            jsonPath("$[" + i + "].name").value(location.getName()),
+            // Favorite (unknown contents)
+            jsonPath("$[" + i + "].favorite", anything()),
+            // Coordinates
+            jsonPath("$[" + i + "].coordinates.latitude").value(location.getLatitude()),
+            jsonPath("$[" + i + "].coordinates.longitude").value(location.getLongitude()),
+            // Details
+            jsonPath("$[" + i + "].details.type").value(location.getDetails().getType()),
+            jsonPath("$[" + i + "].details.brand").value(location.getDetails().getBrand()),
+            jsonPath("$[" + i + "].details.openingHours")
+                .value(location.getDetails().getOpeningHours()),
+            // Occupancy (unknown contents)
+            jsonPath("$[" + i + "].occupancy.value", anything()),
+            jsonPath("$[" + i + "].occupancy.count", anything()),
+            jsonPath("$[" + i + "].occupancy.latestReport", anything()),
+            // Address
+            jsonPath("$[" + i + "].address.country").value(location.getAddress().getCountry()),
+            jsonPath("$[" + i + "].address.city").value(location.getAddress().getCity()),
+            jsonPath("$[" + i + "].address.postcode")
+                .value(location.getAddress().getPostcode()),
+            jsonPath("$[" + i + "].address.street").value(location.getAddress().getStreet()),
+            jsonPath("$[" + i + "].address.housenumber")
+                .value(location.getAddress().getHousenumber())
+        };
+        // Run assertions
+        for (ResultMatcher resultMatcher : matcher) {
+          resultMatcher.match(result);
+        }
       }
     };
   }

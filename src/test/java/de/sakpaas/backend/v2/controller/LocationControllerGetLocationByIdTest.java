@@ -70,7 +70,7 @@ class LocationControllerGetLocationByIdTest extends IntegrationTest {
 
     mockMvc.perform(get("/v2/locations/1000")
         .header("Authorization", AUTHENTICATION_VALID))
-        .andExpect(super.expectSingleLocation(location))
+        .andExpect(super.expectLocation(location))
         .andExpect(jsonPath("$.favorite").value(false))
         .andExpect(jsonPath("$.occupancy.value").doesNotExist())
         .andExpect(jsonPath("$.occupancy.count").value(0))
@@ -78,7 +78,7 @@ class LocationControllerGetLocationByIdTest extends IntegrationTest {
 
     mockMvc.perform(get("/v2/locations/1000"))
         // No Authentication
-        .andExpect(super.expectSingleLocation(location))
+        .andExpect(super.expectLocation(location))
         .andExpect(jsonPath("$.favorite").doesNotExist())
         .andExpect(jsonPath("$.occupancy.value").doesNotExist())
         .andExpect(jsonPath("$.occupancy.count").value(0))
@@ -103,7 +103,7 @@ class LocationControllerGetLocationByIdTest extends IntegrationTest {
 
     mockMvc.perform(get("/v2/locations/1000")
         .header("Authorization", AUTHENTICATION_VALID))
-        .andExpect(super.expectSingleLocation(location))
+        .andExpect(super.expectLocation(location))
         .andExpect(jsonPath("$.favorite").value(true))
         .andExpect(jsonPath("$.occupancy.value").doesNotExist())
         .andExpect(jsonPath("$.occupancy.count").value(0))
@@ -111,7 +111,7 @@ class LocationControllerGetLocationByIdTest extends IntegrationTest {
 
     mockMvc.perform(get("/v2/locations/1000"))
         // No Authentication
-        .andExpect(super.expectSingleLocation(location))
+        .andExpect(super.expectLocation(location))
         .andExpect(jsonPath("$.favorite").doesNotExist())
         .andExpect(jsonPath("$.occupancy.value").doesNotExist())
         .andExpect(jsonPath("$.occupancy.count").value(0))
@@ -136,7 +136,7 @@ class LocationControllerGetLocationByIdTest extends IntegrationTest {
 
     mockMvc.perform(get("/v2/locations/1000")
         .header("Authorization", AUTHENTICATION_VALID))
-        .andExpect(super.expectSingleLocation(location))
+        .andExpect(super.expectLocation(location))
         .andExpect(jsonPath("$.favorite").value(false))
         .andExpect(jsonPath("$.occupancy.value").value(occupancy.getOccupancy()))
         .andExpect(jsonPath("$.occupancy.count").value(1))
@@ -144,7 +144,7 @@ class LocationControllerGetLocationByIdTest extends IntegrationTest {
 
     mockMvc.perform(get("/v2/locations/1000"))
         // No Authentication
-        .andExpect(super.expectSingleLocation(location))
+        .andExpect(super.expectLocation(location))
         .andExpect(jsonPath("$.favorite").doesNotExist())
         .andExpect(jsonPath("$.occupancy.value").value(occupancy.getOccupancy()))
         .andExpect(jsonPath("$.occupancy.count").value(1))
