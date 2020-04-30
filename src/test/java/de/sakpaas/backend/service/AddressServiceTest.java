@@ -23,7 +23,7 @@ class AddressServiceTest extends HappyHamsterTest {
     addressRepository.deleteAll();
 
     Address address =
-        new Address("testCountry", "testPostcode", "123456", "testStreet", "testNumber");
+        new Address("country", "testPostcode", "123456", "testStreet", "testNumber");
     Address savedAddress = addressRepository.save(address);
 
     assertThat(addressRepository.findById(savedAddress.getId()).isPresent()).isTrue();
