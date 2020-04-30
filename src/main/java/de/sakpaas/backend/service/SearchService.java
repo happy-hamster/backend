@@ -13,6 +13,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.Setter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class SearchService {
+  private static final Logger LOGGER = LoggerFactory.getLogger(SearchService.class);
   @Setter
   protected static Set<String> knownBrands;
   private final LocationService locationService;
@@ -193,9 +196,15 @@ public class SearchService {
       locations = locations.stream()
           .filter(location -> {
             for (String brand : knownBrands) {
-              if (location.getName().contains(brand)
-                  || location.getDetails().getBrand().equals(brand)) {
-                return true;
+              LOGGER.info("Brand: " + brand + ", location.name: " + location.getName() +
+                  ", location.brand: " + location.getDetails().getBrand());
+              try {
+                if (location.getName().contains(brand)
+                    || location.getDetails().getBrand().equals(brand)) {
+                  return true;
+                }
+              } catch (NullPointerException e) {
+                return false;
               }
             }
             return false;
