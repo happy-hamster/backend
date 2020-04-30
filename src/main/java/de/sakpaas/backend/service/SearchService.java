@@ -196,8 +196,6 @@ public class SearchService {
       locations = locations.stream()
           .filter(location -> {
             for (String brand : knownBrands) {
-              LOGGER.info("Brand: " + brand + ", location.name: " + location.getName() +
-                  ", location.brand: " + location.getDetails().getBrand());
               try {
                 if (location.getName().contains(brand)
                     || location.getDetails().getBrand().equals(brand)) {
