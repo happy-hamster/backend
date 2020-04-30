@@ -6,6 +6,8 @@ import de.sakpaas.backend.HappyHamsterTest;
 import de.sakpaas.backend.model.Address;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.LocationDetails;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -36,11 +38,11 @@ class LocationRepositoryTest extends HappyHamsterTest {
 
 
     Address address =
-        new Address("testCountry", "testPostcode", "123456", "testStreet", "testNumber");
+        new Address("tc", "tp", "123456", "ts", "tn");
     Address savedAddress = addressRepository.save(address);
 
     LocationDetails locationDetails =
-        new LocationDetails("testType", "testOpeningHours", "testBrand");
+        new LocationDetails("tt", "toh", "tb");
     LocationDetails savedLocationDetails = locationDetailsRepository.save(locationDetails);
 
     Location location = new Location(1L, "LIDL", 41.0D, 8.0D, savedLocationDetails, savedAddress);
@@ -55,4 +57,46 @@ class LocationRepositoryTest extends HappyHamsterTest {
 
   }
 
+  @Test
+  void findByLatitudeBetweenAndLongitudeBetweenAndDetails_TypeIn() {
+    locationRepository.deleteAll();
+    addressRepository.deleteAll();
+    locationDetailsRepository.deleteAll();
+
+    Address address =
+        new Address("tc", "tp", "123456", "ts", "tn");
+    Address savedAddress = addressRepository.save(address);
+
+    LocationDetails locationDetails =
+        new LocationDetails("tt", "toh", "tb");
+    LocationDetails savedLocationDetails = locationDetailsRepository.save(locationDetails);
+
+    Location location = new Location(1L, "LIDL", 41.0D, 8.0D, savedLocationDetails, savedAddress);
+    locationRepository.save(location);
+
+
+    Address address1 =
+        new Address("tc", "tp", "123456", "ts", "tn");
+    Address savedAddress1 = addressRepository.save(address1);
+
+    LocationDetails locationDetails1 =
+        new LocationDetails("tt1", "toh", "tb");
+    LocationDetails savedLocationDetails1 = locationDetailsRepository.save(locationDetails1);
+
+    Location location1 =
+        new Location(2L, "LIDL", 40.0D, 7.0D, savedLocationDetails1, savedAddress1);
+    locationRepository.save(location1);
+
+    List<Location>
+        list = locationRepository
+        .findByLatitudeBetweenAndLongitudeBetweenAndDetails_TypeIn(30.D, 42.D, 6.D, 9.0,
+            Arrays.asList("tt1"));
+
+    assertThat(list.size()).isEqualTo(1);
+    assertThat(list.get(0)).isEqualTo(location1);
+
+    locationRepository.deleteAll();
+    addressRepository.deleteAll();
+    locationDetailsRepository.deleteAll();
+  }
 }

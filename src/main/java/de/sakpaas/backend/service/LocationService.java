@@ -54,13 +54,44 @@ public class LocationService {
    * @param lon Longitude of the Location.
    * @return List of max 100 Locations around the given coordinates.
    */
+
   public List<Location> findByCoordinates(Double lat, Double lon) {
     List<Location> list = locationRepository
         .findByLatitudeBetweenAndLongitudeBetween(lat - 0.1, lat + 0.1, lon - 0.1, lon + 0.1);
     return list.stream()
         .sorted(Comparator
             .comparingDouble(
-                l -> CoordinatesUtils.distanceInKm(l.getLatitude(), l.getLongitude(), lat, lon)))
+                l -> CoordinatesUtils
+                    .distanceInKm(l.getLatitude(), l.getLongitude(), lat, lon)))
+        .limit(100)
+        .collect(Collectors.toList());
+  }
+
+  /**
+   * Gets all Locations from a specific coordinate.
+   *
+   * @param lat  Latitude of the Location.
+   * @param lon  Longitude of the Location.
+   * @param type types of Locations
+   * @return List of max 100 Locations around the given coordinates.
+   */
+  public List<Location> findByCoordinates(Double lat, Double lon, List<String> type) {
+    List<Location> list;
+    if (type == null || type.isEmpty()) {
+      list = locationRepository
+          .findByLatitudeBetweenAndLongitudeBetween(lat - 0.1, lat + 0.1, lon - 0.1,
+              lon + 0.1);
+    } else {
+      list = locationRepository
+          .findByLatitudeBetweenAndLongitudeBetweenAndDetails_TypeIn(lat - 0.1, lat + 0.1,
+              lon - 0.1,
+              lon + 0.1, type);
+    }
+    return list.stream()
+        .sorted(Comparator
+            .comparingDouble(
+                l -> CoordinatesUtils
+                    .distanceInKm(l.getLatitude(), l.getLongitude(), lat, lon)))
         .limit(100)
         .collect(Collectors.toList());
   }
