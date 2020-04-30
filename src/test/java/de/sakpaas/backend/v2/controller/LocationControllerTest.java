@@ -31,7 +31,6 @@ import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-//@WebMvcTest(LocationController.class)
 @AutoConfigureMockMvc
 @EnableConfigurationProperties
 class LocationControllerTest extends HappyHamsterTest {
