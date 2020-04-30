@@ -115,4 +115,46 @@ public class IntegrationTest extends HappyHamsterTest {
       }
     };
   }
+
+  /**
+   * Checks if the given {@link org.springframework.test.web.servlet.MvcResult} has the form of a
+   * Location as defined in the openAPI specification. The fields given in the location parameter
+   * have to be correct.
+   *
+   * @param location the baseline {@link Location}
+   * @return the {@link ResultMatcher}
+   */
+  protected ResultMatcher expectSingleLocation(Location location) {
+    return result -> {
+      ResultMatcher[] matcher = new ResultMatcher[] {
+          jsonPath("$.id").value(location.getId()),
+          jsonPath("$.name").value(location.getName()),
+          // Favorite (unknown contents)
+          jsonPath("$.favorite").exists(),
+          // Coordinates
+          jsonPath("$.coordinates.latitude").value(location.getLatitude()),
+          jsonPath("$.coordinates.longitude").value(location.getLongitude()),
+          // Details
+          jsonPath("$.details.type").value(location.getDetails().getType()),
+          jsonPath("$.details.brand").value(location.getDetails().getBrand()),
+          jsonPath("$.details.openingHours")
+              .value(location.getDetails().getOpeningHours()),
+          // Occupancy (unknown contents)
+          jsonPath("$.occupancy.value").exists(),
+          jsonPath("$.occupancy.count").exists(),
+          jsonPath("$.occupancy.latestReport").exists(),
+          // Address
+          jsonPath("$.address.country").value(location.getAddress().getCountry()),
+          jsonPath("$.address.city").value(location.getAddress().getCity()),
+          jsonPath("$.address.postcode")
+              .value(location.getAddress().getPostcode()),
+          jsonPath("$.address.street").value(location.getAddress().getStreet()),
+          jsonPath("$.address.housenumber")
+              .value(location.getAddress().getHousenumber())
+      };
+      for (ResultMatcher resultMatcher : matcher) {
+        resultMatcher.match(result);
+      }
+    };
+  }
 }

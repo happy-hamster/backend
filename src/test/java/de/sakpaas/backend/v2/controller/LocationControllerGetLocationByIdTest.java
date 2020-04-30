@@ -17,10 +17,31 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.ResultMatcher;
 
+/**
+ * Tests the endpoint <code>/v2/locations/{id}</code> if it conforms to the openAPI specification.
+ */
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc
-class LocationControllerTest extends IntegrationTest {
+class LocationControllerGetLocationByIdTest extends IntegrationTest {
+
+  @Test
+  void getByIdMalformed() throws Exception {
+    mockMvc.perform(
+        get("/v2/locations/xxxx")
+            .header("Authorization", AUTHENTICATION_INVALID))
+        .andExpect(status().isBadRequest());
+
+    mockMvc.perform(
+        get("/v2/locations/xxxx")
+            .header("Authorization", AUTHENTICATION_VALID))
+        .andExpect(status().isBadRequest());
+
+    mockMvc.perform(
+        get("/v2/locations/xxxx"))
+        // No Authentication
+        .andExpect(status().isBadRequest());
+  }
 
   @Test
   void getByIdNotFound() throws Exception {
@@ -58,7 +79,7 @@ class LocationControllerTest extends IntegrationTest {
     mockMvc.perform(
         get("/v2/locations/1000")
             .header("Authorization", AUTHENTICATION_VALID))
-        .andExpect(expectSingleLocation(location))
+        .andExpect(super.expectSingleLocation(location))
         .andExpect(jsonPath("$.favorite").value(false))
         .andExpect(jsonPath("$.occupancy.value").doesNotExist())
         .andExpect(jsonPath("$.occupancy.count").value(0))
@@ -67,7 +88,7 @@ class LocationControllerTest extends IntegrationTest {
     mockMvc.perform(
         get("/v2/locations/1000"))
         // No Authentication
-        .andExpect(expectSingleLocation(location))
+        .andExpect(super.expectSingleLocation(location))
         .andExpect(jsonPath("$.favorite").doesNotExist())
         .andExpect(jsonPath("$.occupancy.value").doesNotExist())
         .andExpect(jsonPath("$.occupancy.count").value(0))
@@ -94,7 +115,7 @@ class LocationControllerTest extends IntegrationTest {
     mockMvc.perform(
         get("/v2/locations/1000")
             .header("Authorization", AUTHENTICATION_VALID))
-        .andExpect(expectSingleLocation(location))
+        .andExpect(super.expectSingleLocation(location))
         .andExpect(jsonPath("$.favorite").value(true))
         .andExpect(jsonPath("$.occupancy.value").doesNotExist())
         .andExpect(jsonPath("$.occupancy.count").value(0))
@@ -103,7 +124,7 @@ class LocationControllerTest extends IntegrationTest {
     mockMvc.perform(
         get("/v2/locations/1000"))
         // No Authentication
-        .andExpect(expectSingleLocation(location))
+        .andExpect(super.expectSingleLocation(location))
         .andExpect(jsonPath("$.favorite").doesNotExist())
         .andExpect(jsonPath("$.occupancy.value").doesNotExist())
         .andExpect(jsonPath("$.occupancy.count").value(0))
@@ -130,7 +151,7 @@ class LocationControllerTest extends IntegrationTest {
     mockMvc.perform(
         get("/v2/locations/1000")
             .header("Authorization", AUTHENTICATION_VALID))
-        .andExpect(expectSingleLocation(location))
+        .andExpect(super.expectSingleLocation(location))
         .andExpect(jsonPath("$.favorite").value(false))
         .andExpect(jsonPath("$.occupancy.value").value(occupancy.getOccupancy()))
         .andExpect(jsonPath("$.occupancy.count").value(1))
@@ -139,52 +160,10 @@ class LocationControllerTest extends IntegrationTest {
     mockMvc.perform(
         get("/v2/locations/1000"))
         // No Authentication
-        .andExpect(expectSingleLocation(location))
+        .andExpect(super.expectSingleLocation(location))
         .andExpect(jsonPath("$.favorite").doesNotExist())
         .andExpect(jsonPath("$.occupancy.value").value(occupancy.getOccupancy()))
         .andExpect(jsonPath("$.occupancy.count").value(1))
         .andExpect(jsonPath("$.occupancy.latestReport").isString());
-  }
-
-  /**
-   * Checks if the given {@link org.springframework.test.web.servlet.MvcResult} has the form of a
-   * Location as defined in the openAPI specification. The fields given in the location parameter
-   * have to be correct.
-   *
-   * @param location the baseline {@link Location}
-   * @return the {@link ResultMatcher}
-   */
-  protected ResultMatcher expectSingleLocation(Location location) {
-    return result -> {
-      ResultMatcher[] matcher = new ResultMatcher[] {
-          jsonPath("$.id").value(location.getId()),
-          jsonPath("$.name").value(location.getName()),
-          // Favorite (unknown contents)
-          jsonPath("$.favorite").exists(),
-          // Coordinates
-          jsonPath("$.coordinates.latitude").value(location.getLatitude()),
-          jsonPath("$.coordinates.longitude").value(location.getLongitude()),
-          // Details
-          jsonPath("$.details.type").value(location.getDetails().getType()),
-          jsonPath("$.details.brand").value(location.getDetails().getBrand()),
-          jsonPath("$.details.openingHours")
-              .value(location.getDetails().getOpeningHours()),
-          // Occupancy (unknown contents)
-          jsonPath("$.occupancy.value").exists(),
-          jsonPath("$.occupancy.count").exists(),
-          jsonPath("$.occupancy.latestReport").exists(),
-          // Address
-          jsonPath("$.address.country").value(location.getAddress().getCountry()),
-          jsonPath("$.address.city").value(location.getAddress().getCity()),
-          jsonPath("$.address.postcode")
-              .value(location.getAddress().getPostcode()),
-          jsonPath("$.address.street").value(location.getAddress().getStreet()),
-          jsonPath("$.address.housenumber")
-              .value(location.getAddress().getHousenumber())
-      };
-      for (ResultMatcher resultMatcher : matcher) {
-        resultMatcher.match(result);
-      }
-    };
   }
 }
