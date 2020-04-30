@@ -8,8 +8,9 @@ import de.sakpaas.backend.model.SearchResultObject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.Setter;
 import org.slf4j.Logger;
@@ -21,15 +22,14 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class SearchService {
-  @Value("${app.search-result-limit}")
-  private Integer searchResultLimit;
-
   private static final Logger LOGGER = LoggerFactory.getLogger(SearchService.class);
-  private final LocationService locationService;
-  private final SearchMappingService searchMappingService;
   @Setter
   private static Set<String> knownBrands;
+  private final LocationService locationService;
+  private final SearchMappingService searchMappingService;
   private final LocationDetailsRepository locationDetailsRepository;
+  @Value("${app.search-result-limit}")
+  private Integer searchResultLimit;
 
   /**
    * Searches for a specific key, calculates the central point as coordinates and returns
@@ -83,49 +83,38 @@ public class SearchService {
 
   protected SearchRequest createRequest(String query, CoordinateDetails coordinateDetails)
       throws EmptySearchQueryException {
-    StringBuilder lowerquery = new StringBuilder(query.toLowerCase());
-    SearchRequest request = new SearchRequest();
-    request.setBrands(new HashSet<>());
-    request.setCoordinates(coordinateDetails);
-    List<String> brands = new ArrayList<>(knownBrands);
+    query = query.toLowerCase();
 
-    //Brand Names are Cut out if Query String and Copied into Brands Set
-    for (int n = 0; n < brands.size(); n++) {
-      String temp = lowerquery.toString();
-      if (temp.contains(brands.get(n))) {
-        int beginn = lowerquery.indexOf(brands.get(n));
-        int end = lowerquery.indexOf(brands.get(n)) + brands.get(n).length();
-        if (checkIfValidWord(beginn, end, lowerquery)) {
-          lowerquery.replace(beginn, end, "");
-          request.getBrands().add(brands.get(n));
-          n--;
-        }
+    // Stores all brands found in the query
+    Set<String> brands = new HashSet<>();
+
+    // Iterate over all brands, starting from the longest
+    for (String brand : knownBrands.stream()
+        .sorted((b1, b2) -> Integer.compare(b2.length(), b1.length()))
+        .collect(Collectors.toList())) {
+      // Matches all brands preceded ( ?> ) with the string start ( ^ ) or any whitespace ( \s )
+      // and trailed ( ?= ) by the string end ( $ ) or any whitespace ( \s )
+      String regex = "(?>^|\\s)(" + Pattern.quote(brand) + ")(?=\\s|$)";
+      Matcher matcher = Pattern.compile(regex).matcher(query);
+      // Check if the brand can be found
+      if (matcher.find()) {
+        // Add the brand
+        brands.add(brand);
+        // Remove the brand from the query
+        query = matcher.replaceAll(" ");
       }
     }
 
-    // Einfügen der übrigen Wörter aus der Query in das Query Set
-    String resultQuery = lowerquery.toString();
-    resultQuery.trim();
-    request.setQuery(new HashSet<>(Arrays.asList(resultQuery.split(" "))).stream()
-        .filter(temp -> (!temp.equals(""))) // Deletion of empty fields(If Space is last char)
-        .collect(Collectors.toSet()));
-
+    SearchRequest request = new SearchRequest();
+    request.setBrands(brands);
+    request.setCoordinates(coordinateDetails);
+    request.setQuery(
+        // Find all words in query and remove empty words
+        Arrays.stream(query.split("\\s"))
+            .filter(temp -> !temp.isEmpty())
+            .collect(Collectors.toSet())
+    );
     return request;
-  }
-
-  /**
-   * Assisting Method for createRequest.
-   *
-   * @param beginn The beginning Index of the Word
-   * @param end    The ending Index of the Word
-   * @param query  The String the word contains
-   * @return Returns if word is valid
-   */
-  private Boolean checkIfValidWord(int beginn, int end, StringBuilder query) {
-    if (beginn == 0 || (query.charAt(beginn - 1) == ' ')) {
-      return (end == query.length()) || (query.charAt(end) == ' ');
-    }
-    return false;
   }
 
   /**
