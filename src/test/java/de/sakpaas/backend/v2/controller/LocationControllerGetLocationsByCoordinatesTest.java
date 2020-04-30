@@ -116,11 +116,12 @@ class LocationControllerGetLocationsByCoordinatesTest extends IntegrationTest {
         new LocationDetails("beverages", "Mo-So 01-23", "Lidl"),
         new Address("ES", "Madrid", "5432", "Street", "1111")
     );
+    super.insert(locationEdeka);
+    super.insert(locationLidl);
     List<Location> locations = Arrays.asList(
         locationEdeka,
         locationLidl
     );
-    locations.forEach(super::insert);
 
     // Test all authentication possibilities
     mockMvc.perform(get("/v2/locations?latitude=42.0&longitude=7.0")
