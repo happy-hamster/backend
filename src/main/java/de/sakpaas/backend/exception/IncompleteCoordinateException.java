@@ -9,7 +9,7 @@ public class IncompleteCoordinateException extends ApplicationException {
 
   private static final long serialVersionUID = 1L;
 
-  private static final String TEXT_ID = "COORDINATES";
+  private static final String TEXT_ID = "INCOMPLETE_COORDINATES";
   private static final String MESSAGE = "Latitude or Longitude not provided.";
 
   public IncompleteCoordinateException() {
