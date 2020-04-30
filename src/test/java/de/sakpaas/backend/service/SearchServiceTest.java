@@ -17,20 +17,59 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.junit4.SpringRunner;
 
 @SpringBootTest
+@RunWith(SpringRunner.class)
 class SearchServiceTest extends HappyHamsterTest {
 
   @MockBean
+  SearchMappingService searchMappingService;
+
+  @MockBean
   LocationService locationService;
-
   @Autowired
-  private SearchService searchService;
+  SearchService searchService;
 
+  @Test
+  void getCoordinatesFromNominatimWithCoordinates() {
+    final CoordinateDetails searchCoordinates = new CoordinateDetails(1.0, 1.0);
+    final CoordinateDetails resultCoordinates = new CoordinateDetails(2.0, 2.0);
+    final Set<String> query = new HashSet<>(Collections.singleton("test"));
+    final SearchRequest searchRequest = new SearchRequest();
+    searchRequest.setQuery(query);
+    searchRequest.setCoordinates(searchCoordinates);
+
+    Mockito.when(searchMappingService.search(query, searchCoordinates))
+        .thenReturn(resultCoordinates);
+
+    SearchRequest searchResult = searchService.getCoordinatesFromNominatim(searchRequest);
+
+    assertThat(searchResult.getCoordinates()).isEqualTo(resultCoordinates);
+  }
+
+  @Test
+  void getCoordinatesFromNominatimWithoutCoordinates() {
+    final CoordinateDetails searchCoordinates = new CoordinateDetails(1.0, 1.0);
+    final CoordinateDetails resultCoordinates = new CoordinateDetails(2.0, 2.0);
+    final Set<String> query = new HashSet<>(Collections.singleton("test"));
+    final SearchRequest searchRequest = new SearchRequest();
+    searchRequest.setQuery(query);
+    searchRequest.setCoordinates(searchCoordinates);
+
+    Mockito.when(searchMappingService.search(query, searchCoordinates))
+        .thenThrow(new IndexOutOfBoundsException());
+    Mockito.when(searchMappingService.search(query)).thenReturn(resultCoordinates);
+
+    SearchRequest searchResult = searchService.getCoordinatesFromNominatim(searchRequest);
+
+    assertThat(searchResult.getCoordinates()).isEqualTo(resultCoordinates);
+  }
 
   private SearchRequest createSearchRequest(String query) {
     SearchRequest searchRequest = new SearchRequest();
@@ -252,7 +291,8 @@ class SearchServiceTest extends HappyHamsterTest {
     Mockito.doReturn(request).when(mockSearchService).createRequest(Mockito.any(), Mockito.any());
 
     request.setLocations(
-        new HashSet<>(Arrays.asList(new Location(1L, "LIDL", 41.0D, 8.0D, null, null))));
+        new HashSet<>(
+            Collections.singletonList(new Location(1L, "LIDL", 41.0D, 8.0D, null, null))));
     Mockito.doReturn(request).when(mockSearchService).dbBrandSearch(Mockito.any());
 
     SearchResultObject result =

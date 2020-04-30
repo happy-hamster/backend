@@ -16,6 +16,8 @@ import java.util.Collections;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
@@ -29,6 +31,7 @@ import org.springframework.web.client.RestTemplate;
 @SpringBootTest
 class SearchMappingServiceTest extends HappyHamsterTest {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(SearchMappingServiceTest.class);
   @Autowired
   private RestTemplate restTemplate;
 
@@ -37,17 +40,32 @@ class SearchMappingServiceTest extends HappyHamsterTest {
 
 
   @Test
-  void search() {
+  void searchWithoutCoordinates() {
     SearchMappingService mockService = Mockito.spy(searchMappingService);
     NominatimSearchResultListDto mockedList =
         new NominatimSearchResultListDto(new ArrayList<>(
             Collections
                 .singletonList(new NominatimSearchResultListDto.NominatimResultLocationDto(3, 5))));
     Mockito.doReturn(mockedList).when(mockService)
-        .makeRequest(Mockito.any());
+        .makeRequest();
 
-    final CoordinateDetails result = mockService.search("");
-    assertEquals(new CoordinateDetails(3d, 5d), result);
+    final CoordinateDetails result = mockService.search(Collections.singleton("München"));
+    assertEquals(new CoordinateDetails(3.0, 5.0), result);
+  }
+
+  @Test
+  void searchWithCoordinates() {
+    SearchMappingService mockService = Mockito.spy(searchMappingService);
+    NominatimSearchResultListDto mockedList =
+        new NominatimSearchResultListDto(new ArrayList<>(
+            Collections
+                .singletonList(new NominatimSearchResultListDto.NominatimResultLocationDto(3, 5))));
+    Mockito.doReturn(mockedList).when(mockService)
+        .makeRequest();
+
+    final CoordinateDetails result =
+        mockService.search(Collections.singleton("München"), new CoordinateDetails(1.0, 1.0));
+    assertEquals(new CoordinateDetails(3.0, 5.0), result);
   }
 
   @SneakyThrows
@@ -64,8 +82,10 @@ class SearchMappingServiceTest extends HappyHamsterTest {
             .contentType(MediaType.APPLICATION_JSON)
             .body(responseBody));
 
+    searchMappingService.url = "test.de";
+
     NominatimSearchResultListDto nominatimSearchResultListDto =
-        searchMappingService.makeRequest("test.de");
+        searchMappingService.makeRequest();
     assertThat(nominatimSearchResultListDto.getElements().size()).isEqualTo(1);
     assertThat(nominatimSearchResultListDto.getElements().get(0).getLat()).isEqualTo(49.3190277);
     assertThat(nominatimSearchResultListDto.getElements().get(0).getLon())
