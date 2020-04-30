@@ -162,10 +162,8 @@ public class SearchService {
   protected SearchRequest getByCoordinates(SearchRequest request) {
     // Get Locations
     CoordinateDetails coordinateDetails = request.getCoordinates();
-    LOGGER.info(request.getCoordinates().toString());
     List<Location> locations = locationService
         .findByCoordinates(coordinateDetails.getLatitude(), coordinateDetails.getLongitude());
-    LOGGER.info(locations.toString());
     // Filter by brand
     if (!knownBrands.isEmpty()) {
       locations = locations.stream()
