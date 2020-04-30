@@ -109,7 +109,7 @@ public class SearchService {
     request.setBrands(brands);
     request.setCoordinates(coordinateDetails);
     request.setQuery(
-        // Find all words in query and remove empty words
+        // Find all words (separated by any whitespace ( \s )) in query and remove empty words
         Arrays.stream(query.split("\\s"))
             .filter(temp -> !temp.isEmpty())
             .collect(Collectors.toSet())
