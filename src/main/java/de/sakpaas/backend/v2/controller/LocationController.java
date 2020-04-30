@@ -6,6 +6,7 @@ import static org.springframework.http.HttpStatus.OK;
 
 import de.sakpaas.backend.BackendApplication;
 import de.sakpaas.backend.dto.UserInfoDto;
+import de.sakpaas.backend.exception.IncompleteCoordinateException;
 import de.sakpaas.backend.exception.InvalidLocationException;
 import de.sakpaas.backend.model.CoordinateDetails;
 import de.sakpaas.backend.model.Location;
@@ -22,7 +23,6 @@ import de.sakpaas.backend.v2.dto.OccupancyReportDto;
 import de.sakpaas.backend.v2.dto.SearchResultDto;
 import de.sakpaas.backend.v2.mapper.LocationMapper;
 import de.sakpaas.backend.v2.mapper.SearchResultMapper;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -37,6 +37,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @CrossOrigin(origins = "*")
@@ -97,26 +98,26 @@ public class LocationController {
    * @return List of all Locations in the Area.
    */
   @GetMapping
+  @ResponseBody
   public ResponseEntity<List<LocationResultLocationDto>> getLocation(
-      @RequestParam Double latitude, @RequestParam Double longitude,
+      @RequestParam Double latitude,
+      @RequestParam Double longitude,
+      @RequestParam(required = false) List<String> type,
       @RequestHeader(value = "Authorization", required = false) String header) {
+
     Optional<UserInfoDto> user = userService.getOptionalUserInfo(header);
 
-    List<Location> searchResult = locationService.findByCoordinates(latitude, longitude);
-
-    if (searchResult.isEmpty()) {
-      return new ResponseEntity<>(new ArrayList<>(), OK);
-    }
-
-    List<LocationResultLocationDto> response = searchResult.stream()
-        .map(location -> {
-          if (user.isPresent()) {
-            return locationMapper.mapLocationToOutputDto(location, user.get());
-          } else {
-            return locationMapper.mapLocationToOutputDto(location);
-          }
-        })
-        .collect(toList());
+    List<LocationResultLocationDto> response =
+        locationService.findByCoordinates(latitude, longitude, type)
+            .stream()
+            .map(location -> {
+              if (user.isPresent()) {
+                return locationMapper.mapLocationToOutputDto(location, user.get());
+              } else {
+                return locationMapper.mapLocationToOutputDto(location);
+              }
+            })
+            .collect(toList());
 
     return new ResponseEntity<>(response, OK);
   }
@@ -213,19 +214,27 @@ public class LocationController {
   /**
    * Get Endpoint to search for Locations.
    *
-   * @param key    the search query
-   * @param header the (optional) authentication
+   * @param query     the search query
+   * @param latitude  The latitude of the Coordinates
+   * @param longitude The Longitude of the Coordinates
+   * @param header    the (optional) authentication
    * @return a list of found locations
    */
   @GetMapping(value = MAPPING_SEARCH_LOCATION)
   public ResponseEntity<SearchResultDto> searchForLocations(
-      @PathVariable("key") String key,
+      @PathVariable("key") String query,
+      @RequestParam(required = false) Double latitude,
+      @RequestParam(required = false) Double longitude,
       @RequestHeader(value = "Authorization", required = false) String header) {
     Optional<UserInfoDto> user = userService.getOptionalUserInfo(header);
 
-    //ToDo Get Coordinates from Request
-    final SearchResultObject resultObject = searchService.search(key,
-        new CoordinateDetails(1.0, 1.0));
+    // Check if both of lat and long are set or not set
+    if ((latitude == null) != (longitude == null)) {
+      throw new IncompleteCoordinateException();
+    }
+
+    final SearchResultObject resultObject = searchService.search(query,
+        new CoordinateDetails(latitude, longitude));
 
     return user.map(
         userInfoDto -> new ResponseEntity<>(
