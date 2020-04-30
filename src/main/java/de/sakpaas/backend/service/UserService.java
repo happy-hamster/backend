@@ -80,9 +80,6 @@ public class UserService {
    */
   @VisibleForTesting
   public AccessToken verifyToken(String token) throws VerificationException {
-    for (int i = 0; i < 10; i++) {
-      System.out.println("I got called!");
-    }
     return AdapterTokenVerifier.verifyToken(
         token,
         keycloakConfiguration.getKeycloakDeployment()
