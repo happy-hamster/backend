@@ -13,6 +13,7 @@ import de.sakpaas.backend.v2.dto.SearchResultDto;
 import de.sakpaas.backend.v2.mapper.SearchResultMapper;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,7 +35,8 @@ public class SearchResultMapperTest extends HappyHamsterTest {
     final Address address = new Address();
     final List<Location> locations = new ArrayList<>(
         Collections.singletonList(new Location(1L, "test", 0.0, 0.0, locationDetails, address)));
-    final SearchResultObject searchResultObject = new SearchResultObject(coordinates, locations);
+    final SearchResultObject searchResultObject =
+        new SearchResultObject(coordinates, new HashSet<>(locations));
 
     final SearchResultDto mappedDto =
         searchResultMapper.mapSearchResultToOutputDto(searchResultObject);

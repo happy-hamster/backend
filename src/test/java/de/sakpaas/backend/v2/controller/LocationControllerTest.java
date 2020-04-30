@@ -14,7 +14,9 @@ import de.sakpaas.backend.v2.dto.LocationResultLocationDto;
 import de.sakpaas.backend.v2.dto.SearchResultDto;
 import de.sakpaas.backend.v2.mapper.SearchResultMapper;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -43,7 +45,7 @@ class LocationControllerTest extends HappyHamsterTest {
   private SearchService searchService;
 
   private SearchResultObject getExampleSearchResult() {
-    List<Location> locationList = new ArrayList<>();
+    Set<Location> locationList = new HashSet<>();
     locationList.add(new Location(1L, "LIDL", 41.0D, 8.0D, null, null));
     locationList.add(new Location(2L, "ALDI", 42.0D, 9.0D, null, null));
     return new SearchResultObject(new CoordinateDetails(49.0, 9.0), locationList);

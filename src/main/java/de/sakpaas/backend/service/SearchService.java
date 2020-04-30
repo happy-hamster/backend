@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import javax.validation.constraints.Null;
 import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +67,18 @@ public class SearchService {
    * @return Result Locations
    */
   public SearchResultObject search(String query, CoordinateDetails coordinateDetails) {
-    return new SearchResultObject(coordinateDetails, new ArrayList<>());
+    SearchRequest request = createRequest(query, coordinateDetails);
+    if (!request.getQuery().isEmpty()) {
+      request = getCoordinatesFromNominatim(request);
+    } else {
+      if (request.getCoordinates().getLatitude() == null
+          || request.getCoordinates().getLongitude() == null) {
+        request = dbBrandSearch(request);
+        return new SearchResultObject(request.getCoordinates(), request.getLocations());
+      }
+    }
+    request = getByCoordinates(request);
+    return new SearchResultObject(request.getCoordinates(), request.getLocations());
   }
 
 

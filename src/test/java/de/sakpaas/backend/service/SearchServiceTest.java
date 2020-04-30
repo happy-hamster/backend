@@ -1,12 +1,15 @@
 package de.sakpaas.backend.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import de.sakpaas.backend.HappyHamsterTest;
 import de.sakpaas.backend.model.CoordinateDetails;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.LocationDetails;
 import de.sakpaas.backend.model.SearchRequest;
+import de.sakpaas.backend.model.SearchResultObject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -237,5 +240,30 @@ class SearchServiceTest extends HappyHamsterTest {
     assertThat(resultRequest.getQuery().size()).isEqualTo(0);
     assertThat(resultRequest.getBrands().size()).isEqualTo(1);
     assertThat(resultRequest.getBrands().contains("[: bioladen"));
+  }
+
+  @Test
+  void searchWithEmptyCoordinatesAndOnlyBrands() {
+    SearchService mockSearchService = Mockito.spy(searchService);
+
+    SearchRequest request = new SearchRequest();
+    request.setQuery(new HashSet<>());
+    request.setCoordinates(new CoordinateDetails(null, null));
+    Mockito.doReturn(request).when(mockSearchService).createRequest(Mockito.any(), Mockito.any());
+
+    request.setLocations(
+        new HashSet<>(Arrays.asList(new Location(1L, "LIDL", 41.0D, 8.0D, null, null))));
+    Mockito.doReturn(request).when(mockSearchService).dbBrandSearch(Mockito.any());
+
+    SearchResultObject result =
+        mockSearchService.search("testQuery", new CoordinateDetails(null, null));
+    assertThat(result.getLocationList().size()).isEqualTo(1);
+    assertThat(result.getCoordinates().getLatitude()).isNull();
+    assertThat(result.getCoordinates().getLongitude()).isNull();
+    //Count Method interactions
+    verify(mockSearchService, times(1)).createRequest(Mockito.any(), Mockito.any());
+    verify(mockSearchService, times(1)).dbBrandSearch(Mockito.any());
+    verify(mockSearchService, times(0)).getCoordinatesFromNominatim(Mockito.any());
+    verify(mockSearchService, times(0)).getCoordinatesFromNominatim(Mockito.any());
   }
 }
