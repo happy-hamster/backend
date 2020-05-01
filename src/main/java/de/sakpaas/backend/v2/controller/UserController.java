@@ -11,9 +11,7 @@ import de.sakpaas.backend.service.LocationService;
 import de.sakpaas.backend.service.UserService;
 import de.sakpaas.backend.v2.dto.LocationResultLocationDto;
 import de.sakpaas.backend.v2.mapper.LocationMapper;
-import java.security.Principal;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -85,22 +83,18 @@ public class UserController {
    * @return Returns a ResponseEntity
    */
   @PostMapping("/self/favorites/{id}")
-  public ResponseEntity<List<LocationResultLocationDto>> postFavorite(
-      @PathVariable("id") Long locationId, Principal principal) {
+  public ResponseEntity<LocationResultLocationDto> postFavorite(
+      @PathVariable("id") Long locationId,
+      @RequestHeader("Authorization") String header) {
 
-    UUID userId = UUID.fromString(principal.getName());
-
+    UserInfoDto userInfo = userService.getUserInfo(header);
     Location location = locationService.getById(locationId)
         .orElseThrow(() -> new InvalidLocationException(locationId));
-    Favorite favorite = new Favorite(userId, location);
+
+    Favorite favorite = new Favorite(userInfo.getId(), location);
     favoriteService.saveUnique(favorite);
 
-    List<Favorite> favorites = favoriteService.findByUserUuid(userId);
-    List<LocationResultLocationDto> response = favorites.stream()
-        .map(fav -> locationMapper.mapLocationToOutputDto(fav.getLocation()))
-        .collect(Collectors.toList());
-
-    return new ResponseEntity<>(response, OK);
+    return new ResponseEntity<>(locationMapper.mapLocationToOutputDto(location, userInfo), OK);
   }
 
   /**
@@ -111,15 +105,16 @@ public class UserController {
    * @return Returns a ResponseEntity
    */
   @DeleteMapping("/self/favorites/{id}")
-  public ResponseEntity<?> deleteFavorite(
+  public ResponseEntity<LocationResultLocationDto> deleteFavorite(
       @PathVariable("id") Long locationId,
-      Principal principal) {
+      @RequestHeader("Authorization") String header) {
+
+    UserInfoDto userInfo = userService.getUserInfo(header);
     Location location = locationService.getById(locationId)
         .orElseThrow(() -> new InvalidLocationException(locationId));
 
-    favoriteService.delete(location, UUID.fromString(principal.getName()));
-    return new ResponseEntity<>(OK);
+    favoriteService.delete(location, userInfo.getId());
+
+    return new ResponseEntity<>(locationMapper.mapLocationToOutputDto(location, userInfo), OK);
   }
-
-
 }
