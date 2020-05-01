@@ -79,7 +79,7 @@ public class UserController {
    * Post Endpoint that creates a favorite.
    *
    * @param locationId the location Id of the new favorite
-   * @param principal  the principal of the User
+   * @param header The Authorization-Header that has to be provided in the request.
    * @return Returns a ResponseEntity
    */
   @PostMapping("/self/favorites/{id}")
@@ -101,7 +101,7 @@ public class UserController {
    * Delete Endpoint that deletes a favorite.
    *
    * @param locationId the location Id of the new favorite
-   * @param principal  the principal of the User
+   * @param header The Authorization-Header that has to be provided in the request.
    * @return Returns a ResponseEntity
    */
   @DeleteMapping("/self/favorites/{id}")
