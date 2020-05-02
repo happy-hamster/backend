@@ -190,8 +190,8 @@ public class SearchService {
       locations = locations.stream()
           .filter(location -> {
             for (String brand : knownBrands) {
-              if (location.getName() == null || location.getDetails() == null ||
-                  location.getDetails().getBrand() == null) {
+              if (location.getName() == null || location.getDetails() == null
+                  || location.getDetails().getBrand() == null) {
                 if (location.getName() != null) {
                   return location.getName().contains(brand);
                 } else if (location.getDetails() != null) {
@@ -199,8 +199,8 @@ public class SearchService {
                     return location.getDetails().getBrand().equals(brand);
                   }
                 }
-              } else if (location.getName().contains(brand) ||
-                  location.getDetails().getBrand().equals(brand)) {
+              } else if (location.getName().contains(brand)
+                  || location.getDetails().getBrand().equals(brand)) {
                 return true;
               }
             }
