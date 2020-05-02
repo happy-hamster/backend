@@ -159,17 +159,19 @@ class SearchServiceTest extends HappyHamsterTest {
 
   @Test
   public void testEmptyKnownBrands() {
-    final CoordinateDetails coordinateDetails = new CoordinateDetails(1.0, 1.0);
-    final SearchRequest searchRequest = new SearchRequest();
-    searchRequest.setCoordinates(coordinateDetails);
     SearchService.setKnownBrands(new HashSet<>());
+
     final Location location = new Location();
     location.setLatitude(1.0);
     location.setLongitude(1.0);
+
+    final SearchRequest searchRequest = new SearchRequest();
+    searchRequest.setCoordinates(new CoordinateDetails(1.0, 1.0));
     searchRequest.setLocations(Collections.singleton(location));
-    // mock LocationService
+
     Mockito.when(locationService.findByCoordinates(1.0, 1.0)).thenReturn(new ArrayList<>());
     final SearchRequest searchRequest1 = searchService.getByCoordinates(searchRequest);
+
     assertThat(searchRequest1.getLocations()).isEqualTo(new HashSet<>());
   }
 
@@ -305,5 +307,85 @@ class SearchServiceTest extends HappyHamsterTest {
     verify(mockSearchService, times(1)).dbBrandSearch(Mockito.any());
     verify(mockSearchService, times(0)).getCoordinatesFromNominatim(Mockito.any());
     verify(mockSearchService, times(0)).getCoordinatesFromNominatim(Mockito.any());
+  }
+
+  @Test
+  void testLocationWithoutNameOrBrandWithEmptyKnownBrands() {
+    final Location location = new Location();
+    final List<Location> locationList = new ArrayList<>(Collections.singletonList(location));
+
+    final Location test1 = new Location();
+    test1.setName("test");
+    final Location test2 = new Location();
+    test1.setName("test");
+    final Location test3 = new Location();
+    test1.setName("test");
+
+    final SearchRequest searchRequest = new SearchRequest();
+    searchRequest.setCoordinates(new CoordinateDetails(1.0, 1.0));
+    searchRequest.setLocations(new HashSet<>(new ArrayList<>(Arrays.asList(test1, test2, test3))));
+
+    Mockito.when(locationService.findByCoordinates(1.0, 1.0)).thenReturn(locationList);
+
+    final SearchRequest response = searchService.getByCoordinates(searchRequest);
+
+    assertThat(response.getLocations()).isEqualTo(new HashSet<>());
+  }
+
+  @Test
+  void testLocationWithoutNameOrBrand() {
+    SearchService.knownBrands = new HashSet<>(Collections.singleton("null"));
+
+    final Location location = new Location();
+    final List<Location> locationList = new ArrayList<>(Collections.singletonList(location));
+
+    final Location test1 = new Location();
+    test1.setName("test1");
+    final Location test2 = new Location();
+    test1.setName("test2");
+    final Location test3 = new Location();
+    test1.setName("test3");
+
+    final SearchRequest searchRequest = new SearchRequest();
+    searchRequest.setCoordinates(new CoordinateDetails(1.0, 1.0));
+    searchRequest.setLocations(new HashSet<>(new ArrayList<>(Arrays.asList(test1, test2, test3))));
+
+    Mockito.when(locationService.findByCoordinates(1.0, 1.0)).thenReturn(locationList);
+
+    final SearchRequest response = searchService.getByCoordinates(searchRequest);
+
+    assertThat(response.getLocations()).isEqualTo(new HashSet<>());
+  }
+
+  @Test
+  void testLocationWithoutName() {
+    SearchService.knownBrands = new HashSet<>(Collections.singleton("null"));
+
+    final LocationDetails locationDetails = new LocationDetails();
+    locationDetails.setBrand("null");
+
+    final Location location = new Location();
+    location.setDetails(locationDetails);
+    final List<Location> locationList = new ArrayList<>(Collections.singletonList(location));
+
+    final Location test1 = new Location();
+    test1.setName("test1");
+    final Location test2 = new Location();
+    test1.setName("test2");
+    final Location test3 = new Location();
+    test1.setName("test3");
+
+    final Set<Location> locationSet =
+        new HashSet<>(new ArrayList<>(Arrays.asList(test1, test2, test3)));
+
+    final SearchRequest searchRequest = new SearchRequest();
+    searchRequest.setCoordinates(new CoordinateDetails(1.0, 1.0));
+    searchRequest.setLocations(locationSet);
+
+    Mockito.when(locationService.findByCoordinates(1.0, 1.0)).thenReturn(locationList);
+
+    final SearchRequest response = searchService.getByCoordinates(searchRequest);
+
+    assertThat(response.getLocations()).isEqualTo(new HashSet<>(Collections.singleton(location)));
   }
 }

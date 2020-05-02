@@ -50,7 +50,6 @@ public class SearchService {
     updateBrands();
   }
 
-
   /**
    * Extracts all Brands that exists in the Database and saves them to the knownBrands List.
    * Also makes all brands lower case.
@@ -58,7 +57,6 @@ public class SearchService {
   public void updateBrands() {
     knownBrands = locationDetailsRepository.getAllBrandNamesLower();
   }
-
 
   /**
    * Main search Method. Handles all the search logic
@@ -81,7 +79,6 @@ public class SearchService {
     request = getByCoordinates(request);
     return new SearchResultObject(request.getCoordinates(), request.getLocations());
   }
-
 
   /**
    * Creates a new SearchRequest Object. Also makes all query entrys lower case.
@@ -127,7 +124,6 @@ public class SearchService {
     return request;
   }
 
-
   /**
    * Creates a Nominatim Request and executes it. It updates the Coordinates of the Request.
    *
@@ -151,7 +147,6 @@ public class SearchService {
 
     return request;
   }
-
 
   /**
    * Searches the Database for Locations that match at least one Brand of the Brand list in the.
@@ -178,7 +173,6 @@ public class SearchService {
     return request;
   }
 
-
   /**
    * Gets all Locations from the database, near specific coordinates. It will also filter by the
    * Brand-Names if there are any.
@@ -196,19 +190,26 @@ public class SearchService {
       locations = locations.stream()
           .filter(location -> {
             for (String brand : knownBrands) {
-              try {
-                if (location.getName().contains(brand)
-                    || location.getDetails().getBrand().equals(brand)) {
-                  return true;
+              if (location.getName() == null || location.getDetails() == null ||
+                  location.getDetails().getBrand() == null) {
+                if (location.getName() != null) {
+                  return location.getName().contains(brand);
+                } else if (location.getDetails() != null) {
+                  if (location.getDetails().getBrand() != null) {
+                    return location.getDetails().getBrand().equals(brand);
+                  }
                 }
-              } catch (NullPointerException e) {
-                return false;
+              } else if (location.getName().contains(brand) ||
+                  location.getDetails().getBrand().equals(brand)) {
+                return true;
               }
             }
             return false;
           }).collect(Collectors.toList());
+      request.setLocations(new HashSet<>(locations));
+    } else {
+      request.setLocations(new HashSet<>());
     }
-    request.setLocations(new HashSet<>(locations));
 
     return request;
   }
