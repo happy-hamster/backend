@@ -189,13 +189,19 @@ public class SearchService {
     List<Location> locations = locationService
         .findByCoordinates(coordinateDetails.getLatitude(), coordinateDetails.getLongitude());
     // Filter by brand
-    if (!knownBrands.isEmpty()) {
+    if (!request.getBrands().isEmpty()) {
       locations = locations.stream()
           .filter(location -> {
-            for (String brand : knownBrands) {
-              if (location.getName().contains(brand)
-                  || location.getDetails().getBrand().equals(brand)) {
-                return true;
+            for (String brand : request.getBrands()) {
+              if (location.getName() != null) {
+                if (location.getName().contains(brand)) {
+                  return true;
+                }
+              }
+              if (location.getDetails().getBrand() != null) {
+                if (location.getDetails().getBrand().equals(brand)) {
+                  return true;
+                }
               }
             }
             return false;
