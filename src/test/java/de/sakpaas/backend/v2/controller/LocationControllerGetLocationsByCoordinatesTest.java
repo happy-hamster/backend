@@ -155,7 +155,8 @@ class LocationControllerGetLocationsByCoordinatesTest extends IntegrationTest {
         locationEdeka,
         locationAldi
     );
-    locations.forEach(super::insert);
+    super.insert(locationEdeka);
+    super.insert(locationAldi);
     Favorite favoriteEdeka = new Favorite(USER_UUID, locationEdeka);
     super.insert(favoriteEdeka);
 
