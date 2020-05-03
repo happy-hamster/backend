@@ -1,6 +1,8 @@
 package de.sakpaas.backend.v2.controller;
 
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -12,7 +14,6 @@ import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.LocationDetails;
 import de.sakpaas.backend.model.Occupancy;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -139,7 +140,6 @@ class LocationControllerGetLocationsByCoordinatesTest extends IntegrationTest {
         .andExpect(jsonPath("$", hasSize(1)));
   }
 
-  /*
   @Test
   void getLocationsByCoordinatesFavorite() throws Exception {
     // Setup test data
@@ -151,16 +151,13 @@ class LocationControllerGetLocationsByCoordinatesTest extends IntegrationTest {
         new LocationDetails("kiosk", "Fr-Sa 12-14", "Aldi"),
         new Address("FR", "Paris", "101010", "Louvre", "1")
     );
-    Location locationLidl = new Location(3000L, "Lidl", 0.0, 0.0,
-        new LocationDetails("beverages", "Mo-So 01-23", "Lidl"),
-        new Address("ES", "Madrid", "5432", "Street", "1111")
-    );
     List<Location> locations = Arrays.asList(
         locationEdeka,
-        locationAldi,
-        locationLidl
+        locationAldi
     );
     locations.forEach(super::insert);
+    Favorite favoriteEdeka = new Favorite(USER_UUID, locationEdeka);
+    super.insert(favoriteEdeka);
 
     // Test all authentication possibilities
     mockMvc.perform(get("/v2/locations?latitude=42.0&longitude=7.0")
@@ -169,11 +166,18 @@ class LocationControllerGetLocationsByCoordinatesTest extends IntegrationTest {
 
     mockMvc.perform(get("/v2/locations?latitude=42.0&longitude=7.0")
         .header("Authorization", AUTHENTICATION_VALID))
-        .andExpect(super.expectLocationList(locations));
+        .andExpect(super.expectLocationList(locations))
+        .andExpect(jsonPath("$", hasSize(2)))
+        .andExpect(jsonPath("$.[?(@.id==1000)].favorite").value(true))
+        .andExpect(jsonPath("$.[?(@.id==2000)].favorite").value(false));
 
     mockMvc.perform(get("/v2/locations?latitude=42.0&longitude=7.0"))
         // No Authentication
-        .andExpect(super.expectLocationList(locations));
+        .andExpect(super.expectLocationList(locations))
+        .andExpect(jsonPath("$", hasSize(2)))
+        // The result is a list and will not automatically unpacked with nullValue()
+        .andExpect(jsonPath("$.[?(@.id==1000)].favorite").value(contains(nullValue())))
+        .andExpect(jsonPath("$.[?(@.id==2000)].favorite").value(contains(nullValue())));
   }
 
   @Test
@@ -211,5 +215,4 @@ class LocationControllerGetLocationsByCoordinatesTest extends IntegrationTest {
         .andExpect(jsonPath("$.occupancy.count").value(1))
         .andExpect(jsonPath("$.occupancy.latestReport").isString());
   }
-  */
 }

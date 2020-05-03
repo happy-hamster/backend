@@ -1,6 +1,7 @@
 package de.sakpaas.backend;
 
 import static org.hamcrest.Matchers.anything;
+import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import de.sakpaas.backend.model.Favorite;
@@ -27,6 +28,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultMatcher;
 
 public class IntegrationTest extends HappyHamsterTest {
@@ -130,37 +132,7 @@ public class IntegrationTest extends HappyHamsterTest {
    * @return the {@link ResultMatcher}
    */
   protected ResultMatcher expectLocation(Location location) {
-    return result -> {
-      ResultMatcher[] matcher = new ResultMatcher[] {
-          jsonPath("$.id").value(location.getId()),
-          jsonPath("$.name").value(location.getName()),
-          // Favorite (unknown contents)
-          jsonPath("$.favorite", anything()),
-          // Coordinates
-          jsonPath("$.coordinates.latitude").value(location.getLatitude()),
-          jsonPath("$.coordinates.longitude").value(location.getLongitude()),
-          // Details
-          jsonPath("$.details.type").value(location.getDetails().getType()),
-          jsonPath("$.details.brand").value(location.getDetails().getBrand()),
-          jsonPath("$.details.openingHours")
-              .value(location.getDetails().getOpeningHours()),
-          // Occupancy (unknown contents)
-          jsonPath("$.occupancy.value", anything()),
-          jsonPath("$.occupancy.count", anything()),
-          jsonPath("$.occupancy.latestReport", anything()),
-          // Address
-          jsonPath("$.address.country").value(location.getAddress().getCountry()),
-          jsonPath("$.address.city").value(location.getAddress().getCity()),
-          jsonPath("$.address.postcode")
-              .value(location.getAddress().getPostcode()),
-          jsonPath("$.address.street").value(location.getAddress().getStreet()),
-          jsonPath("$.address.housenumber")
-              .value(location.getAddress().getHousenumber())
-      };
-      for (ResultMatcher resultMatcher : matcher) {
-        resultMatcher.match(result);
-      }
-    };
+    return result -> this.match(result, "$", location);
   }
 
 
@@ -187,39 +159,42 @@ public class IntegrationTest extends HappyHamsterTest {
             .filter(loc -> loc.getId() == id)
             .findAny()
             .orElseThrow(() -> new AssertionError("Unknown LocationId in result."));
-
-        // Define assertions
-        ResultMatcher[] matcher = new ResultMatcher[] {
-            jsonPath("$[" + i + "].id").value(location.getId()),
-            jsonPath("$[" + i + "].name").value(location.getName()),
-            // Favorite (unknown contents)
-            jsonPath("$[" + i + "].favorite", anything()),
-            // Coordinates
-            jsonPath("$[" + i + "].coordinates.latitude").value(location.getLatitude()),
-            jsonPath("$[" + i + "].coordinates.longitude").value(location.getLongitude()),
-            // Details
-            jsonPath("$[" + i + "].details.type").value(location.getDetails().getType()),
-            jsonPath("$[" + i + "].details.brand").value(location.getDetails().getBrand()),
-            jsonPath("$[" + i + "].details.openingHours")
-                .value(location.getDetails().getOpeningHours()),
-            // Occupancy (unknown contents)
-            jsonPath("$[" + i + "].occupancy.value", anything()),
-            jsonPath("$[" + i + "].occupancy.count", anything()),
-            jsonPath("$[" + i + "].occupancy.latestReport", anything()),
-            // Address
-            jsonPath("$[" + i + "].address.country").value(location.getAddress().getCountry()),
-            jsonPath("$[" + i + "].address.city").value(location.getAddress().getCity()),
-            jsonPath("$[" + i + "].address.postcode")
-                .value(location.getAddress().getPostcode()),
-            jsonPath("$[" + i + "].address.street").value(location.getAddress().getStreet()),
-            jsonPath("$[" + i + "].address.housenumber")
-                .value(location.getAddress().getHousenumber())
-        };
-        // Run assertions
-        for (ResultMatcher resultMatcher : matcher) {
-          resultMatcher.match(result);
-        }
+        this.match(result, "$[" + i + "]", location);
       }
     };
+  }
+
+  private void match(MvcResult result, String selector, Location location) throws Exception {
+    // Define assertions
+    ResultMatcher[] matcher = new ResultMatcher[] {
+        jsonPath(selector + ".id").value(equalTo(location.getId()), Long.class),
+        jsonPath(selector + ".name").value(location.getName()),
+        // Favorite (unknown contents)
+        jsonPath(selector + ".favorite", anything()),
+        // Coordinates
+        jsonPath(selector + ".coordinates.latitude").value(location.getLatitude()),
+        jsonPath(selector + ".coordinates.longitude").value(location.getLongitude()),
+        // Details
+        jsonPath(selector + ".details.type").value(location.getDetails().getType()),
+        jsonPath(selector + ".details.brand").value(location.getDetails().getBrand()),
+        jsonPath(selector + ".details.openingHours")
+            .value(location.getDetails().getOpeningHours()),
+        // Occupancy (unknown contents)
+        jsonPath(selector + ".occupancy.value", anything()),
+        jsonPath(selector + ".occupancy.count", anything()),
+        jsonPath(selector + ".occupancy.latestReport", anything()),
+        // Address
+        jsonPath(selector + ".address.country").value(location.getAddress().getCountry()),
+        jsonPath(selector + ".address.city").value(location.getAddress().getCity()),
+        jsonPath(selector + ".address.postcode")
+            .value(location.getAddress().getPostcode()),
+        jsonPath(selector + ".address.street").value(location.getAddress().getStreet()),
+        jsonPath(selector + ".address.housenumber")
+            .value(location.getAddress().getHousenumber())
+    };
+    // Run assertions
+    for (ResultMatcher resultMatcher : matcher) {
+      resultMatcher.match(result);
+    }
   }
 }
