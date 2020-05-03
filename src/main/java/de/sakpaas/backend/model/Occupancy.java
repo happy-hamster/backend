@@ -1,6 +1,7 @@
 package de.sakpaas.backend.model;
 
 import java.time.ZonedDateTime;
+import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -38,6 +39,10 @@ public class Occupancy {
   @Column(name = "CLIENT_TYPE", length = 10)
   private String clientType;
 
+  // ManyToOne-Relationship is not displayed as user is managed in keycloak
+  @Column(name = "USER_UUID")
+  private UUID userUuid;
+
   /**
    * Creates a new {@link Occupancy} for a {@link Location}.
    *
@@ -46,6 +51,21 @@ public class Occupancy {
    * @param clientType the client type (eg. IOT, WEB_CLIENT)
    */
   public Occupancy(Location location, Double occupancy, String clientType) {
+    this.location = location;
+    this.occupancy = occupancy;
+    this.timestamp = ZonedDateTime.now();
+    this.clientType = clientType;
+  }
+
+  /**
+   * Creates a new {@link Occupancy} for a {@link Location}.
+   *
+   * @param location the {@link Location}
+   * @param occupancy the occupancy (from 0.0 to 1.0)
+   * @param clientType the client type (eg. IOT, WEB_CLIENT)
+   * @param userUuid the UUID of the user which saved the occupancy
+   */
+  public Occupancy(Location location, Double occupancy, String clientType, UUID userUuid) {
     this.location = location;
     this.occupancy = occupancy;
     this.timestamp = ZonedDateTime.now();
