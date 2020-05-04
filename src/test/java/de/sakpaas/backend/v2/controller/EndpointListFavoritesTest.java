@@ -32,7 +32,7 @@ class EndpointListFavoritesTest extends IntegrationTest {
   private static String ENDPOINT = "/v2/users/self/favorites";
 
   @Test
-  void listFavoritesEmpty() throws Exception {
+  void testEmpty() throws Exception {
     mockMvc.perform(get(ENDPOINT)
         .header("Authorization", AUTHENTICATION_INVALID))
         .andExpect(status().isUnauthorized());
@@ -52,7 +52,7 @@ class EndpointListFavoritesTest extends IntegrationTest {
   }
 
   @Test
-  void listFavorites() throws Exception {
+  void testFound() throws Exception {
     // Setup test data
     Location locationEdeka = new Location(1000L, "Edeka Eima", 42.0, 7.0,
         new LocationDetails("supermarket", "Mo-Fr 10-22", "Edeka"),

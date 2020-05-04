@@ -30,7 +30,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 class EndpointGetLocationsByCoordinatesTest extends IntegrationTest {
 
   @Test
-  void getLocationsByCoordinatesMalformed() throws Exception {
+  void testMalformed() throws Exception {
     // No coordinates given
     mockMvc.perform(get("/v2/locations")
         .header("Authorization", AUTHENTICATION_INVALID))
@@ -84,7 +84,7 @@ class EndpointGetLocationsByCoordinatesTest extends IntegrationTest {
   }
 
   @Test
-  void getLocationsByCoordinatesEmpty() throws Exception {
+  void testEmpty() throws Exception {
     // Setup test data
     Location location = new Location(1000L, "Edeka Eima", 42.0, 7.0,
         new LocationDetails("supermarket", "Mo-Fr 10-22", "Edeka"),
@@ -107,7 +107,7 @@ class EndpointGetLocationsByCoordinatesTest extends IntegrationTest {
   }
 
   @Test
-  void getLocationsByCoordinatesFound() throws Exception {
+  void testFound() throws Exception {
     // Setup test data
     Location locationEdeka = new Location(1000L, "Edeka Eima", 42.0, 7.0,
         new LocationDetails("supermarket", "Mo-Fr 10-22", "Edeka"),
@@ -141,7 +141,7 @@ class EndpointGetLocationsByCoordinatesTest extends IntegrationTest {
   }
 
   @Test
-  void getLocationsByCoordinatesFavorite() throws Exception {
+  void testFavorite() throws Exception {
     // Setup test data
     Location locationEdeka = new Location(1000L, "Edeka Eima", 42.0, 7.0,
         new LocationDetails("supermarket", "Mo-Fr 10-22", "Edeka"),
@@ -182,7 +182,7 @@ class EndpointGetLocationsByCoordinatesTest extends IntegrationTest {
   }
 
   @Test
-  void getByIdFoundOccupancy() throws Exception {
+  void testOccupancy() throws Exception {
     // Setup test data
     Location location = new Location(1000L, "Edeka Eima", 42.0, 7.0,
         new LocationDetails("supermarket", "Mo-Fr 10-22", "Edeka"),

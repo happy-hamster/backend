@@ -25,7 +25,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 class EndpointGetLocationByIdTest extends IntegrationTest {
 
   @Test
-  void getLocationByIdMalformed() throws Exception {
+  void testMalformed() throws Exception {
     mockMvc.perform(get("/v2/locations/xxxx")
         .header("Authorization", AUTHENTICATION_INVALID))
         .andExpect(status().isBadRequest());
@@ -40,7 +40,7 @@ class EndpointGetLocationByIdTest extends IntegrationTest {
   }
 
   @Test
-  void getLocationByIdNotFound() throws Exception {
+  void testNotFound() throws Exception {
     mockMvc.perform(get("/v2/locations/1000")
         .header("Authorization", AUTHENTICATION_INVALID))
         .andExpect(status().isUnauthorized());
@@ -55,7 +55,7 @@ class EndpointGetLocationByIdTest extends IntegrationTest {
   }
 
   @Test
-  void getLocationByIdFound() throws Exception {
+  void testFound() throws Exception {
     // Setup test data
     Location location = new Location(1000L, "Edeka Eima", 42.0, 7.0,
         new LocationDetails("supermarket", "Mo-Fr 10-22", "Edeka"),
@@ -86,7 +86,7 @@ class EndpointGetLocationByIdTest extends IntegrationTest {
   }
 
   @Test
-  void getLocationByIdFoundFavorite() throws Exception {
+  void testFoundFavorite() throws Exception {
     // Setup test data
     Location location = new Location(1000L, "Edeka Eima", 42.0, 7.0,
         new LocationDetails("supermarket", "Mo-Fr 10-22", "Edeka"),
@@ -119,7 +119,7 @@ class EndpointGetLocationByIdTest extends IntegrationTest {
   }
 
   @Test
-  void getLocationByIdFoundOccupancy() throws Exception {
+  void testFoundOccupancy() throws Exception {
     // Setup test data
     Location location = new Location(1000L, "Edeka Eima", 42.0, 7.0,
         new LocationDetails("supermarket", "Mo-Fr 10-22", "Edeka"),
