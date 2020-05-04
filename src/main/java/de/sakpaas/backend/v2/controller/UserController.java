@@ -71,7 +71,7 @@ public class UserController {
 
     List<Favorite> favorites = favoriteService.findByUserUuid(userInfo.getId());
     List<LocationResultLocationDto> response = favorites.stream()
-        .map(favorite -> locationMapper.mapLocationToOutputDto(favorite.getLocation()))
+        .map(favorite -> locationMapper.mapLocationToOutputDto(favorite.getLocation(), userInfo))
         .collect(Collectors.toList());
 
     return new ResponseEntity<>(response, OK);

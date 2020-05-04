@@ -92,18 +92,18 @@ public class IntegrationTest extends HappyHamsterTest {
     locationDetailsRepository.deleteAll();
   }
 
-  protected void insert(Location location) {
+  protected Location insert(Location location) {
     locationDetailsRepository.save(location.getDetails());
     addressRepository.save(location.getAddress());
-    locationRepository.save(location);
+    return locationRepository.save(location);
   }
 
-  protected void insert(Favorite favorite) {
-    favoriteRepository.save(favorite);
+  protected Favorite insert(Favorite favorite) {
+    return favoriteRepository.save(favorite);
   }
 
-  protected void insert(Occupancy occupancy) {
-    occupancyRepository.save(occupancy);
+  protected Occupancy insert(Occupancy occupancy) {
+    return occupancyRepository.save(occupancy);
   }
 
   protected ResultMatcher expectErrorObject() {
