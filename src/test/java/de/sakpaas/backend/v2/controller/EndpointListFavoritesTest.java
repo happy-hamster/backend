@@ -29,21 +29,19 @@ import org.springframework.test.context.junit4.SpringRunner;
 @AutoConfigureMockMvc
 class EndpointListFavoritesTest extends IntegrationTest {
 
-  private static String ENDPOINT = "/v2/users/self/favorites";
-
   @Test
   void testEmpty() throws Exception {
-    mockMvc.perform(get(ENDPOINT)
+    mockMvc.perform(get("/v2/users/self/favorites")
         .header("Authorization", AUTHENTICATION_INVALID))
         .andExpect(status().isUnauthorized());
 
-    mockMvc.perform(get(ENDPOINT)
+    mockMvc.perform(get("/v2/users/self/favorites")
         .header("Authorization", AUTHENTICATION_VALID))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$").isArray())
         .andExpect(jsonPath("$").isEmpty());
 
-    mockMvc.perform(get(ENDPOINT))
+    mockMvc.perform(get("/v2/users/self/favorites"))
         // No Authentication
         .andExpect(status().is4xxClientError());
     // Authentication should be handled by Keycloak, but only the controller is being tested,
@@ -78,17 +76,17 @@ class EndpointListFavoritesTest extends IntegrationTest {
     super.insert(new Favorite(USER_UUID, locationPenny));
 
     // Test all authentication possibilities
-    mockMvc.perform(get(ENDPOINT)
+    mockMvc.perform(get("/v2/users/self/favorites")
         .header("Authorization", AUTHENTICATION_INVALID))
         .andExpect(status().isUnauthorized());
 
-    mockMvc.perform(get(ENDPOINT)
+    mockMvc.perform(get("/v2/users/self/favorites")
         .header("Authorization", AUTHENTICATION_VALID))
         .andExpect(super.expectLocationList(locations))
         .andExpect(jsonPath("$", hasSize(2)))
         .andExpect(jsonPath("$[*].favorite").value(everyItem(equalTo(true))));
 
-    mockMvc.perform(get(ENDPOINT))
+    mockMvc.perform(get("/v2/users/self/favorites"))
         // No Authentication
         .andExpect(status().is4xxClientError());
     // Authentication should be handled by Keycloak, but only the controller is being tested,
