@@ -3,6 +3,7 @@ package de.sakpaas.backend.service;
 import de.sakpaas.backend.exception.EmptySearchQueryException;
 import de.sakpaas.backend.model.CoordinateDetails;
 import de.sakpaas.backend.model.Location;
+import de.sakpaas.backend.model.LocationDetails;
 import de.sakpaas.backend.model.SearchRequest;
 import de.sakpaas.backend.model.SearchResultObject;
 import java.util.Arrays;
@@ -181,36 +182,52 @@ public class SearchService {
    * @return the updated Request Object
    */
   protected SearchRequest getByCoordinates(SearchRequest request) {
-    // Get Locations
+    Set<String> brands = request.getBrands();
     CoordinateDetails coordinateDetails = request.getCoordinates();
     List<Location> locations = locationService
         .findByCoordinates(coordinateDetails.getLatitude(), coordinateDetails.getLongitude());
-    // Filter by brand
-    if (!knownBrands.isEmpty()) {
-      locations = locations.stream()
-          .filter(location -> {
-            for (String brand : knownBrands) {
-              if (location.getName() == null || location.getDetails() == null
-                  || location.getDetails().getBrand() == null) {
-                if (location.getName() != null) {
-                  return location.getName().contains(brand);
-                } else if (location.getDetails() != null) {
-                  if (location.getDetails().getBrand() != null) {
-                    return location.getDetails().getBrand().equals(brand);
-                  }
-                }
-              } else if (location.getName().contains(brand)
-                  || location.getDetails().getBrand().equals(brand)) {
-                return true;
-              }
-            }
-            return false;
-          }).collect(Collectors.toList());
-      request.setLocations(new HashSet<>(locations));
+
+    if (brands != null && !brands.isEmpty()) {
+      Set<Location> filteredLocations = new HashSet<>();
+      for (String brand : brands) {
+        filteredLocations.addAll(locations.stream()
+            .filter(location -> filterLocationsByBrand(location, brand))
+            .collect(Collectors.toList()));
+      }
+      request.setLocations(filteredLocations);
     } else {
-      request.setLocations(new HashSet<>());
+      request.setLocations(new HashSet<>(locations));
     }
 
     return request;
+  }
+
+  /**
+   * Tests whether a location is from a specific brand.
+   *
+   * @param location The Location in question
+   * @param brand    The brand we are filtering with
+   * @return Whether The Location is from the brand we are searching for. {@code True} iff the Location is
+   * from a specific brand. {@code False} otherwise.
+   */
+  private boolean filterLocationsByBrand(Location location, String brand) {
+    final String locationName;
+    final LocationDetails details;
+
+    boolean locationNameContainsBrand = false;
+
+    if (location.getName() != null) {
+      locationName = location.getName();
+      locationNameContainsBrand = locationName.contains(brand);
+    }
+    if (location.getDetails() != null) {
+      details = location.getDetails();
+    } else { // location.getDetails == null
+      return locationNameContainsBrand;
+    }
+    if (details.getBrand() != null) {
+      return locationNameContainsBrand || details.getBrand().equals(brand);
+    }
+    return false;
   }
 }
