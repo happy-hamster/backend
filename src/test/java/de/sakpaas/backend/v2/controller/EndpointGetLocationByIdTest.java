@@ -22,7 +22,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc
-class LocationControllerGetLocationByIdTest extends IntegrationTest {
+class EndpointGetLocationByIdTest extends IntegrationTest {
 
   @Test
   void getLocationByIdMalformed() throws Exception {

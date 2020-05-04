@@ -27,7 +27,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc
-class LocationControllerGetLocationsByCoordinatesTest extends IntegrationTest {
+class EndpointGetLocationsByCoordinatesTest extends IntegrationTest {
 
   @Test
   void getLocationsByCoordinatesMalformed() throws Exception {
