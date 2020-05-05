@@ -47,6 +47,7 @@ public class LocationController {
   private static final String MAPPING_BY_ID = "/{locationId}";
   private static final String MAPPING_START_DATABASE = "/generate/{key}";
   private static final String MAPPING_SEARCH_LOCATION = "/search/{key}";
+  private static final String MAPPING_LOCATION_TYPES = "/types";
   private final LocationService locationService;
   private final SearchService searchService;
   private final OpenStreetMapService openStreetMapService;
@@ -230,5 +231,15 @@ public class LocationController {
         .orElseGet(
             () -> new ResponseEntity<>(searchResultMapper.mapSearchResultToOutputDto(resultObject),
                 OK));
+  }
+
+  /**
+   * Returns all existing Location Types.
+   *
+   * @return ResponseEntity with the Location Type List
+   */
+  @GetMapping(MAPPING_LOCATION_TYPES)
+  public ResponseEntity<List<String>> getAllLocationTypes() {
+    return new ResponseEntity<>(locationService.getAllLocationTypes(), OK);
   }
 }
