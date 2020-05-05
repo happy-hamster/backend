@@ -23,7 +23,7 @@ public class LocationService {
    * Default Constructor. Handles the Dependency Injection and Meter Initialisation and Registering
    *
    * @param locationRepository        The Location Repository
-   * @param locationDetailsRepository
+   * @param locationDetailsRepository The Location Details Repository
    */
   @Autowired
   public LocationService(LocationRepository locationRepository,
