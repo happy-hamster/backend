@@ -90,7 +90,7 @@ public class UserController {
     UserInfoDto userInfo = userService.getUserInfo(header);
     Location location = locationService.getById(locationId)
         .orElseThrow(() -> new InvalidLocationException(locationId));
-    
+
     Favorite favorite = new Favorite(userInfo.getId(), location);
     favoriteService.saveUnique(favorite);
 
