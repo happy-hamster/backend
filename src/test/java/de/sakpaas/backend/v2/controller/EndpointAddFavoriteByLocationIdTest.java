@@ -1,6 +1,6 @@
 package de.sakpaas.backend.v2.controller;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -11,6 +11,7 @@ import de.sakpaas.backend.model.Favorite;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.LocationDetails;
 import de.sakpaas.backend.model.Occupancy;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -38,6 +39,10 @@ class EndpointAddFavoriteByLocationIdTest extends IntegrationTest {
     mockMvc.perform(post("/v2/users/self/favorites/xxxx"))
         // No Authentication
         .andExpect(status().isBadRequest());
+
+    // Test database change
+    List<Favorite> testFavorites = favoriteRepository.findByUserUuid(USER_UUID);
+    assertThat(testFavorites.isEmpty()).isTrue();
   }
 
   @Test
@@ -56,6 +61,10 @@ class EndpointAddFavoriteByLocationIdTest extends IntegrationTest {
     // Authentication should be handled by Keycloak, but only the controller is being tested,
     // thus the controller requests the Principal can not be added and a 400 Error is thrown.
     //.andExpect(status().isUnauthorized());
+
+    // Test database change
+    List<Favorite> testFavorites = favoriteRepository.findByUserUuid(USER_UUID);
+    assertThat(testFavorites.isEmpty()).isTrue();
   }
 
   @Test
@@ -83,6 +92,12 @@ class EndpointAddFavoriteByLocationIdTest extends IntegrationTest {
     // Authentication should be handled by Keycloak, but only the controller is being tested,
     // thus the controller requests the Principal can not be added and a 400 Error is thrown.
     //.andExpect(status().isUnauthorized());
+
+    // Test database change
+    List<Favorite> testFavorites = favoriteRepository.findByUserUuid(USER_UUID);
+    assertThat(testFavorites.size()).isEqualTo(1);
+    assertThat(testFavorites.get(0).getLocation()).isEqualTo(location);
+    assertThat(testFavorites.get(0).getUserUuid()).isEqualTo(USER_UUID);
   }
 
   @Test
@@ -112,6 +127,12 @@ class EndpointAddFavoriteByLocationIdTest extends IntegrationTest {
     // Authentication should be handled by Keycloak, but only the controller is being tested,
     // thus the controller requests the Principal can not be added and a 400 Error is thrown.
     //.andExpect(status().isUnauthorized());
+
+    // Test database change
+    List<Favorite> testFavorites = favoriteRepository.findByUserUuid(USER_UUID);
+    assertThat(testFavorites.size()).isEqualTo(1);
+    assertThat(testFavorites.get(0).getLocation()).isEqualTo(location);
+    assertThat(testFavorites.get(0).getUserUuid()).isEqualTo(USER_UUID);
   }
 
   @Test
@@ -144,5 +165,11 @@ class EndpointAddFavoriteByLocationIdTest extends IntegrationTest {
     // Authentication should be handled by Keycloak, but only the controller is being tested,
     // thus the controller requests the Principal can not be added and a 400 Error is thrown.
     //.andExpect(status().isUnauthorized());
+
+    // Test database change
+    List<Favorite> testFavorites = favoriteRepository.findByUserUuid(USER_UUID);
+    assertThat(testFavorites.size()).isEqualTo(1);
+    assertThat(testFavorites.get(0).getLocation()).isEqualTo(location);
+    assertThat(testFavorites.get(0).getUserUuid()).isEqualTo(USER_UUID);
   }
 }

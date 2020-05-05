@@ -42,15 +42,15 @@ public class IntegrationTest extends HappyHamsterTest {
   @SpyBean
   protected UserService userService;
   @Autowired
-  OccupancyRepository occupancyRepository;
+  protected OccupancyRepository occupancyRepository;
   @Autowired
-  FavoriteRepository favoriteRepository;
+  protected FavoriteRepository favoriteRepository;
   @Autowired
-  LocationRepository locationRepository;
+  protected LocationRepository locationRepository;
   @Autowired
-  LocationDetailsRepository locationDetailsRepository;
+  protected LocationDetailsRepository locationDetailsRepository;
   @Autowired
-  AddressRepository addressRepository;
+  protected AddressRepository addressRepository;
 
   @BeforeAll
   static void setupAll() {
