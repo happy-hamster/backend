@@ -10,7 +10,7 @@ public interface LocationDetailsRepository extends JpaRepository<LocationDetails
 
   Optional<LocationDetails> findById(Long id);
 
-  @Query(value = "SELECT type FROM location_details GROUP BY type", nativeQuery = true)
+  @Query(value = "SELECT DISTINCT type FROM location_details", nativeQuery = true)
   List<String> getAllLocationTypes();
 
 }
