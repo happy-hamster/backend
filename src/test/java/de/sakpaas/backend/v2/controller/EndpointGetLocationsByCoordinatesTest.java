@@ -31,6 +31,7 @@ class EndpointGetLocationsByCoordinatesTest extends IntegrationTest {
 
   @Test
   void testMalformed() throws Exception {
+    // Test all authentication possibilities
     // No coordinates given
     mockMvc.perform(get("/v2/locations")
         .header("Authorization", AUTHENTICATION_INVALID))

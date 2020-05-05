@@ -26,6 +26,7 @@ class EndpointGetLocationByIdTest extends IntegrationTest {
 
   @Test
   void testMalformed() throws Exception {
+    // Test all authentication possibilities
     mockMvc.perform(get("/v2/locations/xxxx")
         .header("Authorization", AUTHENTICATION_INVALID))
         .andExpect(status().isBadRequest());
@@ -41,6 +42,7 @@ class EndpointGetLocationByIdTest extends IntegrationTest {
 
   @Test
   void testNotFound() throws Exception {
+    // Test all authentication possibilities
     mockMvc.perform(get("/v2/locations/1000")
         .header("Authorization", AUTHENTICATION_INVALID))
         .andExpect(status().isUnauthorized());

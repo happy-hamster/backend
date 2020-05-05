@@ -31,6 +31,7 @@ class EndpointListFavoritesTest extends IntegrationTest {
 
   @Test
   void testEmpty() throws Exception {
+    // Test all authentication possibilities
     mockMvc.perform(get("/v2/users/self/favorites")
         .header("Authorization", AUTHENTICATION_INVALID))
         .andExpect(status().isUnauthorized());
