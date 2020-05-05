@@ -172,6 +172,8 @@ public class SearchService {
       }
     }
     request.setLocations(locations);
+    locations.stream().findAny().ifPresent(result ->
+        request.setCoordinates(new CoordinateDetails(result.getLatitude(), result.getLongitude())));
     return request;
   }
 
