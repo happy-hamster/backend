@@ -5,6 +5,7 @@ import de.sakpaas.backend.dto.NominatimSearchResultListDto;
 import de.sakpaas.backend.model.CoordinateDetails;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
+import java.net.URI;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,7 +24,7 @@ public class SearchMappingService {
   private final RestTemplate restTemplate;
   private final MeterRegistry meterRegistry;
 
-  protected String url;
+  protected URI url;
 
   @Value("${app.search-api-url}")
   private String searchApiUrl;
@@ -71,11 +72,10 @@ public class SearchMappingService {
    * @param query The search parameter
    */
   private void buildUrl(Set<String> query) {
-    this.url = UriComponentsBuilder.fromHttpUrl(this.searchApiUrl)
-        .queryParam("q", query)
+    this.url = UriComponentsBuilder.fromHttpUrl(this.searchApiUrl + "search/")
+        .queryParam("q", String.join(",", query))
         .queryParam("limit", 1)
-        .queryParam("format", "json")
-        .toUriString();
+        .queryParam("format", "json").build(false).toUri();
   }
 
   /**
@@ -88,11 +88,10 @@ public class SearchMappingService {
     String urlQuery = String.join(",", query) + "," + coordinateDetails.getLatitude() + ","
         + coordinateDetails.getLongitude();
 
-    this.url = UriComponentsBuilder.fromHttpUrl(this.searchApiUrl)
+    this.url = UriComponentsBuilder.fromHttpUrl(this.searchApiUrl + "search/")
         .queryParam("q", urlQuery)
         .queryParam("limit", 1)
-        .queryParam("format", "json")
-        .toUriString();
+        .queryParam("format", "json").build(false).toUri();
   }
 
   /**
