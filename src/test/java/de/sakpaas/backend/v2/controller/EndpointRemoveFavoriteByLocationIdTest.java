@@ -2,7 +2,6 @@ package de.sakpaas.backend.v2.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -126,16 +125,16 @@ class EndpointRemoveFavoriteByLocationIdTest extends IntegrationTest {
     super.insert(favorite);
 
     // Test all authentication possibilities
-    mockMvc.perform(post("/v2/users/self/favorites/1000")
+    mockMvc.perform(delete("/v2/users/self/favorites/1000")
         .header("Authorization", AUTHENTICATION_INVALID))
         .andExpect(status().isUnauthorized());
 
-    mockMvc.perform(post("/v2/users/self/favorites/1000")
+    mockMvc.perform(delete("/v2/users/self/favorites/1000")
         .header("Authorization", AUTHENTICATION_VALID))
         .andExpect(super.expectLocation(location))
         .andExpect(jsonPath("$.favorite").value(false));
 
-    mockMvc.perform(post("/v2/users/self/favorites/1000"))
+    mockMvc.perform(delete("/v2/users/self/favorites/1000"))
         // No Authentication
         .andExpect(status().is4xxClientError());
     // Authentication should be handled by Keycloak, but only the controller is being tested,
@@ -161,16 +160,16 @@ class EndpointRemoveFavoriteByLocationIdTest extends IntegrationTest {
     super.insert(favoriteDuplicate);
 
     // Test all authentication possibilities
-    mockMvc.perform(post("/v2/users/self/favorites/1000")
+    mockMvc.perform(delete("/v2/users/self/favorites/1000")
         .header("Authorization", AUTHENTICATION_INVALID))
         .andExpect(status().isUnauthorized());
 
-    mockMvc.perform(post("/v2/users/self/favorites/1000")
+    mockMvc.perform(delete("/v2/users/self/favorites/1000")
         .header("Authorization", AUTHENTICATION_VALID))
         .andExpect(super.expectLocation(location))
         .andExpect(jsonPath("$.favorite").value(false));
 
-    mockMvc.perform(post("/v2/users/self/favorites/1000"))
+    mockMvc.perform(delete("/v2/users/self/favorites/1000"))
         // No Authentication
         .andExpect(status().is4xxClientError());
     // Authentication should be handled by Keycloak, but only the controller is being tested,
@@ -196,11 +195,11 @@ class EndpointRemoveFavoriteByLocationIdTest extends IntegrationTest {
     super.insert(favorite);
 
     // Test all authentication possibilities
-    mockMvc.perform(post("/v2/users/self/favorites/1000")
+    mockMvc.perform(delete("/v2/users/self/favorites/1000")
         .header("Authorization", AUTHENTICATION_INVALID))
         .andExpect(status().isUnauthorized());
 
-    mockMvc.perform(post("/v2/users/self/favorites/1000")
+    mockMvc.perform(delete("/v2/users/self/favorites/1000")
         .header("Authorization", AUTHENTICATION_VALID))
         .andExpect(super.expectLocation(location))
         .andExpect(jsonPath("$.favorite").value(false))
@@ -208,7 +207,7 @@ class EndpointRemoveFavoriteByLocationIdTest extends IntegrationTest {
         .andExpect(jsonPath("$.occupancy.count").value(1))
         .andExpect(jsonPath("$.occupancy.latestReport").isString());
 
-    mockMvc.perform(post("/v2/users/self/favorites/1000"))
+    mockMvc.perform(delete("/v2/users/self/favorites/1000"))
         // No Authentication
         .andExpect(status().is4xxClientError());
     // Authentication should be handled by Keycloak, but only the controller is being tested,
