@@ -11,9 +11,7 @@ import de.sakpaas.backend.service.LocationService;
 import de.sakpaas.backend.service.UserService;
 import de.sakpaas.backend.v2.dto.LocationResultLocationDto;
 import de.sakpaas.backend.v2.mapper.LocationMapper;
-import java.security.Principal;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -81,46 +79,42 @@ public class UserController {
    * Post Endpoint that creates a favorite.
    *
    * @param locationId the location Id of the new favorite
-   * @param principal  the principal of the User
+   * @param header     The Authorization-Header that has to be provided in the request.
    * @return Returns a ResponseEntity
    */
   @PostMapping("/self/favorites/{id}")
-  public ResponseEntity<List<LocationResultLocationDto>> postFavorite(
+  public ResponseEntity<LocationResultLocationDto> postFavorite(
       @PathVariable("id") Long locationId,
       @RequestHeader("Authorization") String header) {
 
     UserInfoDto userInfo = userService.getUserInfo(header);
-
     Location location = locationService.getById(locationId)
         .orElseThrow(() -> new InvalidLocationException(locationId));
+    
     Favorite favorite = new Favorite(userInfo.getId(), location);
     favoriteService.saveUnique(favorite);
 
-    List<Favorite> favorites = favoriteService.findByUserUuid(userInfo.getId());
-    List<LocationResultLocationDto> response = favorites.stream()
-        .map(fav -> locationMapper.mapLocationToOutputDto(fav.getLocation(), userInfo))
-        .collect(Collectors.toList());
-
-    return new ResponseEntity<>(response, OK);
+    return new ResponseEntity<>(locationMapper.mapLocationToOutputDto(location, userInfo), OK);
   }
 
   /**
    * Delete Endpoint that deletes a favorite.
    *
    * @param locationId the location Id of the new favorite
-   * @param principal  the principal of the User
+   * @param header     The Authorization-Header that has to be provided in the request.
    * @return Returns a ResponseEntity
    */
   @DeleteMapping("/self/favorites/{id}")
-  public ResponseEntity<?> deleteFavorite(
+  public ResponseEntity<LocationResultLocationDto> deleteFavorite(
       @PathVariable("id") Long locationId,
-      Principal principal) {
+      @RequestHeader("Authorization") String header) {
+
+    UserInfoDto userInfo = userService.getUserInfo(header);
     Location location = locationService.getById(locationId)
         .orElseThrow(() -> new InvalidLocationException(locationId));
 
-    favoriteService.delete(location, UUID.fromString(principal.getName()));
-    return new ResponseEntity<>(OK);
+    favoriteService.delete(location, userInfo.getId());
+
+    return new ResponseEntity<>(locationMapper.mapLocationToOutputDto(location, userInfo), OK);
   }
-
-
 }
