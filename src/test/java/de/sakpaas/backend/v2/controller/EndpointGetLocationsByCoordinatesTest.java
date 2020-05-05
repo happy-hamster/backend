@@ -100,10 +100,12 @@ class EndpointGetLocationsByCoordinatesTest extends IntegrationTest {
 
     mockMvc.perform(get("/v2/locations?latitude=0.0&longitude=0.0")
         .header("Authorization", AUTHENTICATION_VALID))
+        .andExpect(status().isOk())
         .andExpect(jsonPath("$", hasSize(0)));
 
     mockMvc.perform(get("/v2/locations?latitude=0.0&longitude=0.0"))
         // No Authentication
+        .andExpect(status().isOk())
         .andExpect(jsonPath("$", hasSize(0)));
   }
 
@@ -132,11 +134,13 @@ class EndpointGetLocationsByCoordinatesTest extends IntegrationTest {
 
     mockMvc.perform(get("/v2/locations?latitude=42.0&longitude=7.0")
         .header("Authorization", AUTHENTICATION_VALID))
+        .andExpect(status().isOk())
         .andExpect(super.expectLocationList(locations))
         .andExpect(jsonPath("$", hasSize(1)));
 
     mockMvc.perform(get("/v2/locations?latitude=42.0&longitude=7.0"))
         // No Authentication
+        .andExpect(status().isOk())
         .andExpect(super.expectLocationList(locations))
         .andExpect(jsonPath("$", hasSize(1)));
   }
@@ -168,6 +172,7 @@ class EndpointGetLocationsByCoordinatesTest extends IntegrationTest {
 
     mockMvc.perform(get("/v2/locations?latitude=42.0&longitude=7.0")
         .header("Authorization", AUTHENTICATION_VALID))
+        .andExpect(status().isOk())
         .andExpect(super.expectLocationList(locations))
         .andExpect(jsonPath("$", hasSize(2)))
         .andExpect(jsonPath("$.[?(@.id==1000)].favorite").value(true))
@@ -175,6 +180,7 @@ class EndpointGetLocationsByCoordinatesTest extends IntegrationTest {
 
     mockMvc.perform(get("/v2/locations?latitude=42.0&longitude=7.0"))
         // No Authentication
+        .andExpect(status().isOk())
         .andExpect(super.expectLocationList(locations))
         .andExpect(jsonPath("$", hasSize(2)))
         // The result is a list and will not automatically unpacked with nullValue()
@@ -202,6 +208,7 @@ class EndpointGetLocationsByCoordinatesTest extends IntegrationTest {
     mockMvc.perform(
         get("/v2/locations/1000")
             .header("Authorization", AUTHENTICATION_VALID))
+        .andExpect(status().isOk())
         .andExpect(super.expectLocation(location))
         .andExpect(jsonPath("$.favorite").value(false))
         .andExpect(jsonPath("$.occupancy.value").value(occupancy.getOccupancy()))
@@ -211,6 +218,7 @@ class EndpointGetLocationsByCoordinatesTest extends IntegrationTest {
     mockMvc.perform(
         get("/v2/locations/1000"))
         // No Authentication
+        .andExpect(status().isOk())
         .andExpect(super.expectLocation(location))
         .andExpect(jsonPath("$.favorite").doesNotExist())
         .andExpect(jsonPath("$.occupancy.value").value(occupancy.getOccupancy()))

@@ -72,6 +72,7 @@ class EndpointGetLocationByIdTest extends IntegrationTest {
 
     mockMvc.perform(get("/v2/locations/1000")
         .header("Authorization", AUTHENTICATION_VALID))
+        .andExpect(status().isOk())
         .andExpect(super.expectLocation(location))
         .andExpect(jsonPath("$.favorite").value(false))
         .andExpect(jsonPath("$.occupancy.value").doesNotExist())
@@ -80,6 +81,7 @@ class EndpointGetLocationByIdTest extends IntegrationTest {
 
     mockMvc.perform(get("/v2/locations/1000"))
         // No Authentication
+        .andExpect(status().isOk())
         .andExpect(super.expectLocation(location))
         .andExpect(jsonPath("$.favorite").doesNotExist())
         .andExpect(jsonPath("$.occupancy.value").doesNotExist())
@@ -105,6 +107,7 @@ class EndpointGetLocationByIdTest extends IntegrationTest {
 
     mockMvc.perform(get("/v2/locations/1000")
         .header("Authorization", AUTHENTICATION_VALID))
+        .andExpect(status().isOk())
         .andExpect(super.expectLocation(location))
         .andExpect(jsonPath("$.favorite").value(true))
         .andExpect(jsonPath("$.occupancy.value").doesNotExist())
@@ -113,6 +116,7 @@ class EndpointGetLocationByIdTest extends IntegrationTest {
 
     mockMvc.perform(get("/v2/locations/1000"))
         // No Authentication
+        .andExpect(status().isOk())
         .andExpect(super.expectLocation(location))
         .andExpect(jsonPath("$.favorite").doesNotExist())
         .andExpect(jsonPath("$.occupancy.value").doesNotExist())
@@ -138,6 +142,7 @@ class EndpointGetLocationByIdTest extends IntegrationTest {
 
     mockMvc.perform(get("/v2/locations/1000")
         .header("Authorization", AUTHENTICATION_VALID))
+        .andExpect(status().isOk())
         .andExpect(super.expectLocation(location))
         .andExpect(jsonPath("$.favorite").value(false))
         .andExpect(jsonPath("$.occupancy.value").value(occupancy.getOccupancy()))
@@ -146,6 +151,7 @@ class EndpointGetLocationByIdTest extends IntegrationTest {
 
     mockMvc.perform(get("/v2/locations/1000"))
         // No Authentication
+        .andExpect(status().isOk())
         .andExpect(super.expectLocation(location))
         .andExpect(jsonPath("$.favorite").doesNotExist())
         .andExpect(jsonPath("$.occupancy.value").value(occupancy.getOccupancy()))

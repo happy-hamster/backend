@@ -85,6 +85,7 @@ class EndpointAddFavoriteByLocationIdTest extends IntegrationTest {
 
     mockMvc.perform(post("/v2/users/self/favorites/1000")
         .header("Authorization", AUTHENTICATION_VALID))
+        .andExpect(status().isOk())
         .andExpect(super.expectLocation(location))
         .andExpect(jsonPath("$.favorite").value(true));
 
@@ -120,6 +121,7 @@ class EndpointAddFavoriteByLocationIdTest extends IntegrationTest {
 
     mockMvc.perform(post("/v2/users/self/favorites/1000")
         .header("Authorization", AUTHENTICATION_VALID))
+        .andExpect(status().isOk())
         .andExpect(super.expectLocation(location))
         .andExpect(jsonPath("$.favorite").value(true));
 
@@ -155,6 +157,7 @@ class EndpointAddFavoriteByLocationIdTest extends IntegrationTest {
 
     mockMvc.perform(post("/v2/users/self/favorites/1000")
         .header("Authorization", AUTHENTICATION_VALID))
+        .andExpect(status().isOk())
         .andExpect(super.expectLocation(location))
         .andExpect(jsonPath("$.favorite").value(true))
         .andExpect(jsonPath("$.occupancy.value").value(occupancy.getOccupancy()))

@@ -83,6 +83,7 @@ class EndpointListFavoritesTest extends IntegrationTest {
 
     mockMvc.perform(get("/v2/users/self/favorites")
         .header("Authorization", AUTHENTICATION_VALID))
+        .andExpect(status().isOk())
         .andExpect(super.expectLocationList(locations))
         .andExpect(jsonPath("$", hasSize(2)))
         .andExpect(jsonPath("$[*].favorite").value(everyItem(equalTo(true))));
