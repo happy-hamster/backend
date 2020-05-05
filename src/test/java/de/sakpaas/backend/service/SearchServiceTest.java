@@ -5,6 +5,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import de.sakpaas.backend.HappyHamsterTest;
+import de.sakpaas.backend.exception.EmptySearchQueryException;
 import de.sakpaas.backend.model.CoordinateDetails;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.LocationDetails;
@@ -16,6 +17,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -305,5 +307,19 @@ class SearchServiceTest extends HappyHamsterTest {
     verify(mockSearchService, times(1)).dbBrandSearch(Mockito.any());
     verify(mockSearchService, times(0)).getCoordinatesFromNominatim(Mockito.any());
     verify(mockSearchService, times(0)).getCoordinatesFromNominatim(Mockito.any());
+  }
+
+  @Test
+  void createRequestThrowExceptionWithEmptyString() {
+    Assertions.assertThrows(
+        EmptySearchQueryException.class,
+        () -> searchService.createRequest("", new CoordinateDetails(1.0, 1.0)));
+  }
+
+  @Test
+  void createRequestThrowExceptionWithNullString() {
+    Assertions.assertThrows(
+        EmptySearchQueryException.class,
+        () -> searchService.createRequest(null, new CoordinateDetails(1.0, 1.0)));
   }
 }
