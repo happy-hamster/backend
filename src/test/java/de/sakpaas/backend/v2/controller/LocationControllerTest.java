@@ -56,18 +56,6 @@ class LocationControllerTest extends HappyHamsterTest {
 
   @SneakyThrows
   @Test
-  void searchForLocationsTestWithOnlyLatOrOnlyLong() {
-    mvc.perform(get("/v2/locations/search/Mannheim?latitude=44.000000")
-        .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isBadRequest());
-
-    mvc.perform(get("/v2/locations/search/Mannheim?longitude=44.000000")
-        .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isBadRequest());
-  }
-
-  @SneakyThrows
-  @Test
   void searchForLocationsTestWithQuery() {
     Mockito.when(searchService.search("Mannheim", new CoordinateDetails(null, null)))
         .thenReturn(getExampleSearchResult());
