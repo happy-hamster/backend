@@ -70,5 +70,6 @@ public class Occupancy {
     this.occupancy = occupancy;
     this.timestamp = ZonedDateTime.now();
     this.clientType = clientType;
+    this.userUuid = userUuid;
   }
 }
