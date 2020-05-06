@@ -9,6 +9,7 @@ import de.sakpaas.backend.HappyHamsterTest;
 import de.sakpaas.backend.model.CoordinateDetails;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.SearchResultObject;
+import de.sakpaas.backend.service.LocationService;
 import de.sakpaas.backend.service.SearchService;
 import de.sakpaas.backend.v2.dto.LocationResultLocationDto;
 import de.sakpaas.backend.v2.dto.SearchResultDto;
@@ -17,8 +18,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import de.sakpaas.backend.service.LocationService;
-
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -39,6 +38,8 @@ import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 @EnableConfigurationProperties
 class LocationControllerTest extends HappyHamsterTest {
 
+  @MockBean
+  LocationService locationService;
   @MockBean
   SearchResultMapper searchResultMapper;
   @Autowired
