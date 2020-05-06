@@ -224,7 +224,7 @@ public class SearchService {
     boolean locationNameContainsBrand = false;
 
     if (location.getName() != null) {
-      locationName = location.getName();
+      locationName = location.getName().toLowerCase();
       locationNameContainsBrand = locationName.contains(brand);
     }
     if (location.getDetails() != null) {
@@ -233,7 +233,7 @@ public class SearchService {
       return locationNameContainsBrand;
     }
     if (details.getBrand() != null) {
-      return locationNameContainsBrand || details.getBrand().equals(brand);
+      return locationNameContainsBrand || details.getBrand().toLowerCase().equals(brand);
     }
     return false;
   }
