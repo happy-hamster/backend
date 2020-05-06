@@ -71,7 +71,7 @@ public class UserController {
 
     List<Favorite> favorites = favoriteService.findByUserUuid(userInfo.getId());
     List<LocationResultLocationDto> response = favorites.stream()
-        .map(favorite -> locationMapper.mapLocationToOutputDto(favorite.getLocation()))
+        .map(favorite -> locationMapper.mapLocationToOutputDto(favorite.getLocation(), userInfo))
         .collect(Collectors.toList());
 
     return new ResponseEntity<>(response, OK);
@@ -81,7 +81,7 @@ public class UserController {
    * Post Endpoint that creates a favorite.
    *
    * @param locationId the location Id of the new favorite
-   * @param header The Authorization-Header that has to be provided in the request.
+   * @param header     The Authorization-Header that has to be provided in the request.
    * @return Returns a ResponseEntity
    */
   @PostMapping("/self/favorites/{id}")
@@ -103,7 +103,7 @@ public class UserController {
    * Delete Endpoint that deletes a favorite.
    *
    * @param locationId the location Id of the new favorite
-   * @param header The Authorization-Header that has to be provided in the request.
+   * @param header     The Authorization-Header that has to be provided in the request.
    * @return Returns a ResponseEntity
    */
   @DeleteMapping("/self/favorites/{id}")
