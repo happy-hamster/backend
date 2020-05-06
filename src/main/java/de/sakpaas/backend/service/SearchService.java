@@ -3,6 +3,7 @@ package de.sakpaas.backend.service;
 import de.sakpaas.backend.exception.EmptySearchQueryException;
 import de.sakpaas.backend.model.CoordinateDetails;
 import de.sakpaas.backend.model.Location;
+import de.sakpaas.backend.model.LocationDetails;
 import de.sakpaas.backend.model.SearchRequest;
 import de.sakpaas.backend.model.SearchResultObject;
 import java.util.Arrays;
@@ -13,6 +14,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.Setter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -20,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class SearchService {
+  private static final Logger LOGGER = LoggerFactory.getLogger(SearchService.class);
   @Setter
   protected static Set<String> knownBrands;
   private final LocationService locationService;
@@ -47,7 +51,6 @@ public class SearchService {
     updateBrands();
   }
 
-
   /**
    * Extracts all Brands that exists in the Database and saves them to the knownBrands List.
    * Also makes all brands lower case.
@@ -55,7 +58,6 @@ public class SearchService {
   public void updateBrands() {
     knownBrands = locationDetailsRepository.getAllBrandNamesLower();
   }
-
 
   /**
    * Main search Method. Handles all the search logic
@@ -78,7 +80,6 @@ public class SearchService {
     request = getByCoordinates(request);
     return new SearchResultObject(request.getCoordinates(), request.getLocations());
   }
-
 
   /**
    * Creates a new SearchRequest Object. Also makes all query entrys lower case.
@@ -124,7 +125,6 @@ public class SearchService {
     return request;
   }
 
-
   /**
    * Creates a Nominatim Request and executes it. It updates the Coordinates of the Request.
    *
@@ -148,7 +148,6 @@ public class SearchService {
 
     return request;
   }
-
 
   /**
    * Searches the Database for Locations that match at least one Brand of the Brand list in the.
@@ -177,7 +176,6 @@ public class SearchService {
     return request;
   }
 
-
   /**
    * Gets all Locations from the database, near specific coordinates. It will also filter by the
    * Brand-Names if there are any.
@@ -186,25 +184,52 @@ public class SearchService {
    * @return the updated Request Object
    */
   protected SearchRequest getByCoordinates(SearchRequest request) {
-    // Get Locations
+    Set<String> brands = request.getBrands();
     CoordinateDetails coordinateDetails = request.getCoordinates();
     List<Location> locations = locationService
         .findByCoordinates(coordinateDetails.getLatitude(), coordinateDetails.getLongitude());
-    // Filter by brand
-    if (!knownBrands.isEmpty()) {
-      locations = locations.stream()
-          .filter(location -> {
-            for (String brand : knownBrands) {
-              if (location.getName().contains(brand)
-                  || location.getDetails().getBrand().equals(brand)) {
-                return true;
-              }
-            }
-            return false;
-          }).collect(Collectors.toList());
+
+    if (brands != null && !brands.isEmpty()) {
+      Set<Location> filteredLocations = new HashSet<>();
+      for (String brand : brands) {
+        filteredLocations.addAll(locations.stream()
+            .filter(location -> filterLocationsByBrand(location, brand))
+            .collect(Collectors.toList()));
+      }
+      request.setLocations(filteredLocations);
+    } else {
+      request.setLocations(new HashSet<>(locations));
     }
-    request.setLocations(new HashSet<>(locations));
 
     return request;
+  }
+
+  /**
+   * Tests whether a location is from a specific brand.
+   *
+   * @param location The Location in question
+   * @param brand    The brand we are filtering with
+   * @return Whether The Location is from the brand we are searching for. {@code True} iff the
+   *        Location is from a specific brand. {@code False} otherwise.
+   */
+  private boolean filterLocationsByBrand(Location location, String brand) {
+    final String locationName;
+    final LocationDetails details;
+
+    boolean locationNameContainsBrand = false;
+
+    if (location.getName() != null) {
+      locationName = location.getName();
+      locationNameContainsBrand = locationName.contains(brand);
+    }
+    if (location.getDetails() != null) {
+      details = location.getDetails();
+    } else { // location.getDetails == null
+      return locationNameContainsBrand;
+    }
+    if (details.getBrand() != null) {
+      return locationNameContainsBrand || details.getBrand().equals(brand);
+    }
+    return false;
   }
 }
