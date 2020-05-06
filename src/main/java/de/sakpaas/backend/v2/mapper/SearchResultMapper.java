@@ -40,7 +40,7 @@ public class SearchResultMapper {
     }
 
     return new SearchResultDto(mapCoordinates(searchResultObject.getCoordinates()),
-        mapLocations(searchResultObject.getLocationList()));
+        mapLocations(new ArrayList<>(searchResultObject.getLocationList())));
   }
 
   /**
@@ -57,7 +57,7 @@ public class SearchResultMapper {
     }
 
     return new SearchResultDto(mapCoordinates(searchResultObject.getCoordinates()),
-        mapLocations(searchResultObject.getLocationList(), user));
+        mapLocations(new ArrayList<>(searchResultObject.getLocationList()), user));
   }
 
   /**

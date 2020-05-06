@@ -14,6 +14,7 @@ spring:
 
 app:
   search-api-url: https://nominatim.openstreetmap.org/
+  search-result-limit: 10
   presence:
     duration: 20
   occupancy:
