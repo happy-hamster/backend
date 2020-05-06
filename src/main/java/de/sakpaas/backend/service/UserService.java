@@ -79,7 +79,7 @@ public class UserService {
    * @throws VerificationException iff the given JWT is invalid
    */
   @VisibleForTesting
-  AccessToken verifyToken(String token) throws VerificationException {
+  public AccessToken verifyToken(String token) throws VerificationException {
     return AdapterTokenVerifier.verifyToken(
         token,
         keycloakConfiguration.getKeycloakDeployment()
