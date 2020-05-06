@@ -14,6 +14,7 @@ import de.sakpaas.backend.v2.mapper.LocationMapper;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/v2/users")
 public class UserController {
@@ -69,7 +71,7 @@ public class UserController {
 
     List<Favorite> favorites = favoriteService.findByUserUuid(userInfo.getId());
     List<LocationResultLocationDto> response = favorites.stream()
-        .map(favorite -> locationMapper.mapLocationToOutputDto(favorite.getLocation()))
+        .map(favorite -> locationMapper.mapLocationToOutputDto(favorite.getLocation(), userInfo))
         .collect(Collectors.toList());
 
     return new ResponseEntity<>(response, OK);
@@ -79,7 +81,7 @@ public class UserController {
    * Post Endpoint that creates a favorite.
    *
    * @param locationId the location Id of the new favorite
-   * @param header The Authorization-Header that has to be provided in the request.
+   * @param header     The Authorization-Header that has to be provided in the request.
    * @return Returns a ResponseEntity
    */
   @PostMapping("/self/favorites/{id}")
@@ -101,7 +103,7 @@ public class UserController {
    * Delete Endpoint that deletes a favorite.
    *
    * @param locationId the location Id of the new favorite
-   * @param header The Authorization-Header that has to be provided in the request.
+   * @param header     The Authorization-Header that has to be provided in the request.
    * @return Returns a ResponseEntity
    */
   @DeleteMapping("/self/favorites/{id}")
