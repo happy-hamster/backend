@@ -90,7 +90,7 @@ public class SearchService {
    */
   protected SearchRequest createRequest(String query, CoordinateDetails coordinateDetails)
       throws EmptySearchQueryException {
-    if (query == null || query.equals("")) {
+    if (query == null || query.isEmpty()) {
       throw new EmptySearchQueryException("The search query is empty");
     }
 
