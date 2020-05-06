@@ -49,6 +49,7 @@ public class LocationController {
   private static final String MAPPING_BY_ID = "/{locationId}";
   private static final String MAPPING_START_DATABASE = "/generate/{key}";
   private static final String MAPPING_SEARCH_LOCATION = "/search/{key}";
+  private static final String MAPPING_LOCATION_TYPES = "/types";
   private final LocationService locationService;
   private final SearchService searchService;
   private final OpenStreetMapService openStreetMapService;
@@ -153,14 +154,21 @@ public class LocationController {
   @PostMapping(value = MAPPING_POST_OCCUPANCY)
   public ResponseEntity<LocationResultLocationDto> postNewOccupancy(
       @Valid @RequestBody OccupancyReportDto occupancyReportDto,
-      @PathVariable("locationId") Long locationId) {
+      @PathVariable("locationId") Long locationId,
+      @RequestHeader(value = "Authorization", required = false) String header) {
     occupancyReportDto.setLocationId(locationId);
+    Optional<UserInfoDto> user = userService.getOptionalUserInfo(header);
 
     Location location = locationService.getById(locationId)
         .orElseThrow(() -> new InvalidLocationException(locationId));
 
-    occupancyService.save(new Occupancy(location, occupancyReportDto.getOccupancy(),
-        occupancyReportDto.getClientType()));
+    if (user.isPresent()) {
+      occupancyService.save(new Occupancy(location, occupancyReportDto.getOccupancy(),
+          occupancyReportDto.getClientType(), user.get().getId()));
+    } else {
+      occupancyService.save(new Occupancy(location, occupancyReportDto.getOccupancy(),
+          occupancyReportDto.getClientType()));
+    }
 
     return new ResponseEntity<>(locationMapper.mapLocationToOutputDto(location), CREATED);
   }
@@ -242,5 +250,15 @@ public class LocationController {
         .orElseGet(
             () -> new ResponseEntity<>(searchResultMapper.mapSearchResultToOutputDto(resultObject),
                 OK));
+  }
+
+  /**
+   * Returns all existing Location Types.
+   *
+   * @return ResponseEntity with the Location Type List
+   */
+  @GetMapping(MAPPING_LOCATION_TYPES)
+  public ResponseEntity<List<String>> getAllLocationTypes() {
+    return new ResponseEntity<>(locationService.getAllLocationTypes(), OK);
   }
 }
