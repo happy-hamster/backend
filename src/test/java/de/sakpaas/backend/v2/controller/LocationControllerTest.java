@@ -77,24 +77,4 @@ class LocationControllerTest extends HappyHamsterTest {
     String compareJson = new ObjectMapper().writeValueAsString(searchResultDto);
     assertThat(compareJson, equalTo(resultJson));
   }
-
-  @SneakyThrows
-  @Test
-  void getLocationTypesTest() {
-    List<String> locationTypes = new ArrayList<>();
-    locationTypes.add("testType1");
-    locationTypes.add("testType2");
-
-    Mockito.when(locationService.getAllLocationTypes()).thenReturn(locationTypes);
-
-    String resultJson = mvc.perform(get("/v2/locations/types")
-        .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isOk())
-        .andReturn()
-        .getResponse()
-        .getContentAsString();
-
-    String compareJson = new ObjectMapper().writeValueAsString(locationTypes);
-    assertThat(compareJson, equalTo(resultJson));
-  }
 }
