@@ -215,9 +215,9 @@ public class SearchService {
    * @param location The Location in question
    * @param brand    The brand we are filtering with
    * @return Whether The Location is from the brand we are searching for. {@code True} iff the
-   *        Location is from a specific brand. {@code False} otherwise.
+   * Location is from a specific brand. {@code False} otherwise.
    */
-  private boolean filterLocationsByBrand(Location location, String brand) {
+  protected boolean filterLocationsByBrand(Location location, String brand) {
     final String locationName;
     final LocationDetails details;
 
