@@ -3,8 +3,10 @@ package de.sakpaas.backend.exception;
 import org.springframework.http.HttpStatus;
 
 public class EmptySearchQueryException extends ApplicationException {
-  // TODO Implement Empty Search Query Exception
-  public EmptySearchQueryException(long locationId) {
-    super(HttpStatus.NOT_FOUND, "to be implemented", "to be implemented", false, locationId);
+  /**
+   * Creates an ApplicationException with the given values.
+   */
+  public EmptySearchQueryException(String message) {
+    super(HttpStatus.NOT_FOUND, message, "EMPTY_QUERY", false);
   }
 }

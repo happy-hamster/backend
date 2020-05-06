@@ -82,14 +82,19 @@ public class SearchService {
   }
 
   /**
-   * Creates a new SearchRequest Object. Also makes all query entrys lower case.
+   * Creates a new SearchRequest Object. Also makes all query entries lower case.
    *
    * @param query             The SearchQuery
    * @param coordinateDetails The SearchCoordinates
    * @return A new SearchRequest
+   * @throws EmptySearchQueryException Iff the query is empty
    */
   protected SearchRequest createRequest(String query, CoordinateDetails coordinateDetails)
       throws EmptySearchQueryException {
+    if (query == null || query.isEmpty()) {
+      throw new EmptySearchQueryException("The search query is empty");
+    }
+
     query = query.toLowerCase();
 
     // Stores all brands found in the query
