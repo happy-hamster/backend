@@ -406,4 +406,11 @@ class SearchServiceTest extends HappyHamsterTest {
 
     assertThat(response.getLocations()).isEqualTo(new HashSet<>(Collections.singleton(location)));
   }
+
+  @Test
+  void filterLocationsByBrandTest() {
+    LocationDetails locationDetails = new LocationDetails("tt", "toh", "Lidl");
+    Location location = new Location(1L, "Lidl Möckmühl", 41.0D, 8.0D, locationDetails, null);
+    assertThat(searchService.filterLocationsByBrand(location, "lidl")).isTrue();
+  }
 }
