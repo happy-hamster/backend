@@ -322,7 +322,7 @@ class SearchServiceTest extends HappyHamsterTest {
     Assertions.assertThrows(
         EmptySearchQueryException.class,
         () -> searchService.createRequest(null, new CoordinateDetails(1.0, 1.0)));
-  
+  }
   @Test
   void testFilterLocationWithoutNameOrBrandWithoutBrand() {
     final Location location = new Location();
