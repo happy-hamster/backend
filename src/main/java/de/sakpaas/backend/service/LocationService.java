@@ -19,21 +19,25 @@ public class LocationService {
   private final LocationRepository locationRepository;
   private final PresenceRepository presenceRepository;
   private final OccupancyRepository occupancyRepository;
+  private final LocationDetailsRepository locationDetailsRepository;
   private final FavoriteService favoriteService;
 
   /**
    * Default Constructor. Handles the Dependency Injection and Meter Initialisation and Registering
    *
-   * @param locationRepository The Location Repository
+   * @param locationRepository        The Location Repository
+   * @param locationDetailsRepository The Location Details Repository
    */
   @Autowired
   public LocationService(LocationRepository locationRepository,
                          PresenceRepository presenceRepository,
                          OccupancyRepository occupancyRepository,
+                         LocationDetailsRepository locationDetailsRepository,
                          FavoriteService favoriteService) {
     this.locationRepository = locationRepository;
     this.presenceRepository = presenceRepository;
     this.occupancyRepository = occupancyRepository;
+    this.locationDetailsRepository = locationDetailsRepository;
     this.favoriteService = favoriteService;
   }
 
@@ -66,6 +70,7 @@ public class LocationService {
         .limit(100)
         .collect(Collectors.toList());
   }
+
 
   /**
    * Gets all Locations from a specific coordinate.
@@ -127,5 +132,14 @@ public class LocationService {
     presenceRepository.findByLocation(location).forEach(presenceRepository::delete);
     favoriteService.deleteByLocation(location);
     locationRepository.delete(location);
+  }
+
+  /**
+   * Gets all Location Types from the Database and returns them.
+   *
+   * @return All existing location types
+   */
+  public List<String> getAllLocationTypes() {
+    return locationDetailsRepository.getAllLocationTypes();
   }
 }

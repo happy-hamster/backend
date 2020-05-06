@@ -9,6 +9,7 @@ import de.sakpaas.backend.HappyHamsterTest;
 import de.sakpaas.backend.model.CoordinateDetails;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.SearchResultObject;
+import de.sakpaas.backend.service.LocationService;
 import de.sakpaas.backend.service.SearchService;
 import de.sakpaas.backend.v2.dto.LocationResultLocationDto;
 import de.sakpaas.backend.v2.dto.SearchResultDto;
@@ -37,6 +38,8 @@ import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 @EnableConfigurationProperties
 class LocationControllerTest extends HappyHamsterTest {
 
+  @MockBean
+  LocationService locationService;
   @MockBean
   SearchResultMapper searchResultMapper;
   @Autowired
@@ -86,4 +89,26 @@ class LocationControllerTest extends HappyHamsterTest {
     String compareJson = new ObjectMapper().writeValueAsString(searchResultDto);
     assertThat(compareJson, equalTo(resultJson));
   }
+
+
+  @SneakyThrows
+  @Test
+  void getLocationTypesTest() {
+    List<String> locationTypes = new ArrayList<>();
+    locationTypes.add("testType1");
+    locationTypes.add("testType2");
+
+    Mockito.when(locationService.getAllLocationTypes()).thenReturn(locationTypes);
+
+    String resultJson = mvc.perform(get("/v2/locations/types")
+        .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andReturn()
+        .getResponse()
+        .getContentAsString();
+
+    String compareJson = new ObjectMapper().writeValueAsString(locationTypes);
+    assertThat(compareJson, equalTo(resultJson));
+  }
+
 }
