@@ -217,14 +217,14 @@ public class SearchService {
    * @return Whether The Location is from the brand we are searching for. {@code True} iff the
    *        Location is from a specific brand. {@code False} otherwise.
    */
-  private boolean filterLocationsByBrand(Location location, String brand) {
+  protected boolean filterLocationsByBrand(Location location, String brand) {
     final String locationName;
     final LocationDetails details;
 
     boolean locationNameContainsBrand = false;
 
     if (location.getName() != null) {
-      locationName = location.getName();
+      locationName = location.getName().toLowerCase();
       locationNameContainsBrand = locationName.contains(brand);
     }
     if (location.getDetails() != null) {
@@ -233,7 +233,7 @@ public class SearchService {
       return locationNameContainsBrand;
     }
     if (details.getBrand() != null) {
-      return locationNameContainsBrand || details.getBrand().equals(brand);
+      return locationNameContainsBrand || details.getBrand().toLowerCase().equals(brand);
     }
     return false;
   }
