@@ -305,11 +305,11 @@ class EndpointSearchLocationsTest extends IntegrationTest {
     ));
 
     // Test all authentication possibilities
-    mockMvc.perform(get("/v2/locations/search/Lidl%20Mannheim?latitude=0.0&longitude=0.0")
+    mockMvc.perform(get("/v2/locations/search/Lidl Mannheim?latitude=0.0&longitude=0.0")
         .header("Authorization", AUTHENTICATION_INVALID))
         .andExpect(status().isUnauthorized());
 
-    mockMvc.perform(get("/v2/locations/search/Lidl%20Mannheim?latitude=0.0&longitude=0.0")
+    mockMvc.perform(get("/v2/locations/search/Lidl Mannheim?latitude=0.0&longitude=0.0")
         .header("Authorization", AUTHENTICATION_VALID))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.locations", hasSize(1)))
@@ -320,7 +320,7 @@ class EndpointSearchLocationsTest extends IntegrationTest {
         .andExpect(jsonPath("$.locations[*].id")
             .value(everyItem(equalTo(2000))));
 
-    mockMvc.perform(get("/v2/locations/search/Lidl%20Mannheim?latitude=0.0&longitude=0.0"))
+    mockMvc.perform(get("/v2/locations/search/Lidl Mannheim?latitude=0.0&longitude=0.0"))
         // No Authentication
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.locations", hasSize(1)))
@@ -364,11 +364,11 @@ class EndpointSearchLocationsTest extends IntegrationTest {
     ));
 
     // Test all authentication possibilities
-    mockMvc.perform(get("/v2/locations/search/Lidl%20Mannheim0")
+    mockMvc.perform(get("/v2/locations/search/Lidl Mannheim0")
         .header("Authorization", AUTHENTICATION_INVALID))
         .andExpect(status().isUnauthorized());
 
-    mockMvc.perform(get("/v2/locations/search/Lidl%20Mannheim")
+    mockMvc.perform(get("/v2/locations/search/Lidl Mannheim")
         .header("Authorization", AUTHENTICATION_VALID))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.locations", hasSize(1)))
@@ -379,7 +379,7 @@ class EndpointSearchLocationsTest extends IntegrationTest {
         .andExpect(jsonPath("$.locations[*].id")
             .value(everyItem(equalTo(2000))));
 
-    mockMvc.perform(get("/v2/locations/search/Lidl%20Mannheim"))
+    mockMvc.perform(get("/v2/locations/search/Lidl Mannheim"))
         // No Authentication
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.locations", hasSize(1)))
