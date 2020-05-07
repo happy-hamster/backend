@@ -33,10 +33,8 @@ class LocationDetailsRepositoryTest extends HappyHamsterTest {
     assertThat(result.contains("testbrand")).isTrue();
     assertThat(result.contains("test brand")).isTrue();
 
-
     locationDetailsRepository.deleteAll();
   }
-
 
   @Test
   void getAllLocationTypes() {
