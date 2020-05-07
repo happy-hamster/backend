@@ -1,11 +1,8 @@
 package de.sakpaas.backend.v2.controller;
 
-import static org.hamcrest.Matchers.any;
-import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.everyItem;
 import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -13,12 +10,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import de.sakpaas.backend.IntegrationTest;
 import de.sakpaas.backend.dto.NominatimSearchResultListDto;
 import de.sakpaas.backend.model.Address;
-import de.sakpaas.backend.model.Favorite;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.LocationDetails;
-import de.sakpaas.backend.model.Occupancy;
 import de.sakpaas.backend.service.SearchService;
-import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -29,8 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -209,7 +201,7 @@ class EndpointSearchLocationsTest extends IntegrationTest {
     // Suppress outgoing http call
     mockRestTemplate(new NominatimSearchResultListDto(
         Collections.singletonList(
-                new NominatimSearchResultListDto.NominatimResultLocationDto(42.0, 7.0)
+            new NominatimSearchResultListDto.NominatimResultLocationDto(42.0, 7.0)
         )
     ));
 
@@ -276,6 +268,124 @@ class EndpointSearchLocationsTest extends IntegrationTest {
         .andExpect(jsonPath("$.locations", hasSize(1)))
         .andExpect(jsonPath("$.locations[*].address.city")
             .value(everyItem(equalTo("Mannheim"))));
+  }
+
+  @Test
+  void testBrandAndCityWithCoordinates() throws Exception {
+    // Setup test data
+    Location locationEdeka = new Location(1000L, "Edeka Eima", 42.0, 7.0,
+        new LocationDetails("supermarket", "Mo-Fr 10-22", "Edeka"),
+        new Address("DE", "Mannheim", "25565", "Handelshafen", "12a")
+    );
+    Location locationLidl = new Location(2000L, "Lidl", 42.01, 7.01,
+        new LocationDetails("beverages", "Mo-So 01-23", "LIDL"),
+        new Address("DE", "Mannheim", "25565", "Am Ring", "4711")
+    );
+    Location locationLidlFaraway = new Location(3000L, "Lidl", 0.0, 0.0,
+        new LocationDetails("beverages", "Mo-So 01-23", "LIDL"),
+        new Address("ES", "Madrid", "5432", "Street", "1111")
+    );
+    super.insert(locationEdeka);
+    super.insert(locationLidl);
+    super.insert(locationLidlFaraway);
+    List<Location> locations = Arrays.asList(
+        locationEdeka,
+        locationLidl,
+        locationLidlFaraway
+    );
+    searchService.updateBrands();
+    // Suppress outgoing http call
+    mockRestTemplate(new NominatimSearchResultListDto(
+        Collections.singletonList(
+            new NominatimSearchResultListDto.NominatimResultLocationDto(42.0, 7.0)
+        )
+    ));
+
+    // Test all authentication possibilities
+    mockMvc.perform(get("/v2/locations/search/Lidl%20Mannheim?latitude=0.0&longitude=0.0")
+        .header("Authorization", AUTHENTICATION_INVALID))
+        .andExpect(status().isUnauthorized());
+
+    mockMvc.perform(get("/v2/locations/search/Lidl%20Mannheim?latitude=0.0&longitude=0.0")
+        .header("Authorization", AUTHENTICATION_VALID))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.locations", hasSize(1)))
+        .andExpect(jsonPath("$.locations[*].details.brands")
+            .value(everyItem(equalTo("lidl"))))
+        .andExpect(jsonPath("$.locations[*].address.city")
+            .value(everyItem(equalTo("Mannheim"))))
+        .andExpect(jsonPath("$.locations[*].id")
+            .value(everyItem(equalTo(2000))));
+
+    mockMvc.perform(get("/v2/locations/search/Lidl%20Mannheim?latitude=0.0&longitude=0.0"))
+        // No Authentication
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.locations", hasSize(1)))
+        .andExpect(jsonPath("$.locations[*].details.brands")
+            .value(everyItem(equalTo("lidl"))))
+        .andExpect(jsonPath("$.locations[*].address.city")
+            .value(everyItem(equalTo("Mannheim"))))
+        .andExpect(jsonPath("$.locations[*].id")
+            .value(everyItem(equalTo(2000))));
+  }
+
+  @Test
+  void testBrandAndCityWithoutCoordinates() throws Exception {
+    // Setup test data
+    Location locationEdeka = new Location(1000L, "Edeka Eima", 42.0, 7.0,
+        new LocationDetails("supermarket", "Mo-Fr 10-22", "Edeka"),
+        new Address("DE", "Mannheim", "25565", "Handelshafen", "12a")
+    );
+    Location locationLidl = new Location(2000L, "Lidl", 42.01, 7.01,
+        new LocationDetails("beverages", "Mo-So 01-23", "LIDL"),
+        new Address("DE", "Mannheim", "25565", "Am Ring", "4711")
+    );
+    Location locationLidlFaraway = new Location(3000L, "Lidl", 0.0, 0.0,
+        new LocationDetails("beverages", "Mo-So 01-23", "LIDL"),
+        new Address("ES", "Madrid", "5432", "Street", "1111")
+    );
+    super.insert(locationEdeka);
+    super.insert(locationLidl);
+    super.insert(locationLidlFaraway);
+    List<Location> locations = Arrays.asList(
+        locationEdeka,
+        locationLidl,
+        locationLidlFaraway
+    );
+    searchService.updateBrands();
+    // Suppress outgoing http call
+    mockRestTemplate(new NominatimSearchResultListDto(
+        Collections.singletonList(
+            new NominatimSearchResultListDto.NominatimResultLocationDto(42.0, 7.0)
+        )
+    ));
+
+    // Test all authentication possibilities
+    mockMvc.perform(get("/v2/locations/search/Lidl%20Mannheim0")
+        .header("Authorization", AUTHENTICATION_INVALID))
+        .andExpect(status().isUnauthorized());
+
+    mockMvc.perform(get("/v2/locations/search/Lidl%20Mannheim")
+        .header("Authorization", AUTHENTICATION_VALID))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.locations", hasSize(1)))
+        .andExpect(jsonPath("$.locations[*].details.brands")
+            .value(everyItem(equalTo("lidl"))))
+        .andExpect(jsonPath("$.locations[*].address.city")
+            .value(everyItem(equalTo("Mannheim"))))
+        .andExpect(jsonPath("$.locations[*].id")
+            .value(everyItem(equalTo(2000))));
+
+    mockMvc.perform(get("/v2/locations/search/Lidl%20Mannheim"))
+        // No Authentication
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.locations", hasSize(1)))
+        .andExpect(jsonPath("$.locations[*].details.brands")
+            .value(everyItem(equalTo("lidl"))))
+        .andExpect(jsonPath("$.locations[*].address.city")
+            .value(everyItem(equalTo("Mannheim"))))
+        .andExpect(jsonPath("$.locations[*].id")
+            .value(everyItem(equalTo(2000))));
   }
 
   private void mockRestTemplate(NominatimSearchResultListDto nominatim) {
