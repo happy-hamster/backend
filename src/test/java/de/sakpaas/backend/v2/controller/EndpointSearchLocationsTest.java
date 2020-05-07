@@ -157,7 +157,7 @@ class EndpointSearchLocationsTest extends IntegrationTest {
         .andExpect(jsonPath("$.locations[*].id")
             .value(everyItem(equalTo(2000))));
 
-    mockMvc.perform(get("/v2/locations/search/Lidl"))
+    mockMvc.perform(get("/v2/locations/search/Lidl?latitude=42.0&longitude=7.0"))
         // No Authentication
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.locations", hasSize(1)))
