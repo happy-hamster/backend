@@ -3,6 +3,7 @@ package de.sakpaas.backend.v2.controller;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.everyItem;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -10,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import de.sakpaas.backend.IntegrationTest;
 import de.sakpaas.backend.dto.NominatimSearchResultListDto;
 import de.sakpaas.backend.model.Address;
+import de.sakpaas.backend.model.Favorite;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.LocationDetails;
 import de.sakpaas.backend.service.SearchService;
@@ -386,6 +388,44 @@ class EndpointSearchLocationsTest extends IntegrationTest {
             .value(everyItem(equalTo("Mannheim"))))
         .andExpect(jsonPath("$.locations[*].id")
             .value(everyItem(equalTo(2000))));
+  }
+
+  @Test
+  void testFavorite() throws Exception {
+    // Setup test data
+    Location locationEdeka = new Location(1000L, "Edeka Eima", 42.0, 7.0,
+        new LocationDetails("supermarket", "Mo-Fr 10-22", "Edeka"),
+        new Address("DE", "Mannheim", "25565", "Handelshafen", "12a")
+    );
+    super.insert(locationEdeka);
+    Favorite favorite = new Favorite(USER_UUID, locationEdeka);
+    super.insert(favorite);
+    searchService.updateBrands();
+    // Suppress outgoing http call
+    mockRestTemplate(null);
+
+    // Test all authentication possibilities
+    mockMvc.perform(get("/v2/locations/search/edeka")
+        .header("Authorization", AUTHENTICATION_INVALID))
+        .andExpect(status().isUnauthorized());
+
+    mockMvc.perform(get("/v2/locations/search/edeka")
+        .header("Authorization", AUTHENTICATION_VALID))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.locations", hasSize(1)))
+        .andExpect(jsonPath("$.locations[*].details.brands")
+            .value(everyItem(equalTo("edeka"))))
+        .andExpect(jsonPath("$.locations[*].favorite")
+            .value(everyItem(equalTo(true))));
+
+    mockMvc.perform(get("/v2/locations/search/edeka"))
+        // No Authentication
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.locations", hasSize(1)))
+        .andExpect(jsonPath("$.locations[*].details.brands")
+            .value(everyItem(equalTo("edeka"))))
+        .andExpect(jsonPath("$.locations[*].favorite")
+            .value(everyItem(nullValue())));
   }
 
   private void mockRestTemplate(NominatimSearchResultListDto nominatim) {
