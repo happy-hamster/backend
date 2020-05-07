@@ -165,12 +165,14 @@ public class LocationController {
     if (user.isPresent()) {
       occupancyService.save(new Occupancy(location, occupancyReportDto.getOccupancy(),
           occupancyReportDto.getClientType(), user.get().getId()));
+
+      return new ResponseEntity<>(locationMapper.mapLocationToOutputDto(location, user.get()), OK);
     } else {
       occupancyService.save(new Occupancy(location, occupancyReportDto.getOccupancy(),
           occupancyReportDto.getClientType()));
-    }
 
-    return new ResponseEntity<>(locationMapper.mapLocationToOutputDto(location), CREATED);
+      return new ResponseEntity<>(locationMapper.mapLocationToOutputDto(location), OK);
+    }
   }
 
   /**
