@@ -58,7 +58,9 @@ keycloak:
         - uma_authorization
       securityCollections:
         - patterns: /auth/*
+          omitted-methods: [OPTIONS]
         - patterns: /v2/users/*
+          omitted-methods: [OPTIONS]
     - securityCollections:
         - patterns: /v1/*
         - patterns: /v2/*
