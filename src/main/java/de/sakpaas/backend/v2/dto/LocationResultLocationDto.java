@@ -39,9 +39,9 @@ public class LocationResultLocationDto {
                                    @JsonProperty("name") String name,
                                    @JsonProperty("favorite") Boolean favorite,
                                    @JsonProperty("details")
-                                         LocationResultLocationDetailsDto details,
+                                       LocationResultLocationDetailsDto details,
                                    @JsonProperty("coordinates")
-                                         LocationResultCoordinatesDto coordinates,
+                                       LocationResultCoordinatesDto coordinates,
                                    @JsonProperty("occupancy") LocationResultOccupancyDto occupancy,
                                    @JsonProperty("address") LocationResultAddressDto address) {
     this.id = id;

@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+
 import de.sakpaas.backend.HappyHamsterTest;
 import de.sakpaas.backend.exception.EmptySearchQueryException;
 import de.sakpaas.backend.model.CoordinateDetails;
@@ -323,6 +324,7 @@ class SearchServiceTest extends HappyHamsterTest {
         EmptySearchQueryException.class,
         () -> searchService.createRequest(null, new CoordinateDetails(1.0, 1.0)));
   }
+
   @Test
   void testFilterLocationWithoutNameOrBrandWithoutBrand() {
     final Location location = new Location();
