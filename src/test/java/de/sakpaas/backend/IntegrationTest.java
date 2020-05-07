@@ -135,7 +135,6 @@ public class IntegrationTest extends HappyHamsterTest {
     return result -> this.match(result, "$", location);
   }
 
-
   /**
    * Checks if the given {@link org.springframework.test.web.servlet.MvcResult} has the form of a
    * List of Locations as defined in the openAPI specification. The fields given in the locations
@@ -145,9 +144,22 @@ public class IntegrationTest extends HappyHamsterTest {
    * @return the {@link ResultMatcher}
    */
   protected ResultMatcher expectLocationList(List<Location> locations) {
+    return expectLocationList(locations, "$");
+  }
+
+  /**
+   * Checks if the given {@link org.springframework.test.web.servlet.MvcResult} has the form of a
+   * List of Locations as defined in the openAPI specification. The fields given in the locations
+   * parameter have to be correct.
+   *
+   * @param locations the baseline {@link List} of {@link Location}s
+   * @param path      the path where to search for {@link Location}
+   * @return the {@link ResultMatcher}
+   */
+  protected ResultMatcher expectLocationList(List<Location> locations, String path) {
     return result -> {
       // Check if the result is an array
-      jsonPath("$").isArray().match(result);
+      jsonPath(path).isArray().match(result);
 
       // Find correct Location for array element
       JSONArray array = (JSONArray) JSONValue.parse(result.getResponse().getContentAsString());
@@ -159,7 +171,7 @@ public class IntegrationTest extends HappyHamsterTest {
             .filter(loc -> loc.getId() == id)
             .findAny()
             .orElseThrow(() -> new AssertionError("Unknown LocationId in result."));
-        this.match(result, "$[" + i + "]", location);
+        this.match(result, path + "[" + i + "]", location);
       }
     };
   }
