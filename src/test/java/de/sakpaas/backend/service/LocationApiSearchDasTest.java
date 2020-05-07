@@ -6,6 +6,7 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 
+
 import de.sakpaas.backend.HappyHamsterTest;
 import de.sakpaas.backend.dto.OsmResultLocationListDto;
 import de.sakpaas.backend.util.OsmImportConfiguration;
@@ -111,5 +112,5 @@ class LocationApiSearchDasTest extends HappyHamsterTest {
             "way[shop=type1](area.searchArea);node[shop=type2](area.searchArea);" +
             "way[shop=type2](area.searchArea););out center;");
   }
-  
+
 }

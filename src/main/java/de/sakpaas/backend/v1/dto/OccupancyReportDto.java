@@ -25,7 +25,7 @@ public class OccupancyReportDto {
    * Creates a new v1 {@link OccupancyReportDto} from JSON.
    *
    * @param locationId the location id
-   * @param occupancy the occupancy (from 0.0 to 1.0)
+   * @param occupancy  the occupancy (from 0.0 to 1.0)
    * @param clientType the client type (eg. IOT, WEB_CLIENT)
    */
   @JsonCreator

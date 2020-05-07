@@ -2,6 +2,7 @@ package de.sakpaas.backend.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+
 import de.sakpaas.backend.HappyHamsterTest;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;

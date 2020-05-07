@@ -10,9 +10,8 @@ import org.testcontainers.containers.PostgreSQLContainer;
 @EnableConfigurationProperties(KeycloakSpringBootProperties.class)
 public class HappyHamsterTest {
 
-  @MockBean
-  protected KeycloakConfiguration keycloakConfiguration;
-
   @ClassRule
   public static PostgreSQLContainer container = PostgresqlContainer.getInstance();
+  @MockBean
+  protected KeycloakConfiguration keycloakConfiguration;
 }

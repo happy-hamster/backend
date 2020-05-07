@@ -6,7 +6,6 @@ import de.sakpaas.backend.util.CoordinatesUtils;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -100,16 +99,16 @@ public class LocationService {
         .limit(100)
         .collect(Collectors.toList());
   }
-  
+
   /**
    * Gets all Locations that have the given brand in their name or brand (in LocationDetails).
-   * 
+   *
    * @param brand The brand name that will be queried
    */
   public List<Location> findByNameOrBrandLike(String brand, int limit) {
     Pageable pageable = PageRequest.of(0, limit);
     return locationRepository.findByNameIgnoreCaseLikeOrDetailsBrandIgnoreCaseLike(brand, brand,
-                                                                                   pageable);
+        pageable);
   }
 
   /**
