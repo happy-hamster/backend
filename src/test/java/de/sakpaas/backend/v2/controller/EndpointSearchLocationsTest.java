@@ -14,6 +14,7 @@ import de.sakpaas.backend.model.Address;
 import de.sakpaas.backend.model.Favorite;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.LocationDetails;
+import de.sakpaas.backend.model.Occupancy;
 import de.sakpaas.backend.service.SearchService;
 import java.util.Arrays;
 import java.util.Collections;
@@ -426,6 +427,48 @@ class EndpointSearchLocationsTest extends IntegrationTest {
             .value(everyItem(equalTo("edeka"))))
         .andExpect(jsonPath("$.locations[*].favorite")
             .value(everyItem(nullValue())));
+  }
+
+  @Test
+  void testOccupancy() throws Exception {
+    // Setup test data
+    Location locationEdeka = new Location(1000L, "Edeka Eima", 42.0, 7.0,
+        new LocationDetails("supermarket", "Mo-Fr 10-22", "Edeka"),
+        new Address("DE", "Mannheim", "25565", "Handelshafen", "12a")
+    );
+    super.insert(locationEdeka);
+    Occupancy occupancy = new Occupancy(locationEdeka, 0.5, "TEST");
+    super.insert(locationEdeka);
+    searchService.updateBrands();
+    // Suppress outgoing http call
+    mockRestTemplate(null);
+
+    // Test all authentication possibilities
+    mockMvc.perform(get("/v2/locations/search/edeka")
+        .header("Authorization", AUTHENTICATION_INVALID))
+        .andExpect(status().isUnauthorized());
+
+    mockMvc.perform(get("/v2/locations/search/edeka")
+        .header("Authorization", AUTHENTICATION_VALID))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.locations", hasSize(1)))
+        .andExpect(jsonPath("$.locations[*].details.brands")
+            .value(everyItem(equalTo("edeka"))))
+        .andExpect(jsonPath("$.locations[*].occupancy.value")
+            .value(everyItem(equalTo(occupancy.getOccupancy()))))
+        .andExpect(jsonPath("$.locations[*].occupancy.count")
+            .value(everyItem(equalTo(1))));
+
+    mockMvc.perform(get("/v2/locations/search/edeka"))
+        // No Authentication
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.locations", hasSize(1)))
+        .andExpect(jsonPath("$.locations[*].details.brands")
+            .value(everyItem(equalTo("edeka"))))
+        .andExpect(jsonPath("$.locations[*].occupancy.value")
+            .value(everyItem(equalTo(occupancy.getOccupancy()))))
+        .andExpect(jsonPath("$.locations[*].occupancy.count")
+            .value(everyItem(equalTo(1))));
   }
 
   private void mockRestTemplate(NominatimSearchResultListDto nominatim) {
