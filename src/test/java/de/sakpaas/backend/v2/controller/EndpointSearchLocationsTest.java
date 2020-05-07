@@ -438,7 +438,7 @@ class EndpointSearchLocationsTest extends IntegrationTest {
     );
     super.insert(locationEdeka);
     Occupancy occupancy = new Occupancy(locationEdeka, 0.5, "TEST");
-    super.insert(locationEdeka);
+    super.insert(occupancy);
     searchService.updateBrands();
     // Suppress outgoing http call
     mockRestTemplate(null);
