@@ -6,7 +6,9 @@ import static org.springframework.http.HttpStatus.OK;
 
 import de.sakpaas.backend.BackendApplication;
 import de.sakpaas.backend.dto.UserInfoDto;
+import de.sakpaas.backend.exception.IncompleteCoordinateException;
 import de.sakpaas.backend.exception.InvalidLocationException;
+import de.sakpaas.backend.model.CoordinateDetails;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.Occupancy;
 import de.sakpaas.backend.model.SearchResultObject;
@@ -222,17 +224,27 @@ public class LocationController {
   /**
    * Get Endpoint to search for Locations.
    *
-   * @param key    the search query
-   * @param header the (optional) authentication
+   * @param query     the search query
+   * @param latitude  The latitude of the Coordinates
+   * @param longitude The Longitude of the Coordinates
+   * @param header    the (optional) authentication
    * @return a list of found locations
    */
   @GetMapping(value = MAPPING_SEARCH_LOCATION)
   public ResponseEntity<SearchResultDto> searchForLocations(
-      @PathVariable("key") String key,
+      @PathVariable("key") String query,
+      @RequestParam(required = false) Double latitude,
+      @RequestParam(required = false) Double longitude,
       @RequestHeader(value = "Authorization", required = false) String header) {
     Optional<UserInfoDto> user = userService.getOptionalUserInfo(header);
 
-    final SearchResultObject resultObject = searchService.search(key);
+    // Check if both of lat and long are set or not set
+    if ((latitude == null) != (longitude == null)) {
+      throw new IncompleteCoordinateException();
+    }
+
+    final SearchResultObject resultObject = searchService.search(query,
+        new CoordinateDetails(latitude, longitude));
 
     return user.map(
         userInfoDto -> new ResponseEntity<>(
