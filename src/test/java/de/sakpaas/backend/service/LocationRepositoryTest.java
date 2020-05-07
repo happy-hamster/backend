@@ -2,6 +2,7 @@ package de.sakpaas.backend.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+
 import de.sakpaas.backend.HappyHamsterTest;
 import de.sakpaas.backend.model.Address;
 import de.sakpaas.backend.model.Location;

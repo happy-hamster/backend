@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+
 import de.sakpaas.backend.IntegrationTest;
 import de.sakpaas.backend.dto.NominatimSearchResultListDto;
 import de.sakpaas.backend.model.Address;

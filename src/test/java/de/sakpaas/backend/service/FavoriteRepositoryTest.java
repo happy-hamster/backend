@@ -4,6 +4,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
 
+
 import de.sakpaas.backend.HappyHamsterTest;
 import de.sakpaas.backend.model.Address;
 import de.sakpaas.backend.model.Favorite;

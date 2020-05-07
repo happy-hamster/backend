@@ -29,5 +29,5 @@ public interface LocationRepository extends JpaRepository<Location, Long> {
   @Query(value = "SELECT loc.id FROM LOCATION loc JOIN ADDRESS a ON loc.address_id = a.id "
       + "WHERE a.country=(:country)", nativeQuery = true)
   List<Long> getAllIdsForCountry(@Param("country") String country);
-  
+
 }
