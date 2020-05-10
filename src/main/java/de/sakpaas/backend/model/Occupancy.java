@@ -1,6 +1,8 @@
 package de.sakpaas.backend.model;
 
 import java.time.ZonedDateTime;
+import java.util.Arrays;
+import java.util.Objects;
 import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -10,12 +12,10 @@ import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @Entity(name = "OCCUPANCY")
 @Table(indexes = {@Index(name = "timestamp_index", columnList = "TIMESTAMP")})
@@ -49,9 +49,9 @@ public class Occupancy {
   /**
    * Creates a new {@link Occupancy} for a {@link Location}.
    *
-   * @param location   the {@link Location}
-   * @param occupancy  the occupancy (from 0.0 to 1.0)
-   * @param clientType the client type (eg. IOT, WEB_CLIENT)
+   * @param location    the {@link Location}
+   * @param occupancy   the occupancy (from 0.0 to 1.0)
+   * @param clientType  the client type (eg. IOT, WEB_CLIENT)
    * @param requestHash the hash computed of the request sender
    */
   public Occupancy(Location location, Double occupancy, String clientType, byte[] requestHash) {
@@ -76,5 +76,25 @@ public class Occupancy {
     this.timestamp = ZonedDateTime.now();
     this.clientType = clientType;
     this.userUuid = userUuid;
+  }
+
+  /**
+   * Compares two {@link Occupancy} while ignoring the time zone of the timestamp. Should be equal:
+   * <ul>
+   *   <li>2020-05-11T00:29:49+02:00[Europe/Berlin]</li>
+   *   <li>2020-05-10T22:29:49Z[UTC]</li>
+   * </ul>
+   *
+   * @param occupancy the {@link Occupancy} to compare to
+   * @return whether or not the {@link Occupancy}s are
+   */
+  public boolean equalsIgnoreTimezone(Occupancy occupancy) {
+    return Objects.equals(id, occupancy.id)
+        && Objects.equals(location, occupancy.location)
+        && Objects.equals(occupancy, occupancy.occupancy)
+        && timestamp.toInstant().equals(occupancy.timestamp.toInstant())
+        && Objects.equals(clientType, occupancy.clientType)
+        && Objects.equals(userUuid, occupancy.userUuid)
+        && Arrays.equals(requestHash, occupancy.requestHash);
   }
 }
