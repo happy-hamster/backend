@@ -59,11 +59,11 @@ class LocationServiceTest extends HappyHamsterTest {
         new Location(3L, "Lidl", 0.0, 0.0, locationDetailsService.save(new LocationDetails()),
             addressService.save(new Address())));
 
-    occupancyService.save(new Occupancy(penny, 1.0, "costumer"));
+    occupancyService.save(new Occupancy(penny, 1.0, "costumer", (byte[]) null));
     presenceService.addNewCheckin(penny);
-    occupancyService.save(new Occupancy(aldi, 0.33, "costumer"));
+    occupancyService.save(new Occupancy(aldi, 0.33, "costumer", (byte[]) null));
     presenceService.addNewCheckin(aldi);
-    occupancyService.save(new Occupancy(lidl, 0.66, "costumer"));
+    occupancyService.save(new Occupancy(lidl, 0.66, "costumer", (byte[]) null));
     presenceService.addNewCheckin(lidl);
 
     assertThat(locationRepository.count(), equalTo(3L));

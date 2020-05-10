@@ -438,7 +438,7 @@ class EndpointSearchLocationsTest extends IntegrationTest {
         new Address("DE", "Mannheim", "25565", "Handelshafen", "12a")
     );
     super.insert(locationEdeka);
-    Occupancy occupancy = new Occupancy(locationEdeka, 0.5, "TEST");
+    Occupancy occupancy = new Occupancy(locationEdeka, 0.5, "TEST", (byte[]) null);
     super.insert(occupancy);
     searchService.updateBrands();
     // Suppress outgoing http call
