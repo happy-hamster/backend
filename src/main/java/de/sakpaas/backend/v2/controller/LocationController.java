@@ -169,7 +169,7 @@ public class LocationController {
       return new ResponseEntity<>(locationMapper.mapLocationToOutputDto(location, user.get()), OK);
     } else {
       occupancyService.save(new Occupancy(location, occupancyReportDto.getOccupancy(),
-          occupancyReportDto.getClientType()));
+          occupancyReportDto.getClientType(), (byte[]) null));
 
       return new ResponseEntity<>(locationMapper.mapLocationToOutputDto(location), OK);
     }
