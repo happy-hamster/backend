@@ -13,6 +13,9 @@ public final class RequestUtils {
 
   private static final RequestUtils INSTANCE = new RequestUtils();
 
+  // Hide constructor
+  private RequestUtils() {}
+
   /**
    * Returns the connection hash for the given {@link HttpServletRequest}.
    *
