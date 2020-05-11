@@ -1,5 +1,8 @@
 package de.sakpaas.backend;
 
+import de.sakpaas.backend.model.Favorite;
+import de.sakpaas.backend.model.Location;
+import de.sakpaas.backend.model.Occupancy;
 import de.sakpaas.backend.service.AddressRepository;
 import de.sakpaas.backend.service.FavoriteRepository;
 import de.sakpaas.backend.service.LocationDetailsRepository;
@@ -30,5 +33,19 @@ public class RepositoryTest extends HappyHamsterTest {
     locationRepository.deleteAll();
     addressRepository.deleteAll();
     locationDetailsRepository.deleteAll();
+  }
+
+  protected void insert(Location location) {
+    locationDetailsRepository.save(location.getDetails());
+    addressRepository.save(location.getAddress());
+    locationRepository.save(location);
+  }
+
+  protected void insert(Favorite favorite) {
+    favoriteRepository.save(favorite);
+  }
+
+  protected void insert(Occupancy occupancy) {
+    occupancyRepository.save(occupancy);
   }
 }

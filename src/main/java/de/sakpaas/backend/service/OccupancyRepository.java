@@ -32,8 +32,8 @@ public interface OccupancyRepository extends JpaRepository<Occupancy, Long> {
   // Queries for Spam-Protection
 
   /**
-   * Returns all {@link Occupancy}s of the given user {@link UUID}, at the given {@link Location}, registered
-   * after the given {@link ZonedDateTime}.
+   * Returns all {@link Occupancy}s of the given user {@link UUID}, at the given {@link Location},
+   * registered after the given {@link ZonedDateTime}.
    *
    * @param location the {@link Location} to search for
    * @param userUuid the user ({@link UUID}) to search for

@@ -60,20 +60,6 @@ public class IntegrationTest extends RepositoryTest {
         .verifyToken(Mockito.any());
   }
 
-  protected void insert(Location location) {
-    locationDetailsRepository.save(location.getDetails());
-    addressRepository.save(location.getAddress());
-    locationRepository.save(location);
-  }
-
-  protected void insert(Favorite favorite) {
-    favoriteRepository.save(favorite);
-  }
-
-  protected void insert(Occupancy occupancy) {
-    occupancyRepository.save(occupancy);
-  }
-
   protected ResultMatcher expectErrorObject() {
     return result -> {
       ResultMatcher[] matcher = new ResultMatcher[] {

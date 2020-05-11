@@ -85,16 +85,16 @@ public class Occupancy {
    *   <li>2020-05-10T22:29:49Z[UTC]</li>
    * </ul>
    *
-   * @param occupancy the {@link Occupancy} to compare to
+   * @param other the {@link Occupancy} to compare to
    * @return whether or not the {@link Occupancy}s are
    */
-  public boolean equalsIgnoreTimezone(Occupancy occupancy) {
-    return Objects.equals(id, occupancy.id)
-        && Objects.equals(location, occupancy.location)
-        && Objects.equals(occupancy, occupancy.occupancy)
-        && timestamp.toInstant().equals(occupancy.timestamp.toInstant())
-        && Objects.equals(clientType, occupancy.clientType)
-        && Objects.equals(userUuid, occupancy.userUuid)
-        && Arrays.equals(requestHash, occupancy.requestHash);
+  public boolean equalsIgnoreTimezone(Occupancy other) {
+    return Objects.equals(id, other.id)
+        && Objects.equals(location, other.location)
+        && Objects.equals(occupancy, other.occupancy)
+        && timestamp.toInstant().equals(other.timestamp.toInstant())
+        && Objects.equals(clientType, other.clientType)
+        && Objects.equals(userUuid, other.userUuid)
+        && Arrays.equals(requestHash, other.requestHash);
   }
 }
