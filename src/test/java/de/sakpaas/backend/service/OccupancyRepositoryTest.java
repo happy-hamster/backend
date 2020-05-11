@@ -21,6 +21,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 class OccupancyRepositoryTest extends RepositoryTest {
 
+  @SneakyThrows
   @Test
   void testFindByLocation() {
     // Setup test data
@@ -34,8 +35,12 @@ class OccupancyRepositoryTest extends RepositoryTest {
     );
     super.insert(locationEdeka);
     super.insert(locationAldi);
-    Occupancy occupancyEdeka = new Occupancy(locationEdeka, 0.1, "TEST", (byte[]) null);
-    Occupancy occupancyAldi = new Occupancy(locationAldi, 0.9, "TEST", (byte[]) null);
+
+    MessageDigest digest = MessageDigest.getInstance("SHA-256");
+    byte[] request = digest.digest("Alice".getBytes());
+
+    Occupancy occupancyEdeka = new Occupancy(locationEdeka, 0.1, "TEST", request);
+    Occupancy occupancyAldi = new Occupancy(locationAldi, 0.9, "TEST", request);
     super.insert(occupancyEdeka);
     super.insert(occupancyAldi);
 
@@ -44,6 +49,7 @@ class OccupancyRepositoryTest extends RepositoryTest {
     assertThat(output.get(0)).matches(o -> o.equalsIgnoreTimezone(occupancyEdeka));
   }
 
+  @SneakyThrows
   @Test
   void testFindByUuidAndTimestampAfter() {
     // Setup test data
@@ -52,14 +58,18 @@ class OccupancyRepositoryTest extends RepositoryTest {
         new Address("DE", "Mannheim", "25565", "Handelshafen", "12a")
     );
     super.insert(location);
+
+    MessageDigest digest = MessageDigest.getInstance("SHA-256");
+    byte[] requestAlice = digest.digest("Alice".getBytes());
+    byte[] requestBob = digest.digest("Bob".getBytes());
     UUID userAlice = UUID.fromString("550e8400-e29b-11d4-a716-446655440000");
     UUID userBob = UUID.fromString("c1d3e15b-b522-4e7c-85f9-518ea91621a4");
     ZonedDateTime timestamp = ZonedDateTime.parse("2011-12-03T10:15:30+01:00");
 
-    Occupancy occupancyAliceAfter = new Occupancy(location, 0.1, "TEST", userAlice);
-    Occupancy occupancyAlice = new Occupancy(location, 0.9, "TEST", userAlice);
-    Occupancy occupancyBobAfter = new Occupancy(location, 0.9, "TEST", userBob);
-    Occupancy occupancyBob = new Occupancy(location, 0.9, "TEST", userBob);
+    Occupancy occupancyAliceAfter = new Occupancy(location, 0.1, "TEST", requestAlice, userAlice);
+    Occupancy occupancyAlice = new Occupancy(location, 0.9, "TEST", requestAlice, userAlice);
+    Occupancy occupancyBobAfter = new Occupancy(location, 0.9, "TEST", requestBob, userBob);
+    Occupancy occupancyBob = new Occupancy(location, 0.9, "TEST", requestBob, userBob);
     occupancyAliceAfter.setTimestamp(timestamp.plusHours(1));
     occupancyAlice.setTimestamp(timestamp.minusHours(1));
     occupancyBobAfter.setTimestamp(timestamp.plusHours(1));
@@ -75,6 +85,7 @@ class OccupancyRepositoryTest extends RepositoryTest {
     assertThat(output.get(0)).matches(o -> o.equalsIgnoreTimezone(occupancyAliceAfter));
   }
 
+  @SneakyThrows
   @Test
   void testFindByLocationAndUserUuidAndTimestampAfter() {
     // Setup test data
@@ -89,14 +100,17 @@ class OccupancyRepositoryTest extends RepositoryTest {
     super.insert(locationEdeka);
     super.insert(locationAldi);
 
+    MessageDigest digest = MessageDigest.getInstance("SHA-256");
+    byte[] requestAlice = digest.digest("Alice".getBytes());
+    byte[] requestBob = digest.digest("Bob".getBytes());
     UUID userAlice = UUID.fromString("550e8400-e29b-11d4-a716-446655440000");
     UUID userBob = UUID.fromString("c1d3e15b-b522-4e7c-85f9-518ea91621a4");
     ZonedDateTime timestamp = ZonedDateTime.parse("2011-12-03T10:15:30+01:00");
 
-    Occupancy occupancyWrongLocation = new Occupancy(locationAldi, 0.1, "TEST", userAlice);
-    Occupancy occupancyWrongUser = new Occupancy(locationEdeka, 0.1, "TEST", userBob);
-    Occupancy occupancyWrongTimestamp = new Occupancy(locationEdeka, 0.1, "TEST", userAlice);
-    Occupancy occupancy = new Occupancy(locationEdeka, 0.1, "TEST", userAlice);
+    Occupancy occupancyWrongLocation = new Occupancy(locationAldi, 0.1, "TEST", requestAlice, userAlice);
+    Occupancy occupancyWrongUser = new Occupancy(locationEdeka, 0.1, "TEST", requestBob, userBob);
+    Occupancy occupancyWrongTimestamp = new Occupancy(locationEdeka, 0.1, "TEST", requestAlice, userAlice);
+    Occupancy occupancy = new Occupancy(locationEdeka, 0.1, "TEST", requestAlice, userAlice);
     occupancyWrongLocation.setTimestamp(timestamp.plusHours(1));
     occupancyWrongUser.setTimestamp(timestamp.plusHours(1));
     occupancyWrongTimestamp.setTimestamp(timestamp.minusHours(1));
@@ -151,6 +165,7 @@ class OccupancyRepositoryTest extends RepositoryTest {
     assertThat(output.get(0)).matches(o -> o.equalsIgnoreTimezone(occupancy));
   }
 
+  @SneakyThrows
   @Test
   void testFindByUserUuidAndTimestampAfter() {
     // Setup test data
@@ -160,13 +175,16 @@ class OccupancyRepositoryTest extends RepositoryTest {
     );
     super.insert(location);
 
+    MessageDigest digest = MessageDigest.getInstance("SHA-256");
+    byte[] requestAlice = digest.digest("Alice".getBytes());
+    byte[] requestBob = digest.digest("Bob".getBytes());
     UUID userAlice = UUID.fromString("550e8400-e29b-11d4-a716-446655440000");
     UUID userBob = UUID.fromString("c1d3e15b-b522-4e7c-85f9-518ea91621a4");
     ZonedDateTime timestamp = ZonedDateTime.parse("2011-12-03T10:15:30+01:00");
 
-    Occupancy occupancyWrongUser = new Occupancy(location, 0.1, "TEST", userBob);
-    Occupancy occupancyWrongTimestamp = new Occupancy(location, 0.1, "TEST", userAlice);
-    Occupancy occupancy = new Occupancy(location, 0.1, "TEST", userAlice);
+    Occupancy occupancyWrongUser = new Occupancy(location, 0.1, "TEST", requestBob, userBob);
+    Occupancy occupancyWrongTimestamp = new Occupancy(location, 0.1, "TEST", requestAlice, userAlice);
+    Occupancy occupancy = new Occupancy(location, 0.1, "TEST", requestAlice, userAlice);
     occupancyWrongUser.setTimestamp(timestamp.plusHours(1));
     occupancyWrongTimestamp.setTimestamp(timestamp.minusHours(1));
     occupancy.setTimestamp(timestamp.plusHours(1));

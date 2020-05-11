@@ -12,6 +12,7 @@ import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -54,7 +55,8 @@ public class Occupancy {
    * @param clientType  the client type (eg. IOT, WEB_CLIENT)
    * @param requestHash the hash computed of the request sender
    */
-  public Occupancy(Location location, Double occupancy, String clientType, byte[] requestHash) {
+  public Occupancy(Location location, Double occupancy, String clientType,
+                   @NotNull byte[] requestHash) {
     this.location = location;
     this.occupancy = occupancy;
     this.timestamp = ZonedDateTime.now();
@@ -65,16 +67,19 @@ public class Occupancy {
   /**
    * Creates a new {@link Occupancy} for a {@link Location}.
    *
-   * @param location   the {@link Location}
-   * @param occupancy  the occupancy (from 0.0 to 1.0)
-   * @param clientType the client type (eg. IOT, WEB_CLIENT)
-   * @param userUuid   the UUID of the user which saved the occupancy
+   * @param location    the {@link Location}
+   * @param occupancy   the occupancy (from 0.0 to 1.0)
+   * @param clientType  the client type (eg. IOT, WEB_CLIENT)
+   * @param requestHash the hash computed of the request sender
+   * @param userUuid    the UUID of the user which saved the occupancy
    */
-  public Occupancy(Location location, Double occupancy, String clientType, UUID userUuid) {
+  public Occupancy(Location location, Double occupancy, String clientType,
+                   @NotNull byte[] requestHash, UUID userUuid) {
     this.location = location;
     this.occupancy = occupancy;
     this.timestamp = ZonedDateTime.now();
     this.clientType = clientType;
+    this.requestHash = requestHash;
     this.userUuid = userUuid;
   }
 
