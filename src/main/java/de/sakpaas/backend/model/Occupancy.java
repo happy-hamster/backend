@@ -86,7 +86,7 @@ public class Occupancy {
    * </ul>
    *
    * @param other the {@link Occupancy} to compare to
-   * @return whether or not the {@link Occupancy}s are
+   * @return whether or not the {@link Occupancy}s are equal (ignoring time zone)
    */
   public boolean equalsIgnoreTimezone(Occupancy other) {
     return Objects.equals(id, other.id)
