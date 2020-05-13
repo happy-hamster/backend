@@ -13,10 +13,12 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @Entity(name = "OCCUPANCY")
 @Table(indexes = {@Index(name = "timestamp_index", columnList = "TIMESTAMP")})
@@ -97,9 +99,51 @@ public class Occupancy {
     return Objects.equals(id, other.id)
         && Objects.equals(location, other.location)
         && Objects.equals(occupancy, other.occupancy)
-        && timestamp.toInstant().equals(other.timestamp.toInstant())
+        && Objects.equals(
+            (timestamp == null) ? null : timestamp.toInstant(),
+            (other.timestamp == null) ? null : other.timestamp.toInstant())
         && Objects.equals(clientType, other.clientType)
         && Objects.equals(userUuid, other.userUuid)
         && Arrays.equals(requestHash, other.requestHash);
+  }
+
+  /**
+   * Checks for equality of two {@link Occupancy}s. The {@link Location} do not have to be the same,
+   * but have to have the same ID.
+   *
+   * @param o the other {@link Occupancy}
+   * @return whether or not the given {@link Occupancy}s are equal
+   */
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    Occupancy other = (Occupancy) o;
+    return Objects.equals(id, other.id)
+        && Objects.equals(
+            (location == null) ? null : location.getId(),
+            (other.location == null) ? null : other.location.getId())
+        && Objects.equals(occupancy, other.occupancy)
+        && Objects.equals(timestamp, other.timestamp)
+        && Objects.equals(clientType, other.clientType)
+        && Objects.equals(userUuid, other.userUuid)
+        && Arrays.equals(requestHash, other.requestHash);
+  }
+
+  /**
+   * Computes the hash code of this {@link Occupancy}.
+   *
+   * @return thr hash code
+   */
+  @Override
+  public int hashCode() {
+    int result = Objects.hash(
+        id, (location == null) ? -1 : location.getId(), occupancy, timestamp, clientType, userUuid);
+    result = 31 * result + Arrays.hashCode(requestHash);
+    return result;
   }
 }
