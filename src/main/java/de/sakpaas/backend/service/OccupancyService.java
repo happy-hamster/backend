@@ -116,12 +116,14 @@ public class OccupancyService {
 
     ZonedDateTime zoneDateTime = ZonedDateTime.now();
     List<Occupancy> occupanciesLocations = occupancyRepository
-        .findByLocationAndUserUuidAndTimestampAfter(location, uuid, zoneDateTime.minusMinutes(configReportLimits.getLocationPeriod()));
+        .findByLocationAndUserUuidAndTimestampAfter(location, uuid,
+            zoneDateTime.minusMinutes(configReportLimits.getLocationPeriod()));
     if (occupanciesLocations.size() >= configReportLimits.getLocationLimit()) {
       throw new TooManyRequestsException();
     }
     List<Occupancy> occupancies =
-        occupancyRepository.findByUserUuidAndTimestampAfter(uuid, zoneDateTime.minusMinutes(configReportLimits.getGlobalPeriod()));
+        occupancyRepository.findByUserUuidAndTimestampAfter(uuid,
+            zoneDateTime.minusMinutes(configReportLimits.getGlobalPeriod()));
     if (occupancies.size() >= configReportLimits.getGlobalLimit()) {
       throw new TooManyRequestsException();
     }
