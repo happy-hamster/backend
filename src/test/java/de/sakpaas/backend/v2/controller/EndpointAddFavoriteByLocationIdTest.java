@@ -147,7 +147,7 @@ class EndpointAddFavoriteByLocationIdTest extends IntegrationTest {
         new LocationDetails("supermarket", "Mo-Fr 10-22", "Edeka"),
         new Address("DE", "Mannheim", "25565", "Handelshafen", "12a")
     );
-    Occupancy occupancy = new Occupancy(location, 0.5, "TEST");
+    Occupancy occupancy = new Occupancy(location, 0.5, "TEST", (byte[]) null);
     super.insert(location);
     super.insert(occupancy);
 
