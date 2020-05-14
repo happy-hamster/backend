@@ -25,6 +25,13 @@ public class OccupancyService {
   private final OccupancyReportLimitsConfiguration configReportLimits;
 
 
+  /**
+   * Default Constructor. Handles the Dependency Injection.
+   *
+   * @param occupancyRepository the {@link OccupancyRepository}
+   * @param occupancyAccumulationConfiguration the {@link OccupancyAccumulationConfiguration}
+   * @param configReportLimits the {@link OccupancyReportLimitsConfiguration}
+   */
   @Autowired
   public OccupancyService(OccupancyRepository occupancyRepository,
                           OccupancyAccumulationConfiguration occupancyAccumulationConfiguration,
@@ -109,7 +116,6 @@ public class OccupancyService {
    * @throws TooManyRequestsException if too many occupancies were reported
    */
   public void checkReportLimit(Location location, UUID uuid) throws TooManyRequestsException {
-
     if (!configReportLimits.isEnabled()) {
       return;
     }
@@ -141,6 +147,7 @@ public class OccupancyService {
     if (!configReportLimits.isEnabled()) {
       return;
     }
+    
     ZonedDateTime zoneDateTime = ZonedDateTime.now();
     List<Occupancy> occupanciesLocations = occupancyRepository
         .findByLocationAndRequestHashAndTimestampAfter(location, requestHash,
