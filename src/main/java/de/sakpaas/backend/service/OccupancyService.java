@@ -107,6 +107,7 @@ public class OccupancyService {
   }
 
 
+
   /**
    * Returns the hour of the week, based on the Date. Public Holidays are treated like a sunday.
    *
@@ -134,7 +135,7 @@ public class OccupancyService {
    *
    * @return The Occupancy
    */
-  private double getOccupancyFromStatista(int aggregationHour) {
+  private double getOccupancyFromStatista(Location location, List<Integer> aggregationHours) {
     return 1.0;
   }
 }
