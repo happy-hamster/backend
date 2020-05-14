@@ -166,6 +166,15 @@ public class OccupancyService {
     }
   }
 
+  /**
+   * Returns True if the Date is a Public Holiday.
+   *
+   * @param date The Date
+   * @return Result if it is a public holiday
+   */
+  private boolean checkForPublicHoliday(Date date) {
+    return false;
+  }
 
   /**
    * Saves an {@link Occupancy} to the database.
