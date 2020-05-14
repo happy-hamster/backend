@@ -10,6 +10,7 @@ import de.sakpaas.backend.util.OccupancyAccumulationConfiguration;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -73,6 +74,7 @@ public class OccupancyService {
         : 1;
   }
 
+
   /**
    * Calculates the {@link AccumulatedOccupancy} for a given location.
    *
@@ -94,6 +96,7 @@ public class OccupancyService {
     );
   }
 
+
   /**
    * Saves an {@link Occupancy} to the database.
    *
@@ -102,4 +105,38 @@ public class OccupancyService {
   public Occupancy save(Occupancy occupancy) {
     return occupancyRepository.save(occupancy);
   }
+
+
+  /**
+   * Returns the hour of the week, based on the Date. Public Holidays are treated like a sunday.
+   *
+   * @param date The Date
+   * @return The hour of the week
+   */
+  private int getAggregationHour(Date date) {
+    return 8;
+  }
+
+
+  /**
+   * Returns the Occupancy based on the historical data.
+   *
+   * @param location The Location you want an occupancy for
+   * @return The Occupancy
+   */
+  private double getOccupancyFromHistory(Location location, List<Integer> aggregationHours) {
+    return 1.0;
+  }
+
+
+  /**
+   * Calculating Occupancy based on Statista statistics and the Date
+   *
+   * @return The Occupancy
+   */
+  private double getOccupancyFromStatista(int aggregationHour) {
+    return 1.0;
+  }
 }
+
+
