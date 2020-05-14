@@ -4,6 +4,7 @@ import static java.util.stream.Collectors.toList;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 
+
 import de.sakpaas.backend.BackendApplication;
 import de.sakpaas.backend.dto.UserInfoDto;
 import de.sakpaas.backend.exception.IncompleteCoordinateException;
@@ -244,6 +245,7 @@ public class LocationController {
       @PathVariable("key") String query,
       @RequestParam(required = false) Double latitude,
       @RequestParam(required = false) Double longitude,
+      @RequestParam(required = false) List<String> type,
       @RequestHeader(value = "Authorization", required = false) String header) {
     Optional<UserInfoDto> user = userService.getOptionalUserInfo(header);
 
@@ -253,7 +255,7 @@ public class LocationController {
     }
 
     final SearchResultObject resultObject = searchService.search(query,
-        new CoordinateDetails(latitude, longitude));
+        new CoordinateDetails(latitude, longitude), type);
 
     return user.map(
         userInfoDto -> new ResponseEntity<>(

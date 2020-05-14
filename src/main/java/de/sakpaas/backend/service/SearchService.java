@@ -6,6 +6,7 @@ import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.LocationDetails;
 import de.sakpaas.backend.model.SearchRequest;
 import de.sakpaas.backend.model.SearchResultObject;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -66,7 +67,8 @@ public class SearchService {
    * @param coordinateDetails Coordinates to assist the search
    * @return Result Locations
    */
-  public SearchResultObject search(String query, CoordinateDetails coordinateDetails) {
+  public SearchResultObject search(String query, CoordinateDetails coordinateDetails,
+                                   List<String> type) {
     SearchRequest request = createRequest(query, coordinateDetails);
     if (!request.getQuery().isEmpty()) {
       request = getCoordinatesFromNominatim(request);
@@ -78,7 +80,33 @@ public class SearchService {
       }
     }
     request = getByCoordinates(request);
+    request = filterByType(request, type);
     return new SearchResultObject(request.getCoordinates(), request.getLocations());
+  }
+
+  /**
+   * Filters the the locations by the given location type.
+   *
+   * @param request The SearchRequest
+   * @param type    The list of location types
+   * @return The filtered SearchRequest
+   */
+  protected SearchRequest filterByType(SearchRequest request, List<String> type) {
+    Set<Location> locations = request.getLocations();
+
+    // iff type == null or type is an empty array or the location set is empty
+    if (type == null || type.equals(new ArrayList<>()) || locations.equals(new HashSet<>())) {
+      return request;
+    }
+
+    locations = locations.stream()
+        .filter(location -> {
+          LocationDetails details = location.getDetails();
+          return type.contains(details.getType());
+        }).collect(Collectors.toSet());
+
+    request.setLocations(locations);
+    return request;
   }
 
   /**
