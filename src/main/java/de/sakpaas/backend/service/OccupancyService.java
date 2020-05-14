@@ -12,7 +12,6 @@ import de.sakpaas.backend.util.OccupancyReportLimitsConfiguration;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -165,15 +164,6 @@ public class OccupancyService {
   }
 
 
-  /**
-   * Returns True if the Date is a Public Holiday.
-   *
-   * @param date The Date
-   * @return Result if it is a public holiday
-   */
-  private boolean checkForPublicHoliday(Date date) {
-    return false;
-  }
 
   /**
    * Saves an {@link Occupancy} to the database.
