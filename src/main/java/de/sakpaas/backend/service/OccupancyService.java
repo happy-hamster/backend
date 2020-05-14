@@ -130,7 +130,7 @@ public class OccupancyService {
 
 
   /**
-   * Calculating Occupancy based on Statista statistics and the Date
+   * Calculating Occupancy based on Statista statistics and the Date.
    *
    * @return The Occupancy
    */
