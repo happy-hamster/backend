@@ -15,6 +15,7 @@ import de.sakpaas.backend.model.LocationDetails;
 import de.sakpaas.backend.model.Occupancy;
 import de.sakpaas.backend.util.OccupancyReportLimitsConfiguration;
 import java.util.List;
+import org.bouncycastle.util.encoders.Hex;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -275,16 +276,24 @@ class EndpointAddOccupancyTest extends IntegrationTest {
         new Address("DE", "Mannheim", "25565", "Handelshafen", "12a")
     );
     super.insert(location);
-    byte[] requestHash = new byte[]{(byte) 0xDE, (byte) 0xAD, (byte) 0xBE, (byte) 0xEF};
+    byte[] requestHash = Hex.decode("fdf2df8a3a1c79f8511a51c83f1529a813ff02a965744c5ebddc11ce3d350cc1");
     Occupancy occupancy = new Occupancy(location, 0.5, "TEST", requestHash);
     Occupancy occupancyUser = new Occupancy(location, 0.5, "TEST", requestHash, USER_UUID);
     super.insert(occupancy);
     super.insert(occupancyUser);
 
+    Mockito.when(configurationLimits.isEnabled()).thenReturn(true);
+    Mockito.when(configurationLimits.getLocationPeriod()).thenReturn(5);
+    Mockito.when(configurationLimits.getLocationLimit()).thenReturn(1);
+    Mockito.when(configurationLimits.getGlobalPeriod()).thenReturn(15);
+    Mockito.when(configurationLimits.getGlobalLimit()).thenReturn(4);
+
     // Check global limits
     Mockito.when(configurationLimits.getGlobalLimit()).thenReturn(0);
     mockMvc.perform(post("/v2/locations/1000/occupancy")
         .header("Authorization", AUTHENTICATION_VALID)
+        .header("x-forwarded-for", "8.8.8.8")
+        .header("user-agent", "Vivaldi Chromium 24.7.1")
         .contentType("application/json")
         .content("{\"occupancy\": 0.5,\"clientType\": \"TEST\"}"))
         .andExpect(status().isTooManyRequests());
@@ -292,15 +301,20 @@ class EndpointAddOccupancyTest extends IntegrationTest {
     Mockito.when(configurationLimits.getGlobalLimit()).thenReturn(0);
     mockMvc.perform(post("/v2/locations/1000/occupancy")
         // No Authentication
+        .header("x-forwarded-for", "8.8.8.8")
+        .header("user-agent", "Vivaldi Chromium 24.7.1")
         .contentType("application/json")
         .content("{\"occupancy\": 0.5,\"clientType\": \"TEST\"}"))
         .andExpect(status().isTooManyRequests());
 
+    Mockito.when(configurationLimits.getGlobalLimit()).thenReturn(4);
 
     // Check location limits
     Mockito.when(configurationLimits.getLocationLimit()).thenReturn(0);
     mockMvc.perform(post("/v2/locations/1000/occupancy")
         .header("Authorization", AUTHENTICATION_VALID)
+        .header("x-forwarded-for", "8.8.8.8")
+        .header("user-agent", "Vivaldi Chromium 24.7.1")
         .contentType("application/json")
         .content("{\"occupancy\": 0.5,\"clientType\": \"TEST\"}"))
         .andExpect(status().isTooManyRequests());
@@ -312,12 +326,15 @@ class EndpointAddOccupancyTest extends IntegrationTest {
         .content("{\"occupancy\": 0.5,\"clientType\": \"TEST\"}"))
         .andExpect(status().isTooManyRequests());
 
+    Mockito.when(configurationLimits.getLocationLimit()).thenReturn(1);
 
     // Check enabled flag
     Mockito.when(configurationLimits.isEnabled()).thenReturn(false);
     Mockito.when(configurationLimits.getGlobalLimit()).thenReturn(0);
     mockMvc.perform(post("/v2/locations/1000/occupancy")
         .header("Authorization", AUTHENTICATION_VALID)
+        .header("x-forwarded-for", "8.8.8.8")
+        .header("user-agent", "Vivaldi Chromium 24.7.1")
         .contentType("application/json")
         .content("{\"occupancy\": 0.5,\"clientType\": \"TEST\"}"))
         .andExpect(status().isOk());
