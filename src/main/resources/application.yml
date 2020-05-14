@@ -27,6 +27,7 @@ app:
     # Factors of the bell curve (0 < factor)
     factorA: 30
     factorB: 150
+    range: 15
   import:
     country: ${IMPORT_COUNTRY:"DE"}
     shoptypes:
