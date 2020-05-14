@@ -13,11 +13,14 @@ import de.sakpaas.backend.model.Favorite;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.LocationDetails;
 import de.sakpaas.backend.model.Occupancy;
+import de.sakpaas.backend.util.OccupancyReportLimitsConfiguration;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
@@ -28,6 +31,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc
 class EndpointAddOccupancyTest extends IntegrationTest {
+
+  @MockBean
+  private OccupancyReportLimitsConfiguration configurationLimits;
 
   @Test
   void testMalformedLocationId() throws Exception {
@@ -259,5 +265,61 @@ class EndpointAddOccupancyTest extends IntegrationTest {
     assertThat(occupancyList.get(0).getLocation()).isEqualTo(location);
     assertThat(occupancyList.get(0).getClientType()).isEqualTo("TEST");
     assertThat(occupancyList.get(0).getUserUuid()).isNull();
+  }
+
+  @Test
+  void testReportLimit() throws Exception {
+    // Setup test data
+    Location location = new Location(1000L, "Edeka Eima", 42.0, 7.0,
+        new LocationDetails("supermarket", "Mo-Fr 10-22", "Edeka"),
+        new Address("DE", "Mannheim", "25565", "Handelshafen", "12a")
+    );
+    super.insert(location);
+    byte[] requestHash = new byte[]{(byte) 0xDE, (byte) 0xAD, (byte) 0xBE, (byte) 0xEF};
+    Occupancy occupancy = new Occupancy(location, 0.5, "TEST", requestHash);
+    Occupancy occupancyUser = new Occupancy(location, 0.5, "TEST", requestHash, USER_UUID);
+    super.insert(occupancy);
+    super.insert(occupancyUser);
+
+    // Check global limits
+    Mockito.when(configurationLimits.getGlobalLimit()).thenReturn(0);
+    mockMvc.perform(post("/v2/locations/1000/occupancy")
+        .header("Authorization", AUTHENTICATION_VALID)
+        .contentType("application/json")
+        .content("{\"occupancy\": 0.5,\"clientType\": \"TEST\"}"))
+        .andExpect(status().isTooManyRequests());
+
+    Mockito.when(configurationLimits.getGlobalLimit()).thenReturn(0);
+    mockMvc.perform(post("/v2/locations/1000/occupancy")
+        // No Authentication
+        .contentType("application/json")
+        .content("{\"occupancy\": 0.5,\"clientType\": \"TEST\"}"))
+        .andExpect(status().isTooManyRequests());
+
+
+    // Check location limits
+    Mockito.when(configurationLimits.getLocationLimit()).thenReturn(0);
+    mockMvc.perform(post("/v2/locations/1000/occupancy")
+        .header("Authorization", AUTHENTICATION_VALID)
+        .contentType("application/json")
+        .content("{\"occupancy\": 0.5,\"clientType\": \"TEST\"}"))
+        .andExpect(status().isTooManyRequests());
+
+    Mockito.when(configurationLimits.getLocationLimit()).thenReturn(0);
+    mockMvc.perform(post("/v2/locations/1000/occupancy")
+        // No Authentication
+        .contentType("application/json")
+        .content("{\"occupancy\": 0.5,\"clientType\": \"TEST\"}"))
+        .andExpect(status().isTooManyRequests());
+
+
+    // Check enabled flag
+    Mockito.when(configurationLimits.isEnabled()).thenReturn(false);
+    Mockito.when(configurationLimits.getGlobalLimit()).thenReturn(0);
+    mockMvc.perform(post("/v2/locations/1000/occupancy")
+        .header("Authorization", AUTHENTICATION_VALID)
+        .contentType("application/json")
+        .content("{\"occupancy\": 0.5,\"clientType\": \"TEST\"}"))
+        .andExpect(status().isOk());
   }
 }
