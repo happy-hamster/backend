@@ -2,6 +2,7 @@ package de.sakpaas.backend.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+
 import de.sakpaas.backend.HappyHamsterTest;
 import de.sakpaas.backend.model.LocationDetails;
 import java.util.Set;
@@ -33,10 +34,8 @@ class LocationDetailsRepositoryTest extends HappyHamsterTest {
     assertThat(result.contains("testbrand")).isTrue();
     assertThat(result.contains("test brand")).isTrue();
 
-
     locationDetailsRepository.deleteAll();
   }
-
 
   @Test
   void getAllLocationTypes() {

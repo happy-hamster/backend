@@ -18,6 +18,12 @@ app:
   presence:
     duration: 20
   occupancy:
+    report-limits:
+      enabled: true
+      location-period: 5
+      location-limit: 1
+      global-period: 15
+      global-limit: 4
     # The amount of minutes an AccumulatedOccupancy contains
     duration: 300
     # The amount of minutes an Occupancy should have a factor of 1.0
@@ -59,7 +65,9 @@ keycloak:
         - uma_authorization
       securityCollections:
         - patterns: /auth/*
+          omitted-methods: [OPTIONS]
         - patterns: /v2/users/*
+          omitted-methods: [OPTIONS]
     - securityCollections:
         - patterns: /v1/*
         - patterns: /v2/*

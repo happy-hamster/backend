@@ -3,15 +3,18 @@ package de.sakpaas.backend.service;
 import static java.time.ZonedDateTime.now;
 
 import com.google.common.annotations.VisibleForTesting;
+import de.sakpaas.backend.exception.TooManyRequestsException;
 import de.sakpaas.backend.model.AccumulatedOccupancy;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.Occupancy;
 import de.sakpaas.backend.util.OccupancyAccumulationConfiguration;
+import de.sakpaas.backend.util.OccupancyReportLimitsConfiguration;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,12 +23,23 @@ public class OccupancyService {
 
   private final OccupancyRepository occupancyRepository;
   private final OccupancyAccumulationConfiguration config;
+  private final OccupancyReportLimitsConfiguration configReportLimits;
 
+
+  /**
+   * Default Constructor. Handles the Dependency Injection.
+   *
+   * @param occupancyRepository the {@link OccupancyRepository}
+   * @param occupancyAccumulationConfiguration the {@link OccupancyAccumulationConfiguration}
+   * @param configReportLimits the {@link OccupancyReportLimitsConfiguration}
+   */
   @Autowired
   public OccupancyService(OccupancyRepository occupancyRepository,
-                          OccupancyAccumulationConfiguration occupancyAccumulationConfiguration) {
+                          OccupancyAccumulationConfiguration occupancyAccumulationConfiguration,
+                          OccupancyReportLimitsConfiguration configReportLimits) {
     this.occupancyRepository = occupancyRepository;
     this.config = occupancyAccumulationConfiguration;
+    this.configReportLimits = configReportLimits;
   }
 
   /**
@@ -94,6 +108,62 @@ public class OccupancyService {
             .max(Comparator.naturalOrder())
             .orElse(null)
     );
+  }
+
+
+  /**
+   * Checks if there are too many occupancies given in the last * minutes.
+   *
+   * @param location the occupancies for the location
+   * @param uuid     uuid of the user
+   * @throws TooManyRequestsException if too many occupancies were reported
+   */
+  public void checkReportLimit(Location location, UUID uuid) throws TooManyRequestsException {
+    if (!configReportLimits.isEnabled()) {
+      return;
+    }
+
+    ZonedDateTime zoneDateTime = ZonedDateTime.now();
+    List<Occupancy> occupanciesLocations = occupancyRepository
+        .findByLocationAndUserUuidAndTimestampAfter(location, uuid,
+            zoneDateTime.minusMinutes(configReportLimits.getLocationPeriod()));
+    if (occupanciesLocations.size() >= configReportLimits.getLocationLimit()) {
+      throw new TooManyRequestsException();
+    }
+    List<Occupancy> occupancies =
+        occupancyRepository.findByUserUuidAndTimestampAfter(uuid,
+            zoneDateTime.minusMinutes(configReportLimits.getGlobalPeriod()));
+    if (occupancies.size() >= configReportLimits.getGlobalLimit()) {
+      throw new TooManyRequestsException();
+    }
+  }
+
+  /**
+   * Checks if there are too many occupancies given in the last * minutes.
+   *
+   * @param location    the occupancies for the location
+   * @param requestHash request hash of the user
+   * @throws TooManyRequestsException if too many occupancies were reported
+   */
+  public void checkReportLimit(Location location, byte[] requestHash)
+      throws TooManyRequestsException {
+    if (!configReportLimits.isEnabled()) {
+      return;
+    }
+    
+    ZonedDateTime zoneDateTime = ZonedDateTime.now();
+    List<Occupancy> occupanciesLocations = occupancyRepository
+        .findByLocationAndRequestHashAndTimestampAfter(location, requestHash,
+            zoneDateTime.minusMinutes(configReportLimits.getLocationPeriod()));
+    if (occupanciesLocations.size() >= configReportLimits.getLocationLimit()) {
+      throw new TooManyRequestsException();
+    }
+    List<Occupancy> occupancies = occupancyRepository
+        .findByRequestHashAndTimestampAfter(requestHash,
+            zoneDateTime.minusMinutes(configReportLimits.getGlobalPeriod()));
+    if (occupancies.size() >= configReportLimits.getGlobalLimit()) {
+      throw new TooManyRequestsException();
+    }
   }
 
 

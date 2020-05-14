@@ -3,6 +3,7 @@ package de.sakpaas.backend.service;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
+
 import de.sakpaas.backend.HappyHamsterTest;
 import de.sakpaas.backend.model.Address;
 import de.sakpaas.backend.model.Location;
@@ -58,11 +59,11 @@ class LocationServiceTest extends HappyHamsterTest {
         new Location(3L, "Lidl", 0.0, 0.0, locationDetailsService.save(new LocationDetails()),
             addressService.save(new Address())));
 
-    occupancyService.save(new Occupancy(penny, 1.0, "costumer"));
+    occupancyService.save(new Occupancy(penny, 1.0, "costumer", (byte[]) null));
     presenceService.addNewCheckin(penny);
-    occupancyService.save(new Occupancy(aldi, 0.33, "costumer"));
+    occupancyService.save(new Occupancy(aldi, 0.33, "costumer", (byte[]) null));
     presenceService.addNewCheckin(aldi);
-    occupancyService.save(new Occupancy(lidl, 0.66, "costumer"));
+    occupancyService.save(new Occupancy(lidl, 0.66, "costumer", (byte[]) null));
     presenceService.addNewCheckin(lidl);
 
     assertThat(locationRepository.count(), equalTo(3L));
@@ -121,7 +122,7 @@ class LocationServiceTest extends HappyHamsterTest {
     Assertions.assertThat(list.contains(location)).isTrue();
     Assertions.assertThat(list.contains(location1)).isTrue();
 
-    list = locationService.findByCoordinates(30.D, 6.D, new ArrayList<String>());
+    list = locationService.findByCoordinates(30.D, 6.D, new ArrayList<>());
 
     Assertions.assertThat(list.size()).isEqualTo(2);
     Assertions.assertThat(list.contains(location)).isTrue();

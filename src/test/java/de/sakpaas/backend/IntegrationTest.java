@@ -4,14 +4,10 @@ import static org.hamcrest.Matchers.anything;
 import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
+
 import de.sakpaas.backend.model.Favorite;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.Occupancy;
-import de.sakpaas.backend.service.AddressRepository;
-import de.sakpaas.backend.service.FavoriteRepository;
-import de.sakpaas.backend.service.LocationDetailsRepository;
-import de.sakpaas.backend.service.LocationRepository;
-import de.sakpaas.backend.service.OccupancyRepository;
 import de.sakpaas.backend.service.UserService;
 import java.util.List;
 import java.util.UUID;
@@ -19,7 +15,6 @@ import lombok.SneakyThrows;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONValue;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.keycloak.common.VerificationException;
@@ -31,7 +26,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultMatcher;
 
-public class IntegrationTest extends HappyHamsterTest {
+public class IntegrationTest extends RepositoryTest {
 
   public static final UUID USER_UUID = UUID.fromString("550e8400-e29b-11d4-a716-446655440000");
   public static final AccessToken USER_ACCESS_TOKEN = new AccessToken();
@@ -41,16 +36,6 @@ public class IntegrationTest extends HappyHamsterTest {
   protected MockMvc mockMvc;
   @SpyBean
   protected UserService userService;
-  @Autowired
-  protected OccupancyRepository occupancyRepository;
-  @Autowired
-  protected FavoriteRepository favoriteRepository;
-  @Autowired
-  protected LocationRepository locationRepository;
-  @Autowired
-  protected LocationDetailsRepository locationDetailsRepository;
-  @Autowired
-  protected AddressRepository addressRepository;
 
   @BeforeAll
   static void setupAll() {
@@ -64,7 +49,7 @@ public class IntegrationTest extends HappyHamsterTest {
 
   @SneakyThrows
   @BeforeEach
-  void setup() {
+  void setupIntegration() {
     Mockito.doAnswer(invocation -> {
       if (invocation.getArgument(0).equals("token.valid.token")) {
         return USER_ACCESS_TOKEN;
@@ -73,37 +58,6 @@ public class IntegrationTest extends HappyHamsterTest {
     })
         .when(userService)
         .verifyToken(Mockito.any());
-
-    // Cleanup tables
-    occupancyRepository.deleteAll();
-    favoriteRepository.deleteAll();
-    locationRepository.deleteAll();
-    addressRepository.deleteAll();
-    locationDetailsRepository.deleteAll();
-  }
-
-  @AfterEach
-  void tearDown() {
-    // Cleanup tables
-    occupancyRepository.deleteAll();
-    favoriteRepository.deleteAll();
-    locationRepository.deleteAll();
-    addressRepository.deleteAll();
-    locationDetailsRepository.deleteAll();
-  }
-
-  protected Location insert(Location location) {
-    locationDetailsRepository.save(location.getDetails());
-    addressRepository.save(location.getAddress());
-    return locationRepository.save(location);
-  }
-
-  protected Favorite insert(Favorite favorite) {
-    return favoriteRepository.save(favorite);
-  }
-
-  protected Occupancy insert(Occupancy occupancy) {
-    return occupancyRepository.save(occupancy);
   }
 
   protected ResultMatcher expectErrorObject() {
@@ -135,7 +89,6 @@ public class IntegrationTest extends HappyHamsterTest {
     return result -> this.match(result, "$", location);
   }
 
-
   /**
    * Checks if the given {@link org.springframework.test.web.servlet.MvcResult} has the form of a
    * List of Locations as defined in the openAPI specification. The fields given in the locations
@@ -145,9 +98,22 @@ public class IntegrationTest extends HappyHamsterTest {
    * @return the {@link ResultMatcher}
    */
   protected ResultMatcher expectLocationList(List<Location> locations) {
+    return expectLocationList(locations, "$");
+  }
+
+  /**
+   * Checks if the given {@link org.springframework.test.web.servlet.MvcResult} has the form of a
+   * List of Locations as defined in the openAPI specification. The fields given in the locations
+   * parameter have to be correct.
+   *
+   * @param locations the baseline {@link List} of {@link Location}s
+   * @param path      the path where to search for {@link Location}
+   * @return the {@link ResultMatcher}
+   */
+  protected ResultMatcher expectLocationList(List<Location> locations, String path) {
     return result -> {
       // Check if the result is an array
-      jsonPath("$").isArray().match(result);
+      jsonPath(path).isArray().match(result);
 
       // Find correct Location for array element
       JSONArray array = (JSONArray) JSONValue.parse(result.getResponse().getContentAsString());
@@ -159,7 +125,7 @@ public class IntegrationTest extends HappyHamsterTest {
             .filter(loc -> loc.getId() == id)
             .findAny()
             .orElseThrow(() -> new AssertionError("Unknown LocationId in result."));
-        this.match(result, "$[" + i + "]", location);
+        this.match(result, path + "[" + i + "]", location);
       }
     };
   }

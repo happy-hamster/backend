@@ -18,6 +18,7 @@ import de.sakpaas.backend.service.OpenStreetMapService;
 import de.sakpaas.backend.service.PresenceService;
 import de.sakpaas.backend.service.SearchService;
 import de.sakpaas.backend.service.UserService;
+import de.sakpaas.backend.util.RequestUtils;
 import de.sakpaas.backend.v2.dto.LocationResultLocationDto;
 import de.sakpaas.backend.v2.dto.OccupancyReportDto;
 import de.sakpaas.backend.v2.dto.SearchResultDto;
@@ -26,6 +27,7 @@ import de.sakpaas.backend.v2.mapper.SearchResultMapper;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -155,22 +157,31 @@ public class LocationController {
   public ResponseEntity<LocationResultLocationDto> postNewOccupancy(
       @Valid @RequestBody OccupancyReportDto occupancyReportDto,
       @PathVariable("locationId") Long locationId,
-      @RequestHeader(value = "Authorization", required = false) String header) {
+      @RequestHeader(value = "Authorization", required = false) String header,
+      HttpServletRequest request) {
     occupancyReportDto.setLocationId(locationId);
+
     Optional<UserInfoDto> user = userService.getOptionalUserInfo(header);
+    byte[] requestHash = RequestUtils.getInstance().generateConnectionHash(request);
 
     Location location = locationService.getById(locationId)
         .orElseThrow(() -> new InvalidLocationException(locationId));
 
     if (user.isPresent()) {
-      occupancyService.save(new Occupancy(location, occupancyReportDto.getOccupancy(),
-          occupancyReportDto.getClientType(), user.get().getId()));
-    } else {
-      occupancyService.save(new Occupancy(location, occupancyReportDto.getOccupancy(),
-          occupancyReportDto.getClientType()));
-    }
+      occupancyService.checkReportLimit(location, user.get().getId());
+      Occupancy occupancy = new Occupancy(location, occupancyReportDto.getOccupancy(),
+          occupancyReportDto.getClientType(), requestHash, user.get().getId());
+      occupancyService.save(occupancy);
 
-    return new ResponseEntity<>(locationMapper.mapLocationToOutputDto(location), CREATED);
+      return new ResponseEntity<>(locationMapper.mapLocationToOutputDto(location, user.get()), OK);
+    } else {
+      occupancyService.checkReportLimit(location, requestHash);
+      Occupancy occupancy = new Occupancy(location, occupancyReportDto.getOccupancy(),
+          occupancyReportDto.getClientType(), requestHash);
+      occupancyService.save(occupancy);
+
+      return new ResponseEntity<>(locationMapper.mapLocationToOutputDto(location), OK);
+    }
   }
 
   /**

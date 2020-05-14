@@ -3,6 +3,7 @@ package de.sakpaas.backend.service;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+
 import de.sakpaas.backend.HappyHamsterTest;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;

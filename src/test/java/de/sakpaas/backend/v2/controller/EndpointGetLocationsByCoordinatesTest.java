@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+
 import de.sakpaas.backend.IntegrationTest;
 import de.sakpaas.backend.model.Address;
 import de.sakpaas.backend.model.Favorite;
@@ -195,7 +196,7 @@ class EndpointGetLocationsByCoordinatesTest extends IntegrationTest {
         new LocationDetails("supermarket", "Mo-Fr 10-22", "Edeka"),
         new Address("DE", "Mannheim", "25565", "Handelshafen", "12a")
     );
-    Occupancy occupancy = new Occupancy(location, 0.5, "TEST");
+    Occupancy occupancy = new Occupancy(location, 0.5, "TEST", (byte[]) null);
     super.insert(location);
     super.insert(occupancy);
 
