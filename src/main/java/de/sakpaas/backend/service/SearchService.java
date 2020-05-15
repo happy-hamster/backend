@@ -95,7 +95,7 @@ public class SearchService {
     Set<Location> locations = request.getLocations();
 
     // iff type == null or type is an empty array or the location set is empty
-    if (type == null || type.equals(new ArrayList<>()) || locations.equals(new HashSet<>())) {
+    if (type == null || type.isEmpty() || locations.isEmpty()) {
       return request;
     }
 

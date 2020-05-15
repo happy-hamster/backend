@@ -426,7 +426,7 @@ class SearchServiceTest extends HappyHamsterTest {
 
    SearchRequest response =  searchService.filterByType(request, new ArrayList<>(Collections.singletonList("locationType")));
 
-   assertThat(response.getLocations().equals(new HashSet<>()));
+   assertThat(response.getLocations().isEmpty());
   }
 
   @Test
