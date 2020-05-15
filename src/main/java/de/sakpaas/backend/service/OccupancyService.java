@@ -1,5 +1,7 @@
 package de.sakpaas.backend.service;
 
+import static java.time.ZonedDateTime.now;
+
 import com.google.common.annotations.VisibleForTesting;
 import de.sakpaas.backend.exception.TooManyRequestsException;
 import de.sakpaas.backend.model.AccumulatedOccupancy;
@@ -9,6 +11,7 @@ import de.sakpaas.backend.util.OccupancyAccumulationConfiguration;
 import de.sakpaas.backend.util.OccupancyReportLimitsConfiguration;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,7 +97,7 @@ public class OccupancyService {
   public AccumulatedOccupancy getOccupancyCalculation(Location location) {
 
 
-    return new AccumulatedOccupancy(1.0, 4, ZonedDateTime.now());
+    return new AccumulatedOccupancy(1.0, 4, now());
   }
 
 
@@ -110,7 +113,7 @@ public class OccupancyService {
       return;
     }
 
-    ZonedDateTime zoneDateTime = ZonedDateTime.now();
+    ZonedDateTime zoneDateTime = now();
     List<Occupancy> occupanciesLocations = occupancyRepository
         .findByLocationAndUserUuidAndTimestampAfter(location, uuid,
             zoneDateTime.minusMinutes(configReportLimits.getLocationPeriod()));
@@ -137,8 +140,8 @@ public class OccupancyService {
     if (!configReportLimits.isEnabled()) {
       return;
     }
-    
-    ZonedDateTime zoneDateTime = ZonedDateTime.now();
+
+    ZonedDateTime zoneDateTime = now();
     List<Occupancy> occupanciesLocations = occupancyRepository
         .findByLocationAndRequestHashAndTimestampAfter(location, requestHash,
             zoneDateTime.minusMinutes(configReportLimits.getLocationPeriod()));
@@ -180,7 +183,18 @@ public class OccupancyService {
    * @return The Occupancy
    */
   private AccumulatedOccupancy getLiveOccupancy(Location location) {
-    return new AccumulatedOccupancy(1.0, 1, ZonedDateTime.now());
+    ZonedDateTime time = now();
+    List<Occupancy> occupancies = occupancyRepository.findByLocationAndTimestampAfter(location,
+        now().minusMinutes(config.getDuration()));
+
+    return new AccumulatedOccupancy(
+        calculateAccumulatedOccupancy(occupancies, time),
+        occupancies.size(),
+        occupancies.stream()
+            .map(Occupancy::getTimestamp)
+            .max(Comparator.naturalOrder())
+            .orElse(null)
+    );
   }
 
   /**
