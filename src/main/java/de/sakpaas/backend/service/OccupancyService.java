@@ -1,7 +1,5 @@
 package de.sakpaas.backend.service;
 
-import static java.time.ZonedDateTime.now;
-
 import com.google.common.annotations.VisibleForTesting;
 import de.sakpaas.backend.exception.TooManyRequestsException;
 import de.sakpaas.backend.model.AccumulatedOccupancy;
@@ -11,8 +9,6 @@ import de.sakpaas.backend.util.OccupancyAccumulationConfiguration;
 import de.sakpaas.backend.util.OccupancyReportLimitsConfiguration;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -96,18 +92,9 @@ public class OccupancyService {
    * @return the occupancy report
    */
   public AccumulatedOccupancy getOccupancyCalculation(Location location) {
-    ZonedDateTime time = now();
-    List<Occupancy> occupancies = occupancyRepository.findByLocationAndTimestampAfter(location,
-        now().minusMinutes(config.getDuration()));
 
-    return new AccumulatedOccupancy(
-        calculateAccumulatedOccupancy(occupancies, time),
-        occupancies.size(),
-        occupancies.stream()
-            .map(Occupancy::getTimestamp)
-            .max(Comparator.naturalOrder())
-            .orElse(null)
-    );
+
+    return new AccumulatedOccupancy(1.0, 4, ZonedDateTime.now());
   }
 
 
@@ -172,7 +159,7 @@ public class OccupancyService {
    * @param date The Date
    * @return Result if it is a public holiday
    */
-  private boolean checkForPublicHoliday(Date date) {
+  private boolean isPublicHoliday(ZonedDateTime date) {
     return false;
   }
 
@@ -186,6 +173,15 @@ public class OccupancyService {
   }
 
 
+  /**
+   * Gets the Occupancy from recently submitted reports. Is Null if there are no in the range.
+   *
+   * @param location The Location
+   * @return The Occupancy
+   */
+  private AccumulatedOccupancy getLiveOccupancy(Location location) {
+    return new AccumulatedOccupancy(1.0, 1, ZonedDateTime.now());
+  }
 
   /**
    * Returns the hour of the week, based on the Date. Public Holidays are treated like a sunday.
@@ -193,7 +189,7 @@ public class OccupancyService {
    * @param date The Date
    * @return The hour of the week
    */
-  private int getAggregationHour(Date date) {
+  private int getAggregationHour(ZonedDateTime date) {
     return 8;
   }
 
@@ -210,11 +206,11 @@ public class OccupancyService {
 
 
   /**
-   * Calculating Occupancy based on Statista statistics and the Date.
+   * Calculating Occupancy based on our own data or statista statistics and the Date.
    *
    * @return The Occupancy
    */
-  private double getOccupancyFromStatista(Location location, List<Integer> aggregationHours) {
+  private double getOccupancyFromStatistic(List<Integer> aggregationHours) {
     return 1.0;
   }
 }
