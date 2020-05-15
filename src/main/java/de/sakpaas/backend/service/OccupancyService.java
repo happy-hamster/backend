@@ -225,8 +225,9 @@ public class OccupancyService {
    * @param location The Location you want an occupancy for
    * @return The Occupancy
    */
-  private double getOccupancyFromHistory(Location location, List<Integer> aggregationHours) {
-    return 1.0;
+  private AccumulatedOccupancy getOccupancyFromHistory(Location location,
+                                                       List<Integer> aggregationHours) {
+    return new AccumulatedOccupancy(1.0, 1, ZonedDateTime.now());
   }
 
 
@@ -235,8 +236,8 @@ public class OccupancyService {
    *
    * @return The Occupancy
    */
-  private double getOccupancyFromStatistic(List<Integer> aggregationHours) {
-    return 1.0;
+  private AccumulatedOccupancy getOccupancyFromStatistic(List<Integer> aggregationHours) {
+    return new AccumulatedOccupancy(1.0, 1, ZonedDateTime.now());
   }
 }
 
