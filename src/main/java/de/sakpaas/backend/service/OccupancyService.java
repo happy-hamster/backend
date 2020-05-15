@@ -95,9 +95,20 @@ public class OccupancyService {
    * @return the occupancy report
    */
   public AccumulatedOccupancy getOccupancyCalculation(Location location) {
+    // TODO Muss neu implementiert werden. Task bereits angelegt.
 
+    ZonedDateTime time = now();
+    List<Occupancy> occupancies = occupancyRepository.findByLocationAndTimestampAfter(location,
+        now().minusMinutes(config.getDuration()));
 
-    return new AccumulatedOccupancy(1.0, 4, now());
+    return new AccumulatedOccupancy(
+        calculateAccumulatedOccupancy(occupancies, time),
+        occupancies.size(),
+        occupancies.stream()
+            .map(Occupancy::getTimestamp)
+            .max(Comparator.naturalOrder())
+            .orElse(null)
+    );
   }
 
 
