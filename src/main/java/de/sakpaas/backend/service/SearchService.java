@@ -75,6 +75,7 @@ public class SearchService {
       if (request.getCoordinates().getLatitude() == null
           || request.getCoordinates().getLongitude() == null) {
         request = dbBrandSearch(request);
+        request = filterByType(request, type);
         return new SearchResultObject(request.getCoordinates(), request.getLocations());
       }
     }
@@ -98,10 +99,13 @@ public class SearchService {
       return request;
     }
 
+    List<String> lowerCaseType =
+        type.stream().map(String::toLowerCase).collect(Collectors.toList());
+
     locations = locations.stream()
         .filter(location -> {
           LocationDetails details = location.getDetails();
-          return type.contains(details.getType());
+          return lowerCaseType.contains(details.getType().toLowerCase());
         }).collect(Collectors.toSet());
 
     request.setLocations(locations);
