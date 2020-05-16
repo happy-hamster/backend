@@ -9,6 +9,7 @@ import de.sakpaas.backend.model.SearchResultObject;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -94,19 +95,26 @@ public class SearchService {
   protected SearchRequest filterByType(SearchRequest request, List<String> type) {
     Set<Location> locations = request.getLocations();
 
-    // iff type == null or type is an empty array or the location set is empty
+    // if type == null or type is an empty array or the location set is empty
     if (type == null || type.isEmpty() || locations.isEmpty()) {
       return request;
     }
 
     List<String> lowerCaseType =
-        type.stream().map(String::toLowerCase).collect(Collectors.toList());
+        type.stream()
+            .filter(Objects::nonNull)
+            .map(String::toLowerCase)
+            .collect(Collectors.toList());
 
     locations = locations.stream()
         .filter(location -> {
           LocationDetails details = location.getDetails();
+          if (details.getType() == null) {
+            return false;
+          }
           return lowerCaseType.contains(details.getType().toLowerCase());
-        }).collect(Collectors.toSet());
+        })
+        .collect(Collectors.toSet());
 
     request.setLocations(locations);
     return request;
