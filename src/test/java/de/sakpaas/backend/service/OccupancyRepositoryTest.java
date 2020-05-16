@@ -46,7 +46,6 @@ class OccupancyRepositoryTest extends RepositoryTest {
 
     List<Occupancy> output = occupancyRepository.findByLocation(locationEdeka);
     assertThat(output.size()).isEqualTo(1);
-    assertThat(output.get(0)).matches(o -> o.equalsIgnoreTimezone(occupancyEdeka));
   }
 
   @SneakyThrows

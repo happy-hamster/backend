@@ -87,6 +87,7 @@ public class OccupancyService {
         : 1;
   }
 
+
   /**
    * Calculates the {@link AccumulatedOccupancy} for a given location.
    *
@@ -94,6 +95,8 @@ public class OccupancyService {
    * @return the occupancy report
    */
   public AccumulatedOccupancy getOccupancyCalculation(Location location) {
+    // TODO Muss neu implementiert werden. Task bereits angelegt.
+
     ZonedDateTime time = now();
     List<Occupancy> occupancies = occupancyRepository.findByLocationAndTimestampAfter(location,
         now().minusMinutes(config.getDuration()));
@@ -108,6 +111,7 @@ public class OccupancyService {
     );
   }
 
+
   /**
    * Checks if there are too many occupancies given in the last * minutes.
    *
@@ -120,7 +124,7 @@ public class OccupancyService {
       return;
     }
 
-    ZonedDateTime zoneDateTime = ZonedDateTime.now();
+    ZonedDateTime zoneDateTime = now();
     List<Occupancy> occupanciesLocations = occupancyRepository
         .findByLocationAndUserUuidAndTimestampAfter(location, uuid,
             zoneDateTime.minusMinutes(configReportLimits.getLocationPeriod()));
@@ -147,8 +151,8 @@ public class OccupancyService {
     if (!configReportLimits.isEnabled()) {
       return;
     }
-    
-    ZonedDateTime zoneDateTime = ZonedDateTime.now();
+
+    ZonedDateTime zoneDateTime = now();
     List<Occupancy> occupanciesLocations = occupancyRepository
         .findByLocationAndRequestHashAndTimestampAfter(location, requestHash,
             zoneDateTime.minusMinutes(configReportLimits.getLocationPeriod()));
@@ -163,6 +167,15 @@ public class OccupancyService {
     }
   }
 
+  /**
+   * Returns True if the Date is a Public Holiday.
+   *
+   * @param date The Date
+   * @return Result if it is a public holiday
+   */
+  private boolean isPublicHoliday(ZonedDateTime date) {
+    return false;
+  }
 
   /**
    * Saves an {@link Occupancy} to the database.
@@ -172,4 +185,60 @@ public class OccupancyService {
   public Occupancy save(Occupancy occupancy) {
     return occupancyRepository.save(occupancy);
   }
+
+
+  /**
+   * Gets the Occupancy from recently submitted reports. Is Null if there are no in the range.
+   *
+   * @param location The Location
+   * @return The Occupancy
+   */
+  private AccumulatedOccupancy getLiveOccupancy(Location location) {
+    ZonedDateTime time = now();
+    List<Occupancy> occupancies = occupancyRepository.findByLocationAndTimestampAfter(location,
+        now().minusMinutes(config.getDuration()));
+
+    return new AccumulatedOccupancy(
+        calculateAccumulatedOccupancy(occupancies, time),
+        occupancies.size(),
+        occupancies.stream()
+            .map(Occupancy::getTimestamp)
+            .max(Comparator.naturalOrder())
+            .orElse(null)
+    );
+  }
+
+  /**
+   * Returns the hour of the week, based on the Date. Public Holidays are treated like a sunday.
+   *
+   * @param date The Date
+   * @return The hour of the week
+   */
+  private int getAggregationHour(ZonedDateTime date) {
+    return 8;
+  }
+
+
+  /**
+   * Returns the Occupancy based on the historical data.
+   *
+   * @param location The Location you want an occupancy for
+   * @return The Occupancy
+   */
+  private AccumulatedOccupancy getOccupancyFromHistory(Location location,
+                                                       List<Integer> aggregationHours) {
+    return new AccumulatedOccupancy(1.0, 1, ZonedDateTime.now());
+  }
+
+
+  /**
+   * Calculating Occupancy based on our own data or statista statistics and the Date.
+   *
+   * @return The Occupancy
+   */
+  private AccumulatedOccupancy getOccupancyFromStatistic(List<Integer> aggregationHours) {
+    return new AccumulatedOccupancy(1.0, 1, ZonedDateTime.now());
+  }
 }
+
+
