@@ -175,7 +175,8 @@ public class OccupancyService {
    * @param date The Date
    * @return Result if it is a public holiday
    */
-  private boolean isPublicHoliday(ZonedDateTime date) {
+  @VisibleForTesting
+  boolean isPublicHoliday(ZonedDateTime date) {
     return false;
   }
 
@@ -218,7 +219,8 @@ public class OccupancyService {
    * @param date The Date
    * @return The hour of the week
    */
-  private int getAggregationHour(ZonedDateTime date) {
+  @VisibleForTesting
+  int getAggregationHour(ZonedDateTime date) {
     DayOfWeek day = date.getDayOfWeek();
     // public holidays should be handled like sundays
     if (isPublicHoliday(date)) {
