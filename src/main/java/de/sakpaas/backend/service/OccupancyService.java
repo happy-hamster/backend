@@ -233,7 +233,7 @@ public class OccupancyService {
 
     // compute aggregation hour
     // all hours of one day have to not overlap with other days
-    return dayOrdinal * (int) Duration.ofDays(1).toHours() + hour;
+    return dayOrdinal * (int) ChronoUnit.DAYS.getDuration().toHours() + hour;
   }
 
 
