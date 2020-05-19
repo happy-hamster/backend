@@ -672,8 +672,23 @@
       },
       {
          "changeSet":{
-            "id":"master to dev update new columns",
+            "id":"master to dev update USER_UUID column in occupancy",
             "author":"Fabsi23",
+            "preConditions":[
+               {
+                  "onFail":"MARK_RAN"
+               },
+               {
+                  "not":[
+                     {
+                        "columnExists":{
+                           "tableName":"OCCUPANCY",
+                           "columnName":"USER_UUID"
+                        }
+                     }
+                  ]
+               }
+            ],
             "changes":[
                {
                   "addColumn":{
@@ -684,7 +699,37 @@
                               "name":"USER_UUID",
                               "type":"uuid"
                            }
-                        },
+                        }
+                     ]
+                  }
+               }
+            ]
+         }
+      },
+      {
+         "changeSet":{
+            "id":"master to dev update REQUEST_HASH column in occupancy",
+            "author":"Fabsi23",
+            "preConditions":[
+               {
+                  "onFail":"MARK_RAN"
+               },
+               {
+                  "not":[
+                     {
+                        "columnExists":{
+                           "tableName":"OCCUPANCY",
+                           "columnName":"REQUEST_HASH"
+                        }
+                     }
+                  ]
+               }
+            ],
+            "changes":[
+               {
+                  "addColumn":{
+                     "tableName":"OCCUPANCY",
+                     "columns":[
                         {
                            "column":{
                               "name":"REQUEST_HASH",
