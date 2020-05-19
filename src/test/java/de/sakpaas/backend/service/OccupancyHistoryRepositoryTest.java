@@ -6,10 +6,10 @@ import de.sakpaas.backend.RepositoryTest;
 import de.sakpaas.backend.model.Address;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.LocationDetails;
-import de.sakpaas.backend.model.Occupancy;
 import de.sakpaas.backend.model.OccupancyHistory;
-import java.security.MessageDigest;
-import java.util.List;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -35,17 +35,15 @@ class OccupancyHistoryRepositoryTest extends RepositoryTest {
     super.insert(locationEdeka);
     super.insert(locationAldi);
 
-    MessageDigest digest = MessageDigest.getInstance("SHA-256");
-    byte[] request = digest.digest("Alice".getBytes());
-
     OccupancyHistory occupancyHistoryEdeka = new OccupancyHistory(locationEdeka, 10);
     OccupancyHistory occupancyHistoryAldi = new OccupancyHistory(locationAldi, 144);
     super.insert(occupancyHistoryEdeka);
     super.insert(occupancyHistoryAldi);
 
     // Test
-    List<Occupancy> output = occupancyRepository.findByLocation(locationEdeka);
+    Set<OccupancyHistory> output = occupancyHistoryRepository.findByLocationIn(
+        new HashSet<>(Collections.singletonList(locationEdeka)));
     assertThat(output.size()).isEqualTo(1);
-    assertThat(output.get(0)).isEqualTo(occupancyHistoryEdeka);
+    assertThat(output.iterator().next()).isEqualTo(occupancyHistoryEdeka);
   }
 }

@@ -1,5 +1,6 @@
 package de.sakpaas.backend.model;
 
+import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -66,5 +67,28 @@ public class OccupancyHistory {
   public void increment(double occupancy) {
     this.occupancySum += occupancy;
     this.occupancyCount++;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    OccupancyHistory that = (OccupancyHistory) o;
+    return aggregationHour == that.aggregationHour
+        && Double.compare(that.occupancySum, occupancySum) == 0
+        && occupancyCount == that.occupancyCount
+        && Objects.equals(
+        (location == null) ? null : location.getId(),
+        (that.location == null) ? null : that.location.getId());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash((location == null) ? null : location.getId(),
+        aggregationHour, occupancySum, occupancyCount);
   }
 }
