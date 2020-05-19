@@ -751,13 +751,9 @@
                   "onFail":"MARK_RAN"
                },
                {
-                  "not":[
-                     {
-                        "tableExists":{
-                           "tableName":"REQUEST"
-                        }
-                     }
-                  ]
+                  "tableExists":{
+                     "tableName":"REQUEST"
+                  }
                }
             ],
             "changes":[
