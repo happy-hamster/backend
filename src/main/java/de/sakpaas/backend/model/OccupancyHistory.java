@@ -2,10 +2,8 @@ package de.sakpaas.backend.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
-import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import lombok.Getter;
@@ -36,6 +34,12 @@ public class OccupancyHistory {
   @Column(name = "OCCUPANCY_COUNT")
   private int occupancyCount;
 
+  /**
+   * Creates a new {@link OccupancyHistory} with {@code sum = 0.0} and {@code count = 1}.
+   *
+   * @param location        the {@link Location}
+   * @param aggregationHour the aggregation hour
+   */
   public OccupancyHistory(Location location, int aggregationHour) {
     this.location = location;
     this.aggregationHour = aggregationHour;
@@ -43,6 +47,14 @@ public class OccupancyHistory {
     this.occupancyCount = 0;
   }
 
+  /**
+   * Creates a new {@link OccupancyHistory}.
+   *
+   * @param location        the {@link Location}
+   * @param aggregationHour the aggregation hour
+   * @param occupancySum    the {@link Occupancy} sum
+   * @param occupancyCount  tje {@link Occupancy} count
+   */
   public OccupancyHistory(Location location, int aggregationHour, double occupancySum,
                           int occupancyCount) {
     this.location = location;
