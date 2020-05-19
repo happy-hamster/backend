@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 
-
 import de.sakpaas.backend.HappyHamsterTest;
 import de.sakpaas.backend.exception.TooManyRequestsException;
 import de.sakpaas.backend.model.AccumulatedOccupancy;
@@ -203,28 +202,34 @@ class OccupancyServiceTest extends HappyHamsterTest {
         makeOccupancy(5L, location, 0.5, null, "")
     );
 
-    Mockito.when(occupancyRepository.findByLocationAndUserUuidAndTimestampAfter(any(), any(), any()))
+    Mockito
+        .when(occupancyRepository.findByLocationAndUserUuidAndTimestampAfter(any(), any(), any()))
         .thenReturn(list5);
     Mockito.when(occupancyRepository.findByUserUuidAndTimestampAfter(any(), any()))
         .thenReturn(list0);
-    assertThrows(TooManyRequestsException.class, () -> occupancyService.checkReportLimit(location, uuid));
+    assertThrows(TooManyRequestsException.class,
+        () -> occupancyService.checkReportLimit(location, uuid));
 
-    Mockito.when(occupancyRepository.findByLocationAndUserUuidAndTimestampAfter(any(), any(), any()))
+    Mockito
+        .when(occupancyRepository.findByLocationAndUserUuidAndTimestampAfter(any(), any(), any()))
         .thenReturn(list0);
     Mockito.when(occupancyRepository.findByUserUuidAndTimestampAfter(any(), any()))
         .thenReturn(list5);
-    assertThrows(TooManyRequestsException.class, () -> occupancyService.checkReportLimit(location, uuid));
+    assertThrows(TooManyRequestsException.class,
+        () -> occupancyService.checkReportLimit(location, uuid));
 
-    Mockito.when(occupancyRepository.findByLocationAndUserUuidAndTimestampAfter(any(), any(), any()))
+    Mockito
+        .when(occupancyRepository.findByLocationAndUserUuidAndTimestampAfter(any(), any(), any()))
         .thenReturn(list0);
     Mockito.when(occupancyRepository.findByUserUuidAndTimestampAfter(any(), any()))
         .thenReturn(list0);
     occupancyService.checkReportLimit(location, uuid);
   }
+
   @Test
   void testCheckReportLimitRequestHash() {
     Location location = new Location();
-    byte[] requestHash = new byte[]{(byte) 0xDE, (byte) 0xAD, (byte) 0xBE, (byte) 0xEF};
+    byte[] requestHash = new byte[] {(byte) 0xDE, (byte) 0xAD, (byte) 0xBE, (byte) 0xEF};
     List<Occupancy> list0 = new ArrayList<>();
     List<Occupancy> list5 = Arrays.asList(
         makeOccupancy(1L, location, 0.5, null, ""),
@@ -234,19 +239,24 @@ class OccupancyServiceTest extends HappyHamsterTest {
         makeOccupancy(5L, location, 0.5, null, "")
     );
 
-    Mockito.when(occupancyRepository.findByLocationAndRequestHashAndTimestampAfter(any(), any(), any()))
+    Mockito.when(
+        occupancyRepository.findByLocationAndRequestHashAndTimestampAfter(any(), any(), any()))
         .thenReturn(list5);
     Mockito.when(occupancyRepository.findByRequestHashAndTimestampAfter(any(), any()))
         .thenReturn(list0);
-    assertThrows(TooManyRequestsException.class, () -> occupancyService.checkReportLimit(location, requestHash));
+    assertThrows(TooManyRequestsException.class,
+        () -> occupancyService.checkReportLimit(location, requestHash));
 
-    Mockito.when(occupancyRepository.findByLocationAndRequestHashAndTimestampAfter(any(), any(), any()))
+    Mockito.when(
+        occupancyRepository.findByLocationAndRequestHashAndTimestampAfter(any(), any(), any()))
         .thenReturn(list0);
     Mockito.when(occupancyRepository.findByRequestHashAndTimestampAfter(any(), any()))
         .thenReturn(list5);
-    assertThrows(TooManyRequestsException.class, () -> occupancyService.checkReportLimit(location, requestHash));
+    assertThrows(TooManyRequestsException.class,
+        () -> occupancyService.checkReportLimit(location, requestHash));
 
-    Mockito.when(occupancyRepository.findByLocationAndRequestHashAndTimestampAfter(any(), any(), any()))
+    Mockito.when(
+        occupancyRepository.findByLocationAndRequestHashAndTimestampAfter(any(), any(), any()))
         .thenReturn(list0);
     Mockito.when(occupancyRepository.findByRequestHashAndTimestampAfter(any(), any()))
         .thenReturn(list0);
@@ -262,5 +272,11 @@ class OccupancyServiceTest extends HappyHamsterTest {
     object.setTimestamp(timestamp);
     object.setClientType(clientType);
     return object;
+  }
+
+  @Test
+  void testGetOccupancyFromHistory() {
+    Location location = new Location();
+
   }
 }

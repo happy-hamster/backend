@@ -232,12 +232,12 @@ public class OccupancyService {
    * @param location The Location you want an occupancy for
    * @return The Occupancy
    */
-  private AccumulatedOccupancy getOccupancyFromHistory(Location location,
+  protected AccumulatedOccupancy getOccupancyFromHistory(Location location,
                                                        List<Integer> aggregationHours) {
     Set<OccupancyHistory> occupancyHistories = new HashSet<>();
-    for (Integer hour : aggregationHours) {
+    for (Integer aggregationHour : aggregationHours) {
       occupancyHistories
-          .addAll(occupancyHistoryRepository.findByLocationAndAggregationHour(location, hour));
+          .addAll(occupancyHistoryRepository.findByLocationAndAggregationHour(location, aggregationHour));
     }
     OptionalDouble avg = occupancyHistories.stream()
         .mapToDouble(OccupancyHistory::getAggregationHour)
