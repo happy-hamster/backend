@@ -10,11 +10,13 @@ import javax.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.validator.constraints.Range;
 
 @Getter
 @Setter
 @NoArgsConstructor
+@ToString
 @Entity(name = "OCCUPANCY_HISTORY")
 @IdClass(OccupancyHistoryId.class)
 public class OccupancyHistory {
