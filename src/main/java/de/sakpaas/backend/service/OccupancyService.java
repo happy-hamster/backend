@@ -164,6 +164,7 @@ public class OccupancyService {
   }
 
 
+
   /**
    * Saves an {@link Occupancy} to the database.
    *
@@ -172,4 +173,5 @@ public class OccupancyService {
   public Occupancy save(Occupancy occupancy) {
     return occupancyRepository.save(occupancy);
   }
+
 }

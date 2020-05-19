@@ -8,7 +8,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-
 import de.sakpaas.backend.IntegrationTest;
 import de.sakpaas.backend.dto.NominatimSearchResultListDto;
 import de.sakpaas.backend.model.Address;
@@ -470,6 +469,34 @@ class EndpointSearchLocationsTest extends IntegrationTest {
             .value(everyItem(equalTo(occupancy.getOccupancy()))))
         .andExpect(jsonPath("$.locations[*].occupancy.count")
             .value(everyItem(equalTo(1))));
+  }
+
+  @Test
+  void testSearchWithFilter() throws Exception {
+    // Setup test data
+    Location locationWithType =
+        new Location(1L, "WithType", 1.0, 1.0,
+            new LocationDetails("LocationType", "1-2", "brand"),
+            new Address("DE", "City", "2", "Street", "1"));
+    Location locationWithoutType =
+        new Location(2L, "WithoutType", 1.0, 1.0,
+            new LocationDetails(null, "1-2", "brand"),
+            new Address("DE", "City", "2", "Street", "1"));
+    super.insert(locationWithType);
+    super.insert(locationWithoutType);
+
+    searchService.updateBrands();
+
+    // Suppress outgoing http call
+    mockRestTemplate(null);
+
+    mockMvc.perform(get("/v2/locations/search/brand?type=LocationType"))
+        // No Authentication
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.locations", hasSize(1)))
+        .andExpect(jsonPath("$.locations[*].details.type")
+            .value(everyItem(equalTo("LocationType"))));
+
   }
 
   private void mockRestTemplate(NominatimSearchResultListDto nominatim) {

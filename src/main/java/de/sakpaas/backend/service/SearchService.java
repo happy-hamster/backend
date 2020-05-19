@@ -9,6 +9,7 @@ import de.sakpaas.backend.model.SearchResultObject;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -66,7 +67,8 @@ public class SearchService {
    * @param coordinateDetails Coordinates to assist the search
    * @return Result Locations
    */
-  public SearchResultObject search(String query, CoordinateDetails coordinateDetails) {
+  public SearchResultObject search(String query, CoordinateDetails coordinateDetails,
+                                   List<String> type) {
     SearchRequest request = createRequest(query, coordinateDetails);
     if (!request.getQuery().isEmpty()) {
       request = getCoordinatesFromNominatim(request);
@@ -74,11 +76,48 @@ public class SearchService {
       if (request.getCoordinates().getLatitude() == null
           || request.getCoordinates().getLongitude() == null) {
         request = dbBrandSearch(request);
+        request = filterByType(request, type);
         return new SearchResultObject(request.getCoordinates(), request.getLocations());
       }
     }
     request = getByCoordinates(request);
+    request = filterByType(request, type);
     return new SearchResultObject(request.getCoordinates(), request.getLocations());
+  }
+
+  /**
+   * Filters the the locations by the given location type.
+   *
+   * @param request The SearchRequest
+   * @param type    The list of location types
+   * @return The filtered SearchRequest
+   */
+  protected SearchRequest filterByType(SearchRequest request, List<String> type) {
+    Set<Location> locations = request.getLocations();
+
+    // if type == null or type is an empty array or the location set is empty
+    if (type == null || type.isEmpty() || locations.isEmpty()) {
+      return request;
+    }
+
+    List<String> lowerCaseType =
+        type.stream()
+            .filter(Objects::nonNull)
+            .map(String::toLowerCase)
+            .collect(Collectors.toList());
+
+    locations = locations.stream()
+        .filter(location -> {
+          LocationDetails details = location.getDetails();
+          if (details.getType() == null) {
+            return false;
+          }
+          return lowerCaseType.contains(details.getType().toLowerCase());
+        })
+        .collect(Collectors.toSet());
+
+    request.setLocations(locations);
+    return request;
   }
 
   /**
