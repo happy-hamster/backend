@@ -18,4 +18,14 @@ public interface OccupancyHistoryRepository extends JpaRepository<OccupancyHisto
    */
   Set<OccupancyHistory> findByLocationIn(Set<Location> locations);
 
+
+  /**
+   * Returns all {@link OccupancyHistory}s for a given {@link Location} and aggregationHour.
+   *
+   * @param location        The Location to get the {@link OccupancyHistory} for
+   * @param aggregationHour The aggregationHour to get the {@link OccupancyHistory} for
+   * @return {@link List} of {@link OccupancyHistory}s
+   */
+  Set<OccupancyHistory> findByLocationAndAggregationHour(Location location, int aggregationHour);
+
 }
