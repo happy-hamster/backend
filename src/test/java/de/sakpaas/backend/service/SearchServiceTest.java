@@ -300,7 +300,7 @@ class SearchServiceTest extends HappyHamsterTest {
     Mockito.doReturn(request).when(mockSearchService).dbBrandSearch(Mockito.any());
 
     SearchResultObject result =
-        mockSearchService.search("testQuery", new CoordinateDetails(null, null));
+        mockSearchService.search("testQuery", new CoordinateDetails(null, null), null);
     assertThat(result.getLocationList().size()).isEqualTo(1);
     assertThat(result.getCoordinates().getLatitude()).isNull();
     assertThat(result.getCoordinates().getLongitude()).isNull();
@@ -414,5 +414,68 @@ class SearchServiceTest extends HappyHamsterTest {
     LocationDetails locationDetails = new LocationDetails("tt", "toh", "Lidl");
     Location location = new Location(1L, "Lidl Möckmühl", 41.0D, 8.0D, locationDetails, null);
     assertThat(searchService.filterLocationsByBrand(location, "lidl")).isTrue();
+  }
+
+  @Test
+  void testFilterLocationsWithoutLocationDetailsType() {
+    Location location = new Location();
+    location.setDetails(new LocationDetails(null, "", "brand"));
+
+    SearchRequest request = new SearchRequest();
+    request.setLocations(new HashSet<>(Collections.singleton(location)));
+
+   SearchRequest response =  searchService.filterByType(request, new ArrayList<>(Collections.singletonList("locationType")));
+
+   assertThat(response.getLocations().isEmpty());
+  }
+
+  @Test
+  void testFilterLocationsWithoutTypeInSearch() {
+    Location location = new Location();
+    location.setDetails(new LocationDetails("locationType", "", "brand"));
+    Set<Location> locationSet = new HashSet<>(Collections.singleton(location));
+
+    SearchRequest request = new SearchRequest();
+    request.setLocations(locationSet);
+
+   SearchRequest response =  searchService.filterByType(request, new ArrayList<>(Collections.singletonList(null)));
+
+   assertThat(response.getLocations().equals(locationSet));
+  }
+
+  @Test
+  void testFilterLocationsWithType() {
+    Location location = new Location();
+    location.setDetails(new LocationDetails("locationType", "", "brand"));
+    Location location2 = new Location();
+    location2.setDetails(new LocationDetails("locationType", "", "brand2"));
+    Set<Location> locationSet = new HashSet<>(Arrays.asList(location, location2));
+
+    SearchRequest request = new SearchRequest();
+    request.setLocations(locationSet);
+
+   SearchRequest response =  searchService.filterByType(request, new ArrayList<>(Collections.singletonList("locationType")));
+
+   assertThat(response.getLocations().equals(locationSet));
+  }
+
+  @Test
+  void testFilterMultipleLocationsWithType() {
+    Location location = new Location();
+    location.setDetails(new LocationDetails("locationType", "", "brand"));
+    Location location2 = new Location();
+    location2.setDetails(new LocationDetails("locationType", "", "brand2"));
+    Location location3 = new Location();
+    location3.setDetails(new LocationDetails("locationType2", "", "brand"));
+    Location location4 = new Location();
+    location4.setDetails(new LocationDetails("locationType2", "", "brand2"));
+    Set<Location> locationSet = new HashSet<>(Arrays.asList(location, location2, location3, location4));
+
+    SearchRequest request = new SearchRequest();
+    request.setLocations(locationSet);
+
+   SearchRequest response =  searchService.filterByType(request, new ArrayList<>(Collections.singletonList("locationType")));
+
+   assertThat(response.getLocations().equals(new HashSet<>(Arrays.asList(location, location2))));
   }
 }
