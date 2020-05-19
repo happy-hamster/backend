@@ -5,18 +5,29 @@ import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 
 import de.sakpaas.backend.BackendApplication;
+import de.sakpaas.backend.dto.UserInfoDto;
+import de.sakpaas.backend.exception.IncompleteCoordinateException;
+import de.sakpaas.backend.exception.InvalidLocationException;
+import de.sakpaas.backend.model.CoordinateDetails;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.Occupancy;
+import de.sakpaas.backend.model.SearchResultObject;
 import de.sakpaas.backend.service.LocationService;
 import de.sakpaas.backend.service.OccupancyService;
 import de.sakpaas.backend.service.OpenStreetMapService;
 import de.sakpaas.backend.service.PresenceService;
+import de.sakpaas.backend.service.SearchService;
+import de.sakpaas.backend.service.UserService;
+import de.sakpaas.backend.util.RequestUtils;
 import de.sakpaas.backend.v2.dto.LocationResultLocationDto;
 import de.sakpaas.backend.v2.dto.OccupancyReportDto;
+import de.sakpaas.backend.v2.dto.SearchResultDto;
 import de.sakpaas.backend.v2.mapper.LocationMapper;
-import java.util.ArrayList;
+import de.sakpaas.backend.v2.mapper.SearchResultMapper;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +36,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -34,17 +46,20 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/v2/locations")
 @RestController
 public class LocationController {
-
   private static final String MAPPING_POST_OCCUPANCY = "/{locationId}/occupancy";
   private static final String MAPPING_POST_CHECKIN = "/{locationId}/check-in";
   private static final String MAPPING_BY_ID = "/{locationId}";
   private static final String MAPPING_START_DATABASE = "/generate/{key}";
   private static final String MAPPING_SEARCH_LOCATION = "/search/{key}";
+  private static final String MAPPING_LOCATION_TYPES = "/types";
   private final LocationService locationService;
+  private final SearchService searchService;
   private final OpenStreetMapService openStreetMapService;
   private final LocationMapper locationMapper;
+  private final SearchResultMapper searchResultMapper;
   private final OccupancyService occupancyService;
   private final PresenceService presenceService;
+  private final UserService userService;
   private final AtomicBoolean importState;
 
 
@@ -52,20 +67,29 @@ public class LocationController {
    * Constructor that injects the needed dependencies.
    *
    * @param locationService      The Location Service
+   * @param searchService        The Service for searching the database
    * @param openStreetMapService The OpenStreetMap Service
    * @param locationMapper       An OSM Location to Location Mapper
+   * @param searchResultMapper   A Mapper for the results of Search Requests
    * @param occupancyService     The Occupancy Service
    * @param presenceService      The Presence Service
    */
   public LocationController(LocationService locationService,
+                            SearchService searchService,
                             OpenStreetMapService openStreetMapService,
-                            LocationMapper locationMapper, OccupancyService occupancyService,
-                            PresenceService presenceService) {
+                            LocationMapper locationMapper,
+                            SearchResultMapper searchResultMapper,
+                            OccupancyService occupancyService,
+                            PresenceService presenceService,
+                            UserService userService) {
     this.locationService = locationService;
+    this.searchService = searchService;
     this.openStreetMapService = openStreetMapService;
     this.locationMapper = locationMapper;
+    this.searchResultMapper = searchResultMapper;
     this.occupancyService = occupancyService;
     this.presenceService = presenceService;
+    this.userService = userService;
     this.importState = new AtomicBoolean(false);
   }
 
@@ -78,18 +102,25 @@ public class LocationController {
    */
   @GetMapping
   @ResponseBody
-  public ResponseEntity<List<LocationResultLocationDto>> getLocation(@RequestParam Double latitude,
-                                                                     @RequestParam
-                                                                         Double longitude) {
-    List<Location> searchResult = locationService.findByCoordinates(latitude, longitude);
+  public ResponseEntity<List<LocationResultLocationDto>> getLocation(
+      @RequestParam Double latitude,
+      @RequestParam Double longitude,
+      @RequestParam(required = false) List<String> type,
+      @RequestHeader(value = "Authorization", required = false) String header) {
 
-    if (searchResult.isEmpty()) {
-      return new ResponseEntity<>(new ArrayList<>(), OK);
-    }
+    Optional<UserInfoDto> user = userService.getOptionalUserInfo(header);
 
-    List<LocationResultLocationDto> response = searchResult.stream()
-        .map(locationMapper::mapToOutputDto)
-        .collect(toList());
+    List<LocationResultLocationDto> response =
+        locationService.findByCoordinates(latitude, longitude, type)
+            .stream()
+            .map(location -> {
+              if (user.isPresent()) {
+                return locationMapper.mapLocationToOutputDto(location, user.get());
+              } else {
+                return locationMapper.mapLocationToOutputDto(location);
+              }
+            })
+            .collect(toList());
 
     return new ResponseEntity<>(response, OK);
   }
@@ -102,14 +133,17 @@ public class LocationController {
    */
   @GetMapping(value = MAPPING_BY_ID)
   public ResponseEntity<LocationResultLocationDto> getById(
-      @PathVariable("locationId") Long locationId) {
-    Location location = locationService.getById(locationId).orElse(null);
+      @PathVariable("locationId") Long locationId,
+      @RequestHeader(value = "Authorization", required = false) String header) {
+    Optional<UserInfoDto> user = userService.getOptionalUserInfo(header);
 
-    if (location == null) {
-      return ResponseEntity.notFound().build();
-    }
+    Location location = locationService.getById(locationId)
+        .orElseThrow(() -> new InvalidLocationException(locationId));
 
-    return new ResponseEntity<>(locationMapper.mapToOutputDto(location), OK);
+    return user.map(
+        userInfoDto -> new ResponseEntity<>(
+            locationMapper.mapLocationToOutputDto(location, userInfoDto), OK))
+        .orElseGet(() -> new ResponseEntity<>(locationMapper.mapLocationToOutputDto(location), OK));
   }
 
   /**
@@ -122,18 +156,32 @@ public class LocationController {
   @PostMapping(value = MAPPING_POST_OCCUPANCY)
   public ResponseEntity<LocationResultLocationDto> postNewOccupancy(
       @Valid @RequestBody OccupancyReportDto occupancyReportDto,
-      @PathVariable("locationId") Long locationId) {
+      @PathVariable("locationId") Long locationId,
+      @RequestHeader(value = "Authorization", required = false) String header,
+      HttpServletRequest request) {
     occupancyReportDto.setLocationId(locationId);
-    Location location = locationService.getById(locationId).orElse(null);
 
-    if (location == null) {
-      return ResponseEntity.notFound().build();
+    Optional<UserInfoDto> user = userService.getOptionalUserInfo(header);
+    byte[] requestHash = RequestUtils.getInstance().generateConnectionHash(request);
+
+    Location location = locationService.getById(locationId)
+        .orElseThrow(() -> new InvalidLocationException(locationId));
+
+    if (user.isPresent()) {
+      occupancyService.checkReportLimit(location, user.get().getId());
+      Occupancy occupancy = new Occupancy(location, occupancyReportDto.getOccupancy(),
+          occupancyReportDto.getClientType(), requestHash, user.get().getId());
+      occupancyService.save(occupancy);
+
+      return new ResponseEntity<>(locationMapper.mapLocationToOutputDto(location, user.get()), OK);
+    } else {
+      occupancyService.checkReportLimit(location, requestHash);
+      Occupancy occupancy = new Occupancy(location, occupancyReportDto.getOccupancy(),
+          occupancyReportDto.getClientType(), requestHash);
+      occupancyService.save(occupancy);
+
+      return new ResponseEntity<>(locationMapper.mapLocationToOutputDto(location), OK);
     }
-
-    occupancyService.save(new Occupancy(location, occupancyReportDto.getOccupancy(),
-        occupancyReportDto.getClientType()));
-
-    return new ResponseEntity<>(locationMapper.mapToOutputDto(location), CREATED);
   }
 
   /**
@@ -182,10 +230,46 @@ public class LocationController {
     return ResponseEntity.ok("Success");
   }
 
+  /**
+   * Get Endpoint to search for Locations.
+   *
+   * @param query     the search query
+   * @param latitude  The latitude of the Coordinates
+   * @param longitude The Longitude of the Coordinates
+   * @param header    the (optional) authentication
+   * @return a list of found locations
+   */
   @GetMapping(value = MAPPING_SEARCH_LOCATION)
-  public ResponseEntity<List<LocationResultLocationDto>> searchForLocations(
-      @PathVariable("key") String key) {
-    List<Location> locations = locationService.search(key);
-    return new ResponseEntity<>(locationMapper.mapToOutputDto(locations), OK);
+  public ResponseEntity<SearchResultDto> searchForLocations(
+      @PathVariable("key") String query,
+      @RequestParam(required = false) Double latitude,
+      @RequestParam(required = false) Double longitude,
+      @RequestHeader(value = "Authorization", required = false) String header) {
+    Optional<UserInfoDto> user = userService.getOptionalUserInfo(header);
+
+    // Check if both of lat and long are set or not set
+    if ((latitude == null) != (longitude == null)) {
+      throw new IncompleteCoordinateException();
+    }
+
+    final SearchResultObject resultObject = searchService.search(query,
+        new CoordinateDetails(latitude, longitude));
+
+    return user.map(
+        userInfoDto -> new ResponseEntity<>(
+            searchResultMapper.mapSearchResultToOutputDto(resultObject, userInfoDto), OK))
+        .orElseGet(
+            () -> new ResponseEntity<>(searchResultMapper.mapSearchResultToOutputDto(resultObject),
+                OK));
+  }
+
+  /**
+   * Returns all existing Location Types.
+   *
+   * @return ResponseEntity with the Location Type List
+   */
+  @GetMapping(MAPPING_LOCATION_TYPES)
+  public ResponseEntity<List<String>> getAllLocationTypes() {
+    return new ResponseEntity<>(locationService.getAllLocationTypes(), OK);
   }
 }

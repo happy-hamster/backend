@@ -10,7 +10,7 @@ import lombok.Getter;
 @Getter
 public class OsmResultLocationListDto {
 
-  private List<OsmResultLocationDto> elements;
+  private final List<OsmResultLocationDto> elements;
 
   @JsonCreator
   public OsmResultLocationListDto(@JsonProperty("elements") List<OsmResultLocationDto> elements) {
@@ -21,9 +21,9 @@ public class OsmResultLocationListDto {
   @JsonPropertyOrder({"id", "coordinates", "tags"})
   public static class OsmResultLocationDto {
 
-    private long id;
-    private OsmResultCoordinatesDto coordinates;
-    private OsmResultTagsDto tags;
+    private final long id;
+    private final OsmResultCoordinatesDto coordinates;
+    private final OsmResultTagsDto tags;
 
     /**
      * Creates an {@link OsmResultLocationDto} from JSON.
@@ -69,8 +69,12 @@ public class OsmResultLocationListDto {
       return tags.getCountry();
     }
 
+    public void setCountry(String country) {
+      tags.setCountry(country);
+    }
+
     public String getType() {
-      return tags.getType();
+      return tags.getShop();
     }
 
     public String getBrand() {
@@ -80,18 +84,14 @@ public class OsmResultLocationListDto {
     public String getOpeningHours() {
       return tags.getOpeningHours();
     }
-
-    public void setCountry(String country) {
-      tags.setCountry(country);
-    }
   }
 
   @Getter
   @JsonPropertyOrder({"lat", "lon"})
   public static class OsmResultCoordinatesDto {
 
-    private double lat;
-    private double lon;
+    private final double lat;
+    private final double lon;
 
     @JsonCreator
     public OsmResultCoordinatesDto(@JsonProperty("lat") double lat,
@@ -106,15 +106,15 @@ public class OsmResultLocationListDto {
   @Getter
   public static class OsmResultTagsDto {
 
-    private String name;
-    private String street;
-    private String housenumber;
-    private String postcode;
-    private String city;
+    private final String name;
+    private final String street;
+    private final String housenumber;
+    private final String postcode;
+    private final String city;
+    private final String shop;
+    private final String brand;
+    private final String openingHours;
     private String country;
-    private String type;
-    private String brand;
-    private String openingHours;
 
     /**
      * Creates a {@link OsmResultTagsDto} from JSON.
@@ -126,7 +126,7 @@ public class OsmResultLocationListDto {
      * @param city         the city of the address
      * @param country      the country of the address
      * @param place        currently unused
-     * @param type         the type of the location (eg. supermarket)
+     * @param shop         the type of the location (eg. supermarket)
      * @param brand        the brand of the location (eg. LIDL, ALDI)
      * @param openingHours the opening hours in human readable format
      */
@@ -138,7 +138,7 @@ public class OsmResultLocationListDto {
                             @JsonProperty("addr:city") String city,
                             @JsonProperty("addr:country") String country,
                             @JsonProperty("addr:place") String place,
-                            @JsonProperty("shop") String type,
+                            @JsonProperty("shop") String shop,
                             @JsonProperty("brand") String brand,
                             @JsonProperty("opening_hours") String openingHours) {
       this.name = name;
@@ -147,7 +147,7 @@ public class OsmResultLocationListDto {
       this.postcode = postcode;
       this.city = city;
       this.country = country;
-      this.type = type;
+      this.shop = shop;
       this.brand = brand;
       this.openingHours = openingHours;
     }

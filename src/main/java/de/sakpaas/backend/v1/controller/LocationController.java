@@ -10,11 +10,13 @@ import de.sakpaas.backend.model.Occupancy;
 import de.sakpaas.backend.service.LocationService;
 import de.sakpaas.backend.service.OccupancyService;
 import de.sakpaas.backend.service.PresenceService;
+import de.sakpaas.backend.util.RequestUtils;
 import de.sakpaas.backend.v1.dto.LocationDto;
 import de.sakpaas.backend.v1.dto.OccupancyReportDto;
 import de.sakpaas.backend.v1.mapper.LocationMapper;
 import java.util.ArrayList;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -108,17 +110,21 @@ public class LocationController {
   @PostMapping(value = MAPPING_POST_OCCUPANCY)
   public ResponseEntity<LocationDto> postNewOccupancy(
       @Valid @RequestBody OccupancyReportDto occupancyDto,
-      @PathVariable("locationId") Long locationId) {
+      @PathVariable("locationId") Long locationId,
+      HttpServletRequest request) {
     occupancyDto.setLocationId(locationId);
 
     Location location = locationService.getById(locationId).orElse(null);
+    byte[] requestHash = RequestUtils.getInstance().generateConnectionHash(request);
 
     if (location == null) {
       return ResponseEntity.notFound().build();
     }
 
+    occupancyService.checkReportLimit(location, requestHash);
     occupancyService
-        .save(new Occupancy(location, occupancyDto.getOccupancy(), occupancyDto.getClientType()));
+        .save(new Occupancy(location, occupancyDto.getOccupancy(), occupancyDto.getClientType(),
+            requestHash));
 
     return new ResponseEntity<>(locationMapper.mapToOutputDto(location), CREATED);
   }

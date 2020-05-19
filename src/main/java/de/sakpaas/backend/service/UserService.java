@@ -1,43 +1,89 @@
 package de.sakpaas.backend.service;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.exceptions.JWTDecodeException;
-import com.auth0.jwt.interfaces.DecodedJWT;
+import com.google.common.annotations.VisibleForTesting;
 import de.sakpaas.backend.dto.UserInfoDto;
+import de.sakpaas.backend.exception.InvalidBearerTokenException;
+import de.sakpaas.backend.exception.NoKeycloakDeploymentException;
+import de.sakpaas.backend.util.KeycloakConfiguration;
 import de.sakpaas.backend.util.TokenUtils;
-import java.security.Principal;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Optional;
+import org.keycloak.adapters.rotation.AdapterTokenVerifier;
+import org.keycloak.common.VerificationException;
+import org.keycloak.representations.AccessToken;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UserService {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
+  @Autowired
+  private KeycloakConfiguration keycloakConfiguration;
 
   /**
-   * Extracts User Information out of the JWT and returns them as a UserServiceDto.
+   * Extracts user information out of the (validated) JWT and returns them as a UserServiceDto,
+   * iff the header is not null.
    *
    * @param header Authorization Header from the Request
    * @return UserInformationDto
+   * @throws InvalidBearerTokenException If the given Authentication Header is not null and  does
+   *                                     not container a valid Bearer Token, this exception will
+   *                                     be thrown.
    */
-  public UserInfoDto getUserInfo(String header, Principal principal) {
-    String token = TokenUtils.getTokenFromHeader(header);
-    DecodedJWT jwt;
-    try {
-      jwt = JWT.decode(token);
-    } catch (JWTDecodeException e) {
-      LOGGER.error("Received an invalid JWT", e);
-      throw e;
+  public Optional<UserInfoDto> getOptionalUserInfo(String header) {
+    return (header == null)
+        ? Optional.empty()
+        : Optional.of(getUserInfo(header));
+  }
+
+  /**
+   * Extracts User Information out of the (validated) JWT and returns them as a UserServiceDto.
+   *
+   * @param header Authorization Header from the Request
+   * @return UserInformationDto
+   * @throws InvalidBearerTokenException If the given Authentication Header is null or does not
+   *                                     container a valid Bearer Token, this exception will be
+   *                                     thrown.
+   */
+  public UserInfoDto getUserInfo(String header) throws InvalidBearerTokenException {
+    // If no header is set, we can not parse the JWT and we should fail
+    if (header == null) {
+      throw new InvalidBearerTokenException();
     }
 
-    return new UserInfoDto(
-        principal.getName(),
-        jwt.getClaim("preferred_username").asString(),
-        jwt.getClaim("name").asString(),
-        jwt.getClaim("given_name").asString(),
-        jwt.getClaim("family_name").asString(),
-        jwt.getClaim("email").asString()
+    // Extract token from "Bearer TOKEN" string or fail
+    String token = TokenUtils.getTokenFromHeader(header)
+        .orElseThrow(InvalidBearerTokenException::new);
+
+    try {
+      // Validate and parse token
+      AccessToken jwt = verifyToken(token);
+
+      return new UserInfoDto(
+          jwt.getSubject(),
+          jwt.getPreferredUsername(),
+          jwt.getName(),
+          jwt.getGivenName(),
+          jwt.getFamilyName(),
+          jwt.getEmail()
+      );
+    } catch (VerificationException e) {
+      throw new InvalidBearerTokenException();
+    }
+  }
+
+  /**
+   * Verifies and parses the given JWT.
+   *
+   * @param token the JWT to verify and parse
+   * @return the parsed {@link AccessToken}
+   * @throws VerificationException iff the given JWT is invalid
+   */
+  @VisibleForTesting
+  public AccessToken verifyToken(String token) throws VerificationException {
+    return AdapterTokenVerifier.verifyToken(
+        token,
+        keycloakConfiguration.getKeycloakDeployment()
+            .orElseThrow(NoKeycloakDeploymentException::new)
     );
   }
 }

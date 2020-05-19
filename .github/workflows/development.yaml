@@ -64,3 +64,10 @@ jobs:
           KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
         with:
           args: apply -k backend/development
+
+      - name: Wait until available
+        uses: actions-hub/kubectl@master
+        env:
+          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+        with:
+          args: wait -f backend/development/deployment.yaml --for=condition=available --timeout=300s

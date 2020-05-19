@@ -3,6 +3,7 @@ package de.sakpaas.backend.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+
 import de.sakpaas.backend.HappyHamsterTest;
 import de.sakpaas.backend.model.Address;
 import org.junit.jupiter.api.Test;
@@ -23,7 +24,7 @@ class AddressServiceTest extends HappyHamsterTest {
     addressRepository.deleteAll();
 
     Address address =
-        new Address("testCountry", "testPostcode", "123456", "testStreet", "testNumber");
+        new Address("country", "testPostcode", "123456", "testStreet", "testNumber");
     Address savedAddress = addressRepository.save(address);
 
     assertThat(addressRepository.findById(savedAddress.getId()).isPresent()).isTrue();

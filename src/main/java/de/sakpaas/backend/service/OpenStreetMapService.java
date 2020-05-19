@@ -5,6 +5,7 @@ import de.sakpaas.backend.dto.OsmResultLocationListDto;
 import de.sakpaas.backend.model.Address;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.LocationDetails;
+import de.sakpaas.backend.util.OsmImportConfiguration;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -15,19 +16,19 @@ import javax.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
 public class OpenStreetMapService {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(LocationService.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(OpenStreetMapService.class);
   private final AtomicDouble importLocationProgress;
   private final AtomicDouble deleteLocationProgress;
   private final LocationApiSearchDas locationApiSearchDas;
   private final LocationRepository locationRepository;
   private final LocationDetailsService locationDetailsService;
+  private final LocationDetailsRepository locationDetailsRepository;
   private final AddressService addressService;
   private final MeterRegistry meterRegistry;
   private final LocationService locationService;
@@ -35,32 +36,36 @@ public class OpenStreetMapService {
   private Counter importLocationUpdateCounter;
   private Counter importLocationDeleteCounter;
 
-  @Value("${app.import.country}")
-  private String country;
+  private OsmImportConfiguration osmImportConfiguration;
 
   /**
    * Handles the OpenStreetMap database import and update.
    *
-   * @param locationRepository     The Location Repository
-   * @param locationDetailsService The Location Details Service
-   * @param addressService         The Address Service
-   * @param meterRegistry          The Meter Registry
-   * @param locationApiSearchDas   The LocationApiSearchDas
-   * @param locationService        The Location Service
+   * @param locationRepository        The Location Repository
+   * @param locationDetailsService    The Location Details Service
+   * @param locationDetailsRepository The Location Details Repository
+   * @param addressService            The Address Service
+   * @param meterRegistry             The Meter Registry
+   * @param locationApiSearchDas      The LocationApiSearchDas
+   * @param locationService           The Location Service
    */
   @Autowired
   public OpenStreetMapService(LocationRepository locationRepository,
                               LocationDetailsService locationDetailsService,
+                              LocationDetailsRepository locationDetailsRepository,
                               AddressService addressService,
                               MeterRegistry meterRegistry,
                               LocationApiSearchDas locationApiSearchDas,
-                              LocationService locationService) {
+                              LocationService locationService,
+                              OsmImportConfiguration osmImportConfiguration) {
     this.locationRepository = locationRepository;
     this.locationDetailsService = locationDetailsService;
+    this.locationDetailsRepository = locationDetailsRepository;
     this.addressService = addressService;
     this.locationApiSearchDas = locationApiSearchDas;
     this.meterRegistry = meterRegistry;
     this.locationService = locationService;
+    this.osmImportConfiguration = osmImportConfiguration;
 
     this.importLocationProgress = new AtomicDouble();
     this.deleteLocationProgress = new AtomicDouble();
@@ -117,9 +122,10 @@ public class OpenStreetMapService {
     // Download data from OSM
     LOGGER.warn("Starting OSM import... (1/4)");
     List<OsmResultLocationListDto.OsmResultLocationDto> results =
-        locationApiSearchDas.getLocationsForCountry(country);
+        locationApiSearchDas.getLocationsForCountry(osmImportConfiguration);
     LOGGER.info("Finished receiving data from OSM! (1/4)");
-    LOGGER.info("received ({}) Locations for Country: ({}) from OSM", results.size(), country);
+    LOGGER.info("received ({}) Locations for Country: ({}) from OSM", results.size(),
+        osmImportConfiguration.getCountry());
     // Checking if API Call has a legit result
     if (results.size() < 10) {
       throw new IllegalStateException(
@@ -127,7 +133,8 @@ public class OpenStreetMapService {
     }
 
     // Getting IDs stored in the Database right now
-    List<Long> locationIds = locationRepository.getAllIdsForCountry(country);
+    List<Long> locationIds =
+        locationRepository.getAllIdsForCountry(osmImportConfiguration.getCountry());
     LOGGER.info("Pre Update Location Count: " + locationIds.size());
     // Sort data by id before import, inserts should be faster for sorted ids
     LOGGER.warn("Sorting OSM data... (2/4)");
@@ -138,7 +145,7 @@ public class OpenStreetMapService {
     LOGGER.warn("Importing OSM data to database... (3/4)");
     for (int i = 0; i < results.size(); i++) {
       OsmResultLocationListDto.OsmResultLocationDto osmLocation = results.get(i);
-      osmLocation.setCountry(country);
+      osmLocation.setCountry(osmImportConfiguration.getCountry());
       if (locationIds.contains(osmLocation.getId())) {
         // Updating an existing Location
         updateLocation(osmLocation);
@@ -182,8 +189,11 @@ public class OpenStreetMapService {
     LOGGER.info("Finished deleting " + locationIds.size() + " not existing Locations! (3/4)");
 
     LOGGER.info("Finished data import from OSM! (4/4)");
-    int locationCount = locationRepository.getAllIdsForCountry(country).size();
+    int locationCount =
+        locationRepository.getAllIdsForCountry(osmImportConfiguration.getCountry()).size();
     LOGGER.info("After Update Location Count: ({})", locationCount);
+
+    SearchService.setKnownBrands(locationDetailsRepository.getAllBrandNamesLower());
   }
 
 

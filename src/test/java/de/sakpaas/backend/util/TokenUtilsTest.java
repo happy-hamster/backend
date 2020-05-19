@@ -1,7 +1,7 @@
 package de.sakpaas.backend.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+
 
 import de.sakpaas.backend.HappyHamsterTest;
 import org.junit.jupiter.api.Test;
@@ -15,9 +15,8 @@ class TokenUtilsTest extends HappyHamsterTest {
 
   @Test
   void getTokenFromHeader() {
-    assertThat(TokenUtils.getTokenFromHeader("Bearer SickToken")).isEqualTo("SickToken");
+    assertThat(TokenUtils.getTokenFromHeader("Bearer SickToken").get()).isEqualTo("SickToken");
 
-    assertThrows(ArrayIndexOutOfBoundsException.class,
-        () -> TokenUtils.getTokenFromHeader("Bearer"));
+    assertThat(!TokenUtils.getTokenFromHeader("Bearer").isPresent());
   }
 }
