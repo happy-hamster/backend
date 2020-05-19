@@ -1,5 +1,6 @@
 package de.sakpaas.backend.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -28,6 +29,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @SpringBootTest
@@ -36,7 +38,8 @@ class OccupancyServiceTest extends HappyHamsterTest {
 
   private final static int TEST_DURATION_HOURS = 12;
 
-  @Autowired
+  // A SkyBean uses the normal implementation unless it gets mocked
+  @SpyBean
   OccupancyService occupancyService;
   @Autowired
   OccupancyAccumulationConfiguration config;
@@ -265,6 +268,31 @@ class OccupancyServiceTest extends HappyHamsterTest {
     Mockito.when(occupancyRepository.findByRequestHashAndTimestampAfter(any(), any()))
         .thenReturn(list0);
     occupancyService.checkReportLimit(location, requestHash);
+  }
+
+  @Test
+  void testGetAggregationHour() {
+    // Setup test data
+    ZonedDateTime monday10 = ZonedDateTime.parse("2007-12-03T10:15:30+01:00");
+    ZonedDateTime friday23 = ZonedDateTime.parse("2007-12-07T23:59:59-10:00");
+    ZonedDateTime sunday00 = ZonedDateTime.parse("2007-12-09T00:07:00Z");
+
+    // Mock OccupancyService.isPublicHoliday() = false
+    Mockito.when(occupancyService.isPublicHoliday(Mockito.any())).thenReturn(false);
+    // Test
+    assertThat(occupancyService.getAggregationHour(monday10)).isEqualTo(10);
+    assertThat(occupancyService.getAggregationHour(friday23)).isEqualTo(119);
+    assertThat(occupancyService.getAggregationHour(sunday00)).isEqualTo(144);
+
+    // Mock OccupancyService.isPublicHoliday() = false
+    Mockito.when(occupancyService.isPublicHoliday(Mockito.any())).thenReturn(true);
+    // Test
+    assertThat(occupancyService.getAggregationHour(monday10)).isEqualTo(154);
+    assertThat(occupancyService.getAggregationHour(friday23)).isEqualTo(167);
+    assertThat(occupancyService.getAggregationHour(sunday00)).isEqualTo(144);
+
+    // Use normal implementation again
+    Mockito.reset(occupancyService);
   }
 
   private Occupancy makeOccupancy(long id, Location location, double occupancy,
