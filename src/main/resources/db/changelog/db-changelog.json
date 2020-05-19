@@ -1,657 +1,729 @@
 {
-   "databaseChangeLog":[
-      {
-         "changeSet":{
-            "id":"initial-creation hibernate sequence",
-            "author":"Fabsi23",
-            "changes":[
-               {
-                  "createSequence":{
-                     "sequenceName":"hibernate_sequence",
-                     "remarks":"Hibernate Sequence",
-                     "cycle":false,
-                     "incrementBy":1,
-                     "minValue":1,
-                     "startValue":1
-                  }
-               }
-            ]
-         }
-      },
-      {
-         "changeSet":{
-            "id":"initial-creation ADDRESS table",
-            "author":"Fabsi23",
-            "preConditions":[
-               {
-                  "onFail":"MARK_RAN"
-               },
-               {
-                  "not":[
-                     {
-                        "tableExists":{
-                           "tableName":"ADDRESS"
-                        }
-                     }
-                  ]
-               }
-            ],
-            "changes":[
-               {
-                  "createTable":{
-                     "tableName":"ADDRESS",
-                     "remarks":"ADDRESS Table",
-                     "columns":[
-                        {
-                           "column":{
-                              "name":"ID",
-                              "type":"bigint",
-                              "constraints":{
-                                 "primaryKey":true,
-                                 "nullable":false,
-                                 "autoIncrement":true
-                              }
-                           }
-                        },
-                        {
-                           "column":{
-                              "name":"COUNTRY",
-                              "type":"varchar(255)"
-                           }
-                        },
-                        {
-                           "column":{
-                              "name":"CITY",
-                              "type":"varchar(255)"
-                           }
-                        },
-                        {
-                           "column":{
-                              "name":"POSTCODE",
-                              "type":"varchar(255)"
-                           }
-                        },
-                        {
-                           "column":{
-                              "name":"STREET",
-                              "type":"varchar(255)"
-                           }
-                        },
-                        {
-                           "column":{
-                              "name":"HOUSENUMBER",
-                              "type":"varchar(255)"
-                           }
-                        }
-                     ]
-                  }
-               }
-            ]
-         }
-      },
-      {
-         "changeSet":{
-            "id":"initial-creation LOCATION table",
-            "author":"Fabsi23",
-            "preConditions":[
-               {
-                  "onFail":"MARK_RAN"
-               },
-               {
-                  "not":[
-                     {
-                        "tableExists":{
-                           "tableName":"LOCATION"
-                        }
-                     }
-                  ]
-               }
-            ],
-            "changes":[
-               {
-                  "createTable":{
-                     "tableName":"LOCATION",
-                     "remarks":"LOCATION Table",
-                     "columns":[
-                        {
-                           "column":{
-                              "name":"ID",
-                              "type":"bigint",
-                              "constraints":{
-                                 "primaryKey":true,
-                                 "nullable":false
-                              }
-                           }
-                        },
-                        {
-                           "column":{
-                              "name":"NAME",
-                              "type":"varchar(255)",
-                              "constraints":{
-                                 "nullable":false
-                              }
-                           }
-                        },
-                        {
-                           "column":{
-                              "name":"LATITUDE",
-                              "type":"double",
-                              "constraints":{
-                                 "nullable":false
-                              }
-                           }
-                        },
-                        {
-                           "column":{
-                              "name":"LONGITUDE",
-                              "type":"double",
-                              "constraints":{
-                                 "nullable":false
-                              }
-                           }
-                        },
-                        {
-                           "column":{
-                              "name":"ADDRESS_ID",
-                              "type":"bigint",
-                              "constraints":{
-                                 "nullable":false
-                              }
-                           }
-                        },
-                        {
-                           "column":{
-                              "name":"LOCATION_DETAILS_ID",
-                              "type":"bigint",
-                              "constraints":{
-                                 "nullable":false
-                              }
-                           }
-                        }
-                     ]
-                  }
-               }
-            ]
-         }
-      },
-      {
-         "changeSet":{
-            "id":"initial-creation LOCATION_DETAILS table",
-            "author":"Fabsi23",
-            "preConditions":[
-               {
-                  "onFail":"MARK_RAN"
-               },
-               {
-                  "not":[
-                     {
-                        "tableExists":{
-                           "tableName":"LOCATION_DETAILS"
-                        }
-                     }
-                  ]
-               }
-            ],
-            "changes":[
-               {
-                  "createTable":{
-                     "tableName":"LOCATION_DETAILS",
-                     "remarks":"LOCATION Table",
-                     "columns":[
-                        {
-                           "column":{
-                              "name":"ID",
-                              "type":"bigint",
-                              "constraints":{
-                                 "primaryKey":true,
-                                 "nullable":false,
-                                 "autoIncrement":true
-                              }
-                           }
-                        },
-                        {
-                           "column":{
-                              "name":"TYPE",
-                              "type":"varchar(255)"
-                           }
-                        },
-                        {
-                           "column":{
-                              "name":"OPENING_HOURS",
-                              "type":"varchar(255)"
-                           }
-                        },
-                        {
-                           "column":{
-                              "name":"BRAND",
-                              "type":"varchar(255)"
-                           }
-                        }
-                     ]
-                  }
-               }
-            ]
-         }
-      },
-      {
-         "changeSet":{
-            "id":"initial-creation OCCUPANCY table",
-            "author":"Fabsi23",
-            "preConditions":[
-               {
-                  "onFail":"MARK_RAN"
-               },
-               {
-                  "not":[
-                     {
-                        "tableExists":{
-                           "tableName":"OCCUPANCY"
-                        }
-                     }
-                  ]
-               }
-            ],
-            "changes":[
-               {
-                  "createTable":{
-                     "tableName":"OCCUPANCY",
-                     "remarks":"OCCUPANCY Table",
-                     "columns":[
-                        {
-                           "column":{
-                              "name":"ID",
-                              "type":"bigint",
-                              "constraints":{
-                                 "primaryKey":true,
-                                 "autoIncrement":true
-                              }
-                           }
-                        },
-                        {
-                           "column":{
-                              "name":"LOCATION_ID",
-                              "type":"bigint",
-                              "constraints":{
-                                 "nullable":false
-                              }
-                           }
-                        },
-                        {
-                           "column":{
-                              "name":"OCCUPANCY",
-                              "type":"double",
-                              "constraints":{
-                                 "nullable":false
-                              }
-                           }
-                        },
-                        {
-                           "column":{
-                              "name":"TIMESTAMP",
-                              "type":"timestamp with time zone"
-                           }
-                        },
-                        {
-                           "column":{
-                              "name":"CLIENT_TYPE",
-                              "type":"varchar(255)"
-                           }
-                        }
-                     ]
-                  }
-               }
-            ]
-         }
-      },
-      {
-         "changeSet":{
-            "id":"initial-creation PRESENCE table",
-            "author":"Fabsi23",
-            "preConditions":[
-               {
-                  "onFail":"MARK_RAN"
-               },
-               {
-                  "not":[
-                     {
-                        "tableExists":{
-                           "tableName":"PRESENCE"
-                        }
-                     }
-                  ]
-               }
-            ],
-            "changes":[
-               {
-                  "createTable":{
-                     "tableName":"PRESENCE",
-                     "remarks":"The initial creation of the PRESENCE Table",
-                     "columns":[
-                        {
-                           "column":{
-                              "name":"ID",
-                              "type":"bigint",
-                              "constraints":{
-                                 "primaryKey":true,
-                                 "nullable":false,
-                                 "autoIncrement":true
-                              }
-                           }
-                        },
-                        {
-                           "column":{
-                              "name":"LOCATION_ID",
-                              "type":"bigint",
-                              "constraints":{
-                                 "nullable":false
-                              }
-                           }
-                        },
-                        {
-                           "column":{
-                              "name":"CHECK_IN_DATE",
-                              "type":"timestamp with time zone"
-                           }
-                        },
-                        {
-                           "column":{
-                              "name":"CHECK_OUT_DATE",
-                              "type":"timestamp with time zone"
-                           }
-                        }
-                     ]
-                  }
-               }
-            ]
-         }
-      },
-      {
-         "changeSet":{
-            "id":"initial-creation REQUEST table",
-            "author":"Fabsi23",
-            "preConditions":[
-               {
-                  "onFail":"MARK_RAN"
-               },
-               {
-                  "not":[
-                     {
-                        "tableExists":{
-                           "tableName":"REQUEST"
-                        }
-                     }
-                  ]
-               }
-            ],
-            "changes":[
-               {
-                  "createTable":{
-                     "tableName":"REQUEST",
-                     "remarks":"REQUEST Table",
-                     "columns":[
-                        {
-                           "column":{
-                              "name":"ID",
-                              "type":"bigint",
-                              "constraints":{
-                                 "primaryKey":true,
-                                 "nullable":false,
-                                 "autoIncrement":true
-                              }
-                           }
-                        },
-                        {
-                           "column":{
-                              "name":"TIMESTAMP",
-                              "type":"timestamp with time zone"
-                           }
-                        },
-                        {
-                           "column":{
-                              "name":"ADDRESS",
-                              "type":"varchar(255)"
-                           }
-                        },
-                        {
-                           "column":{
-                              "name":"METHOD",
-                              "type":"varchar(255)"
-                           }
-                        },
-                        {
-                           "column":{
-                              "name":"URI",
-                              "type":"varchar(255)"
-                           }
-                        }
-                     ]
-                  }
-               }
-            ]
-         }
-      },
-      {
-         "changeSet":{
-            "id":"initial-creation FAVORITE table",
-            "author":"Fabsi23",
-            "preConditions":[
-               {
-                  "onFail":"MARK_RAN"
-               },
-               {
-                  "not":[
-                     {
-                        "tableExists":{
-                           "tableName":"FAVORITE"
-                        }
-                     }
-                  ]
-               }
-            ],
-            "changes":[
-               {
-                  "createTable":{
-                     "tableName":"FAVORITE",
-                     "remarks":"FAVORITE Table",
-                     "columns":[
-                        {
-                           "column":{
-                              "name":"ID",
-                              "type":"bigint",
-                              "constraints":{
-                                 "primaryKey":true,
-                                 "nullable":false,
-                                 "autoIncrement":true
-                              }
-                           }
-                        },
-                        {
-                           "column":{
-                              "name":"USER_UUID",
-                              "type":"uuid",
-                              "constraints":{
-                                 "nullable":false
-                              }
-                           }
-                        },
-                        {
-                           "column":{
-                              "name":"LOCATION_ID",
-                              "type":"bigint",
-                              "constraints":{
-                                 "nullable":false
-                              }
-                           }
-                        }
-                     ]
-                  }
-               }
-            ]
-         }
-      },
-      {
-         "changeSet":{
-            "id":"master to dev update column types",
-            "author":"Fabsi23",
-            "changes":[
-               {
-                  "modifyDataType":{
-                     "tableName":"ADDRESS",
-                     "columnName":"COUNTRY",
-                     "newDataType":"varchar(10)"
-                  }
-               },
-               {
-                  "modifyDataType":{
-                     "tableName":"ADDRESS",
-                     "columnName":"CITY",
-                     "newDataType":"varchar(60)"
-                  }
-               },
-               {
-                  "modifyDataType":{
-                     "tableName":"ADDRESS",
-                     "columnName":"POSTCODE",
-                     "newDataType":"varchar(10)"
-                  }
-               },
-               {
-                  "modifyDataType":{
-                     "tableName":"ADDRESS",
-                     "columnName":"STREET",
-                     "newDataType":"varchar(75)"
-                  }
-               },
-               {
-                  "modifyDataType":{
-                     "tableName":"ADDRESS",
-                     "columnName":"HOUSENUMBER",
-                     "newDataType":"varchar(50)"
-                  }
-               },
-               {
-                  "modifyDataType":{
-                     "tableName":"LOCATION",
-                     "columnName":"NAME",
-                     "newDataType":"varchar(100)"
-                  }
-               },
-               {
-                  "modifyDataType":{
-                     "tableName":"LOCATION_DETAILS",
-                     "columnName":"TYPE",
-                     "newDataType":"varchar(50)"
-                  }
-               },
-               {
-                  "modifyDataType":{
-                     "tableName":"LOCATION_DETAILS",
-                     "columnName":"BRAND",
-                     "newDataType":"varchar(50)"
-                  }
-               },
-               {
-                  "modifyDataType":{
-                     "tableName":"OCCUPANCY",
-                     "columnName":"CLIENT_TYPE",
-                     "newDataType":"varchar(10)"
-                  }
-               }
-            ]
-         }
-      },
-      {
-         "changeSet":{
-            "id":"master to dev update indexes",
-            "author":"Fabsi23",
-            "changes":[
-               {
-                  "createIndex":{
-                     "tableName":"LOCATION",
-                     "indexName":"lat_lon_index",
-                     "columns":[
-                        {
-                           "column":{
-                              "name":"LATITUDE"
-                           }
-                        },
-                        {
-                           "column":{
-                              "name":"LONGITUDE"
-                           }
-                        }
-                     ]
-                  }
-               },
-               {
-                  "createIndex":{
-                     "tableName":"LOCATION_DETAILS",
-                     "indexName":"type_index",
-                     "columns":[
-                        {
-                           "column":{
-                              "name":"TYPE"
-                           }
-                        }
-                     ]
-                  }
-               },
-               {
-                  "createIndex":{
-                     "tableName":"OCCUPANCY",
-                     "indexName":"timestamp_index",
-                     "columns":[
-                        {
-                           "column":{
-                              "name":"TIMESTAMP"
-                           }
-                        }
-                     ]
-                  }
-               }
-            ]
-         }
-      },
-      {
-         "changeSet":{
-            "id":"master to dev update new columns",
-            "author":"Fabsi23",
-            "changes":[
-               {
-                  "addColumn":{
-                     "tableName":"OCCUPANCY",
-                     "columns":[
-                        {
-                           "column":{
-                              "name":"USER_UUID",
-                              "type":"uuid"
-                           }
-                        },
-                        {
-                           "column":{
-                              "name":"REQUEST_HASH",
-                              "type":"bytea"
-                           }
-                        }
-                     ]
-                  }
-               }
-            ]
-         }
-      },
-      {
-         "changeSet":{
-            "id":"master to dev update remove tables",
-            "author":"Fabsi23",
-            "changes":[
-               {
-                  "dropTable":{
-                     "cascadeConstraints":true,
-                     "tableName":"REQUEST"
-                  }
-               }
-            ]
-         }
-      }
-   ]
+	"databaseChangeLog": [
+		{
+			"changeSet": {
+				"id": "initial-creation hibernate sequence",
+				"author": "Fabsi23",
+				"changes": [
+					{
+						"createSequence": {
+							"sequenceName": "hibernate_sequence",
+							"remarks": "Hibernate Sequence",
+							"cycle": false,
+							"incrementBy": 1,
+							"minValue": 1,
+							"startValue": 1
+						}
+					}
+				]
+			}
+		},
+		{
+			"changeSet": {
+				"id": "initial-creation ADDRESS table",
+				"author": "Fabsi23",
+				"preConditions": [
+					{
+						"onFail": "MARK_RAN"
+					},
+					{
+						"not": [
+							{
+								"tableExists": {
+									"tableName": "ADDRESS"
+								}
+							}
+						]
+					}
+				],
+				"changes": [
+					{
+						"createTable": {
+							"tableName": "ADDRESS",
+							"remarks": "ADDRESS Table",
+							"columns": [
+								{
+									"column": {
+										"name": "ID",
+										"type": "bigint",
+										"constraints": {
+											"primaryKey": true,
+											"nullable": false,
+											"autoIncrement": true
+										}
+									}
+								},
+								{
+									"column": {
+										"name": "COUNTRY",
+										"type": "varchar(255)"
+									}
+								},
+								{
+									"column": {
+										"name": "CITY",
+										"type": "varchar(255)"
+									}
+								},
+								{
+									"column": {
+										"name": "POSTCODE",
+										"type": "varchar(255)"
+									}
+								},
+								{
+									"column": {
+										"name": "STREET",
+										"type": "varchar(255)"
+									}
+								},
+								{
+									"column": {
+										"name": "HOUSENUMBER",
+										"type": "varchar(255)"
+									}
+								}
+							]
+						}
+					}
+				]
+			}
+		},
+		{
+			"changeSet": {
+				"id": "initial-creation LOCATION table",
+				"author": "Fabsi23",
+				"preConditions": [
+					{
+						"onFail": "MARK_RAN"
+					},
+					{
+						"not": [
+							{
+								"tableExists": {
+									"tableName": "LOCATION"
+								}
+							}
+						]
+					}
+				],
+				"changes": [
+					{
+						"createTable": {
+							"tableName": "LOCATION",
+							"remarks": "LOCATION Table",
+							"columns": [
+								{
+									"column": {
+										"name": "ID",
+										"type": "bigint",
+										"constraints": {
+											"primaryKey": true,
+											"nullable": false
+										}
+									}
+								},
+								{
+									"column": {
+										"name": "NAME",
+										"type": "varchar(255)",
+										"constraints": {
+											"nullable": false
+										}
+									}
+								},
+								{
+									"column": {
+										"name": "LATITUDE",
+										"type": "double",
+										"constraints": {
+											"nullable": false
+										}
+									}
+								},
+								{
+									"column": {
+										"name": "LONGITUDE",
+										"type": "double",
+										"constraints": {
+											"nullable": false
+										}
+									}
+								},
+								{
+									"column": {
+										"name": "ADDRESS_ID",
+										"type": "bigint",
+										"constraints": {
+											"nullable": false
+										}
+									}
+								},
+								{
+									"column": {
+										"name": "LOCATION_DETAILS_ID",
+										"type": "bigint",
+										"constraints": {
+											"nullable": false
+										}
+									}
+								}
+							]
+						}
+					}
+				]
+			}
+		},
+		{
+			"changeSet": {
+				"id": "initial-creation LOCATION_DETAILS table",
+				"author": "Fabsi23",
+				"preConditions": [
+					{
+						"onFail": "MARK_RAN"
+					},
+					{
+						"not": [
+							{
+								"tableExists": {
+									"tableName": "LOCATION_DETAILS"
+								}
+							}
+						]
+					}
+				],
+				"changes": [
+					{
+						"createTable": {
+							"tableName": "LOCATION_DETAILS",
+							"remarks": "LOCATION Table",
+							"columns": [
+								{
+									"column": {
+										"name": "ID",
+										"type": "bigint",
+										"constraints": {
+											"primaryKey": true,
+											"nullable": false,
+											"autoIncrement": true
+										}
+									}
+								},
+								{
+									"column": {
+										"name": "TYPE",
+										"type": "varchar(255)"
+									}
+								},
+								{
+									"column": {
+										"name": "OPENING_HOURS",
+										"type": "varchar(255)"
+									}
+								},
+								{
+									"column": {
+										"name": "BRAND",
+										"type": "varchar(255)"
+									}
+								}
+							]
+						}
+					}
+				]
+			}
+		},
+		{
+			"changeSet": {
+				"id": "initial-creation OCCUPANCY table",
+				"author": "Fabsi23",
+				"preConditions": [
+					{
+						"onFail": "MARK_RAN"
+					},
+					{
+						"not": [
+							{
+								"tableExists": {
+									"tableName": "OCCUPANCY"
+								}
+							}
+						]
+					}
+				],
+				"changes": [
+					{
+						"createTable": {
+							"tableName": "OCCUPANCY",
+							"remarks": "OCCUPANCY Table",
+							"columns": [
+								{
+									"column": {
+										"name": "ID",
+										"type": "bigint",
+										"constraints": {
+											"primaryKey": true,
+											"autoIncrement": true
+										}
+									}
+								},
+								{
+									"column": {
+										"name": "LOCATION_ID",
+										"type": "bigint",
+										"constraints": {
+											"nullable": false
+										}
+									}
+								},
+								{
+									"column": {
+										"name": "OCCUPANCY",
+										"type": "double",
+										"constraints": {
+											"nullable": false
+										}
+									}
+								},
+								{
+									"column": {
+										"name": "TIMESTAMP",
+										"type": "timestamp with time zone"
+									}
+								},
+								{
+									"column": {
+										"name": "CLIENT_TYPE",
+										"type": "varchar(255)"
+									}
+								}
+							]
+						}
+					}
+				]
+			}
+		},
+		{
+			"changeSet": {
+				"id": "initial-creation PRESENCE table",
+				"author": "Fabsi23",
+				"preConditions": [
+					{
+						"onFail": "MARK_RAN"
+					},
+					{
+						"not": [
+							{
+								"tableExists": {
+									"tableName": "PRESENCE"
+								}
+							}
+						]
+					}
+				],
+				"changes": [
+					{
+						"createTable": {
+							"tableName": "PRESENCE",
+							"remarks": "The initial creation of the PRESENCE Table",
+							"columns": [
+								{
+									"column": {
+										"name": "ID",
+										"type": "bigint",
+										"constraints": {
+											"primaryKey": true,
+											"nullable": false,
+											"autoIncrement": true
+										}
+									}
+								},
+								{
+									"column": {
+										"name": "LOCATION_ID",
+										"type": "bigint",
+										"constraints": {
+											"nullable": false
+										}
+									}
+								},
+								{
+									"column": {
+										"name": "CHECK_IN_DATE",
+										"type": "timestamp with time zone"
+									}
+								},
+								{
+									"column": {
+										"name": "CHECK_OUT_DATE",
+										"type": "timestamp with time zone"
+									}
+								}
+							]
+						}
+					}
+				]
+			}
+		},
+		{
+			"changeSet": {
+				"id": "initial-creation REQUEST table",
+				"author": "Fabsi23",
+				"preConditions": [
+					{
+						"onFail": "MARK_RAN"
+					},
+					{
+						"not": [
+							{
+								"tableExists": {
+									"tableName": "REQUEST"
+								}
+							}
+						]
+					}
+				],
+				"changes": [
+					{
+						"createTable": {
+							"tableName": "REQUEST",
+							"remarks": "REQUEST Table",
+							"columns": [
+								{
+									"column": {
+										"name": "ID",
+										"type": "bigint",
+										"constraints": {
+											"primaryKey": true,
+											"nullable": false,
+											"autoIncrement": true
+										}
+									}
+								},
+								{
+									"column": {
+										"name": "TIMESTAMP",
+										"type": "timestamp with time zone"
+									}
+								},
+								{
+									"column": {
+										"name": "ADDRESS",
+										"type": "varchar(255)"
+									}
+								},
+								{
+									"column": {
+										"name": "METHOD",
+										"type": "varchar(255)"
+									}
+								},
+								{
+									"column": {
+										"name": "URI",
+										"type": "varchar(255)"
+									}
+								}
+							]
+						}
+					}
+				]
+			}
+		},
+		{
+			"changeSet": {
+				"id": "initial-creation FAVORITE table",
+				"author": "Fabsi23",
+				"preConditions": [
+					{
+						"onFail": "MARK_RAN"
+					},
+					{
+						"not": [
+							{
+								"tableExists": {
+									"tableName": "FAVORITE"
+								}
+							}
+						]
+					}
+				],
+				"changes": [
+					{
+						"createTable": {
+							"tableName": "FAVORITE",
+							"remarks": "FAVORITE Table",
+							"columns": [
+								{
+									"column": {
+										"name": "ID",
+										"type": "bigint",
+										"constraints": {
+											"primaryKey": true,
+											"nullable": false,
+											"autoIncrement": true
+										}
+									}
+								},
+								{
+									"column": {
+										"name": "USER_UUID",
+										"type": "uuid",
+										"constraints": {
+											"nullable": false
+										}
+									}
+								},
+								{
+									"column": {
+										"name": "LOCATION_ID",
+										"type": "bigint",
+										"constraints": {
+											"nullable": false
+										}
+									}
+								}
+							]
+						}
+					}
+				]
+			}
+		},
+		{
+			"changeSet": {
+				"id": "master to dev update column types",
+				"author": "Fabsi23",
+				"changes": [
+					{
+						"modifyDataType": {
+							"tableName": "ADDRESS",
+							"columnName": "COUNTRY",
+							"newDataType": "varchar(10)"
+						}
+					},
+					{
+						"modifyDataType": {
+							"tableName": "ADDRESS",
+							"columnName": "CITY",
+							"newDataType": "varchar(60)"
+						}
+					},
+					{
+						"modifyDataType": {
+							"tableName": "ADDRESS",
+							"columnName": "POSTCODE",
+							"newDataType": "varchar(10)"
+						}
+					},
+					{
+						"modifyDataType": {
+							"tableName": "ADDRESS",
+							"columnName": "STREET",
+							"newDataType": "varchar(75)"
+						}
+					},
+					{
+						"modifyDataType": {
+							"tableName": "ADDRESS",
+							"columnName": "HOUSENUMBER",
+							"newDataType": "varchar(50)"
+						}
+					},
+					{
+						"modifyDataType": {
+							"tableName": "LOCATION",
+							"columnName": "NAME",
+							"newDataType": "varchar(100)"
+						}
+					},
+					{
+						"modifyDataType": {
+							"tableName": "LOCATION_DETAILS",
+							"columnName": "TYPE",
+							"newDataType": "varchar(50)"
+						}
+					},
+					{
+						"modifyDataType": {
+							"tableName": "LOCATION_DETAILS",
+							"columnName": "BRAND",
+							"newDataType": "varchar(50)"
+						}
+					},
+					{
+						"modifyDataType": {
+							"tableName": "OCCUPANCY",
+							"columnName": "CLIENT_TYPE",
+							"newDataType": "varchar(10)"
+						}
+					}
+				]
+			}
+		},
+		{
+			"changeSet": {
+				"id": "master to dev update location index",
+				"author": "Fabsi23",
+				"preConditions": [
+					{
+						"onFail": "MARK_RAN"
+					},
+					{
+						"not": [
+							{
+								"indexExists": {
+									"indexName": "lat_lon_index"
+								}
+							}
+						]
+					}
+				],
+				"changes": [
+					{
+						"createIndex": {
+							"tableName": "LOCATION",
+							"indexName": "lat_lon_index",
+							"columns": [
+								{
+									"column": {
+										"name": "LATITUDE"
+									}
+								},
+								{
+									"column": {
+										"name": "LONGITUDE"
+									}
+								}
+							]
+						}
+					}
+				]
+			}
+		},
+		{
+			"changeSet": {
+				"id": "master to dev update location_details index",
+				"author": "Fabsi23",
+				"preConditions": [
+					{
+						"onFail": "MARK_RAN"
+					},
+					{
+						"not": [
+							{
+								"indexExists": {
+									"indexName": "type_index"
+								}
+							}
+						]
+					}
+				],
+				"changes": [
+					{
+						"createIndex": {
+							"tableName": "LOCATION_DETAILS",
+							"indexName": "type_index",
+							"columns": [
+								{
+									"column": {
+										"name": "TYPE"
+									}
+								}
+							]
+						}
+					}
+				]
+			}
+		},
+		{
+			"changeSet": {
+				"id": "master to dev update occupancy index",
+				"author": "Fabsi23",
+				"preConditions": [
+					{
+						"onFail": "MARK_RAN"
+					},
+					{
+						"not": [
+							{
+								"indexExists": {
+									"indexName": "timestamp_index"
+								}
+							}
+						]
+					}
+				],
+				"changes": [
+					{
+						"createIndex": {
+							"tableName": "OCCUPANCY",
+							"indexName": "timestamp_index",
+							"columns": [
+								{
+									"column": {
+										"name": "TIMESTAMP"
+									}
+								}
+							]
+						}
+					}
+				]
+			}
+		},
+		{
+			"changeSet": {
+				"id": "master to dev update new columns",
+				"author": "Fabsi23",
+				"changes": [
+					{
+						"addColumn": {
+							"tableName": "OCCUPANCY",
+							"columns": [
+								{
+									"column": {
+										"name": "USER_UUID",
+										"type": "uuid"
+									}
+								},
+								{
+									"column": {
+										"name": "REQUEST_HASH",
+										"type": "bytea"
+									}
+								}
+							]
+						}
+					}
+				]
+			}
+		},
+		{
+			"changeSet": {
+				"id": "master to dev update remove tables",
+				"author": "Fabsi23",
+				"preConditions": [
+					{
+						"onFail": "MARK_RAN"
+					},
+					{
+						"not": [
+							{
+								"tableExists": {
+									"tableName": "REQUEST"
+								}
+							}
+						]
+					}
+				],
+				"changes": [
+					{
+						"dropTable": {
+							"cascadeConstraints": true,
+							"tableName": "REQUEST"
+						}
+					}
+				]
+			}
+		}
+	]
 }
