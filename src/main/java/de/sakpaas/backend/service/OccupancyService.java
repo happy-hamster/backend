@@ -18,9 +18,11 @@ import java.util.List;
 import java.util.OptionalDouble;
 import java.util.Set;
 import java.util.UUID;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 public class OccupancyService {
 
@@ -233,14 +235,15 @@ public class OccupancyService {
    * @return The Occupancy
    */
   protected AccumulatedOccupancy getOccupancyFromHistory(Location location,
-                                                       List<Integer> aggregationHours) {
+                                                         List<Integer> aggregationHours) {
     Set<OccupancyHistory> occupancyHistories = new HashSet<>();
     for (Integer aggregationHour : aggregationHours) {
       occupancyHistories
-          .addAll(occupancyHistoryRepository.findByLocationAndAggregationHour(location, aggregationHour));
+          .addAll(occupancyHistoryRepository
+              .findByLocationAndAggregationHour(location, aggregationHour));
     }
     OptionalDouble avg = occupancyHistories.stream()
-        .mapToDouble(OccupancyHistory::getAggregationHour)
+        .mapToDouble(OccupancyHistory::getOccupancy)
         .average();
     if (avg.isPresent()) {
       int sum = occupancyHistories.stream()

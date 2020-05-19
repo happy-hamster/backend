@@ -283,10 +283,17 @@ class OccupancyServiceTest extends HappyHamsterTest {
     Location location = new Location();
 
     OccupancyHistory history1 = new OccupancyHistory(location, 1, 10.0, 10);
-    OccupancyHistory history2 = new OccupancyHistory(location, 1, 20.0, 10);
+    OccupancyHistory history2 = new OccupancyHistory(location, 3, 30.0, 10);
 
-    Mockito.when(occupancyHistoryRepository.findByLocationAndAggregationHour(any(), 1))
+    Mockito.when(occupancyHistoryRepository.findByLocationAndAggregationHour(location, 1))
         .thenReturn(new HashSet<>(Collections.singleton(history1)));
+    Mockito.when(occupancyHistoryRepository.findByLocationAndAggregationHour(location, 3))
+        .thenReturn(new HashSet<>(Collections.singleton(history2)));
 
+    AccumulatedOccupancy occupancy = occupancyService
+        .getOccupancyFromHistory(location, new ArrayList<>(Arrays.asList(1, 3)));
+
+    assertEquals(20, occupancy.getCount());
+    assertEquals(2.0, occupancy.getValue());
   }
 }
