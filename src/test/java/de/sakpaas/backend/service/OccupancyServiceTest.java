@@ -11,12 +11,14 @@ import de.sakpaas.backend.exception.TooManyRequestsException;
 import de.sakpaas.backend.model.AccumulatedOccupancy;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.Occupancy;
+import de.sakpaas.backend.model.OccupancyHistory;
 import de.sakpaas.backend.util.OccupancyAccumulationConfiguration;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -41,6 +43,8 @@ class OccupancyServiceTest extends HappyHamsterTest {
 
   @MockBean
   OccupancyRepository occupancyRepository;
+  @MockBean
+  OccupancyHistoryRepository occupancyHistoryRepository;
 
   @Test
   void testGetOccupancyCalculationOneOccupancy() {
@@ -277,6 +281,12 @@ class OccupancyServiceTest extends HappyHamsterTest {
   @Test
   void testGetOccupancyFromHistory() {
     Location location = new Location();
+
+    OccupancyHistory history1 = new OccupancyHistory(location, 1, 10.0, 10);
+    OccupancyHistory history2 = new OccupancyHistory(location, 1, 20.0, 10);
+
+    Mockito.when(occupancyHistoryRepository.findByLocationAndAggregationHour(any(), 1))
+        .thenReturn(new HashSet<>(Collections.singleton(history1)));
 
   }
 }
