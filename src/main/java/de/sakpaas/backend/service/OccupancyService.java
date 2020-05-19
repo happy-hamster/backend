@@ -214,7 +214,7 @@ public class OccupancyService {
    * @param date The Date
    * @return The hour of the week
    */
-  private int getAggregationHour(ZonedDateTime date) {
+  public int getAggregationHour(ZonedDateTime date) {
     return 8;
   }
 

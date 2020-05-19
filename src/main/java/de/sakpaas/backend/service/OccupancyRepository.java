@@ -5,6 +5,8 @@ import de.sakpaas.backend.model.Occupancy;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -75,4 +77,12 @@ public interface OccupancyRepository extends JpaRepository<Occupancy, Long> {
    * @return {@link List} of {@link Occupancy}s
    */
   List<Occupancy> findByRequestHashAndTimestampAfter(byte[] requestHash, ZonedDateTime after);
+
+  /**
+   * Returns all {@link Occupancy}s where history processed matches.
+   *
+   * @param historyProcessed the history processed flag to search for
+   * @return {@link List} of {@link Occupancy}s
+   */
+  Slice<Occupancy> findByHistoryProcessed(boolean historyProcessed, Pageable pageable);
 }

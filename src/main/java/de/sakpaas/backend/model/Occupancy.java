@@ -49,6 +49,9 @@ public class Occupancy {
   @Column(name = "REQUEST_HASH")
   private byte[] requestHash;
 
+  @Column(name = "HISTORY_PROCESSED", columnDefinition = "boolean not null default false")
+  private boolean historyProcessed = false;
+
   /**
    * Creates a new {@link Occupancy} for a {@link Location}.
    *
