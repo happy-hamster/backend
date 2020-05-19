@@ -55,6 +55,12 @@
                         },
                         {
                            "column":{
+                              "name":"COUNTRY",
+                              "type":"varchar(255)"
+                           }
+                        },
+                        {
+                           "column":{
                               "name":"CITY",
                               "type":"varchar(255)"
                            }
@@ -211,7 +217,7 @@
                         },
                         {
                            "column":{
-                              "name":"OPENINGHOURS",
+                              "name":"OPENING_HOURS",
                               "type":"varchar(255)"
                            }
                         },
