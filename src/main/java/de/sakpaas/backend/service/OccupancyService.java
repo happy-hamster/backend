@@ -9,6 +9,8 @@ import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.Occupancy;
 import de.sakpaas.backend.util.OccupancyAccumulationConfiguration;
 import de.sakpaas.backend.util.OccupancyReportLimitsConfiguration;
+import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
@@ -173,7 +175,8 @@ public class OccupancyService {
    * @param date The Date
    * @return Result if it is a public holiday
    */
-  private boolean isPublicHoliday(ZonedDateTime date) {
+  @VisibleForTesting
+  boolean isPublicHoliday(ZonedDateTime date) {
     return false;
   }
 
@@ -210,12 +213,27 @@ public class OccupancyService {
 
   /**
    * Returns the hour of the week, based on the Date. Public Holidays are treated like a sunday.
+   * The number of the day corresponds to {@link DayOfWeek}{@code .ordinal()}, thus monday is equal
+   * to 0 and sunday is equal to 6.
    *
    * @param date The Date
    * @return The hour of the week
    */
-  private int getAggregationHour(ZonedDateTime date) {
-    return 8;
+  @VisibleForTesting
+  int getAggregationHour(ZonedDateTime date) {
+    DayOfWeek day = date.getDayOfWeek();
+    // public holidays should be handled like sundays
+    if (isPublicHoliday(date)) {
+      day = DayOfWeek.SUNDAY;
+    }
+    // convert enum to int
+    int dayOrdinal = day.ordinal();
+    // get hour of the day
+    int hour = date.getHour();
+
+    // compute aggregation hour
+    // all hours of one day have to not overlap with other days
+    return dayOrdinal * (int) ChronoUnit.DAYS.getDuration().toHours() + hour;
   }
 
 
