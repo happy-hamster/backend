@@ -3,7 +3,6 @@ package de.sakpaas.backend.service;
 import static java.time.ZonedDateTime.now;
 
 import com.google.common.annotations.VisibleForTesting;
-import de.jollyday.HolidayCalendar;
 import de.jollyday.HolidayManager;
 import de.jollyday.ManagerParameters;
 import de.sakpaas.backend.exception.TooManyRequestsException;
@@ -179,12 +178,13 @@ public class OccupancyService {
    * @return Result if it is a public holiday
    */
   @VisibleForTesting
-  boolean isPublicHoliday(ZonedDateTime date) {
+  boolean isPublicHoliday(ZonedDateTime date, Location location) {
     LocalDate testDate = date.toLocalDate();
+    String country = location.getAddress().getCountry();
     HolidayManager holidayManager = HolidayManager
-        .getInstance(ManagerParameters.create(HolidayCalendar.GERMANY));
+        .getInstance(ManagerParameters.create(country, null));
 
-    return holidayManager.isHoliday(testDate, "de");
+    return holidayManager.isHoliday(testDate, country.toLowerCase());
   }
 
   /**
@@ -227,10 +227,10 @@ public class OccupancyService {
    * @return The hour of the week
    */
   @VisibleForTesting
-  int getAggregationHour(ZonedDateTime date) {
+  int getAggregationHour(ZonedDateTime date, Location location) {
     DayOfWeek day = date.getDayOfWeek();
     // public holidays should be handled like sundays
-    if (isPublicHoliday(date)) {
+    if (isPublicHoliday(date, location)) {
       day = DayOfWeek.SUNDAY;
     }
     // convert enum to int

@@ -81,7 +81,8 @@ public class OccupancyHistoryService {
 
   private OccupancyHistory findOccupancyHistory(Set<OccupancyHistory> occupancyHistories,
                                                 Occupancy occupancy) {
-    int aggregationHour = occupancyService.getAggregationHour(occupancy.getTimestamp());
+    int aggregationHour = occupancyService
+        .getAggregationHour(occupancy.getTimestamp(), occupancy.getLocation());
     Optional<OccupancyHistory> occupancyHistoryOptional = occupancyHistories.stream()
         .filter(occupancyHistory -> occupancyHistory.getAggregationHour() == aggregationHour
             && occupancyHistory.getLocation().getId().equals(occupancy.getLocation().getId()))
