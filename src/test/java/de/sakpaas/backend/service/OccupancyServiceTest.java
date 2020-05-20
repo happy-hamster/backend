@@ -264,18 +264,20 @@ class OccupancyServiceTest extends HappyHamsterTest {
     ZonedDateTime sunday00 = ZonedDateTime.parse("2007-12-09T00:07:00Z");
 
     // Mock OccupancyService.isPublicHoliday() = false
-    Mockito.when(occupancyService.isPublicHoliday(Mockito.any(), Mockito.any())).thenReturn(false);
+    Mockito.doReturn(false).when(occupancyService)
+        .isPublicHoliday(Mockito.any(), Mockito.any());
     // Test
-    assertThat(occupancyService.getAggregationHour(monday10, Mockito.any())).isEqualTo(10);
-    assertThat(occupancyService.getAggregationHour(friday23, Mockito.any())).isEqualTo(119);
-    assertThat(occupancyService.getAggregationHour(sunday00, Mockito.any())).isEqualTo(144);
+    assertThat(occupancyService.getAggregationHour(monday10, new Location())).isEqualTo(10);
+    assertThat(occupancyService.getAggregationHour(friday23, new Location())).isEqualTo(119);
+    assertThat(occupancyService.getAggregationHour(sunday00, new Location())).isEqualTo(144);
 
-    // Mock OccupancyService.isPublicHoliday() = false
-    Mockito.when(occupancyService.isPublicHoliday(Mockito.any(), Mockito.any())).thenReturn(true);
+    // Mock OccupancyService.isPublicHoliday() = true
+    Mockito.doReturn(true).when(occupancyService)
+        .isPublicHoliday(Mockito.any(), Mockito.any());
     // Test
-    assertThat(occupancyService.getAggregationHour(monday10, Mockito.any())).isEqualTo(154);
-    assertThat(occupancyService.getAggregationHour(friday23, Mockito.any())).isEqualTo(167);
-    assertThat(occupancyService.getAggregationHour(sunday00, Mockito.any())).isEqualTo(144);
+    assertThat(occupancyService.getAggregationHour(monday10, new Location())).isEqualTo(154);
+    assertThat(occupancyService.getAggregationHour(friday23, new Location())).isEqualTo(167);
+    assertThat(occupancyService.getAggregationHour(sunday00, new Location())).isEqualTo(144);
 
     // Use normal implementation again
     Mockito.reset(occupancyService);
