@@ -64,7 +64,7 @@ class OccupancyHistoryServiceTest extends RepositoryTest {
     super.insert(occupancyAldi14);
 
     // Mock
-    Mockito.when(occupancyService.getAggregationHour(Mockito.any()))
+    Mockito.when(occupancyService.getAggregationHour(Mockito.any(), Mockito.any()))
         .then(invocation -> ((ZonedDateTime) invocation.getArgument(0))
             .toInstant().equals(zonedDateTime10.toInstant()) ? 10 : 14);
 
