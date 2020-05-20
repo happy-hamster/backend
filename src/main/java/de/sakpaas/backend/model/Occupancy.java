@@ -16,10 +16,12 @@ import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
 @NoArgsConstructor
+@ToString
 @Entity(name = "OCCUPANCY")
 @Table(indexes = {@Index(name = "timestamp_index", columnList = "TIMESTAMP")})
 public class Occupancy {
