@@ -3,6 +3,9 @@ package de.sakpaas.backend.service;
 import static java.time.ZonedDateTime.now;
 
 import com.google.common.annotations.VisibleForTesting;
+import de.jollyday.HolidayCalendar;
+import de.jollyday.HolidayManager;
+import de.jollyday.ManagerParameters;
 import de.sakpaas.backend.exception.TooManyRequestsException;
 import de.sakpaas.backend.model.AccumulatedOccupancy;
 import de.sakpaas.backend.model.Location;
@@ -10,6 +13,7 @@ import de.sakpaas.backend.model.Occupancy;
 import de.sakpaas.backend.util.OccupancyAccumulationConfiguration;
 import de.sakpaas.backend.util.OccupancyReportLimitsConfiguration;
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
@@ -176,7 +180,11 @@ public class OccupancyService {
    */
   @VisibleForTesting
   boolean isPublicHoliday(ZonedDateTime date) {
-    return false;
+    LocalDate testDate = date.toLocalDate();
+    HolidayManager holidayManager = HolidayManager
+        .getInstance(ManagerParameters.create(HolidayCalendar.GERMANY));
+
+    return holidayManager.isHoliday(testDate, "de");
   }
 
   /**

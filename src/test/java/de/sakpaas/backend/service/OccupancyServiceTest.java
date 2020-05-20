@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 
-
 import de.sakpaas.backend.HappyHamsterTest;
 import de.sakpaas.backend.exception.TooManyRequestsException;
 import de.sakpaas.backend.model.AccumulatedOccupancy;
@@ -279,6 +278,17 @@ class OccupancyServiceTest extends HappyHamsterTest {
 
     // Use normal implementation again
     Mockito.reset(occupancyService);
+  }
+
+  @Test
+  void testIsPublicHoliday() {
+    ZonedDateTime christmas1 = ZonedDateTime.parse("2019-12-25T10:15:30+01:00");
+    ZonedDateTime christmasEve = ZonedDateTime.parse("2019-12-24T23:59:59-10:00");
+    ZonedDateTime easter20 = ZonedDateTime.parse("2020-04-13T00:07:00Z");
+
+    assertThat(occupancyService.isPublicHoliday(christmas1)).isEqualTo(true);
+    assertThat(occupancyService.isPublicHoliday(christmasEve)).isEqualTo(false);
+    assertThat(occupancyService.isPublicHoliday(easter20)).isEqualTo(true);
   }
 
   private Occupancy makeOccupancy(long id, Location location, double occupancy,
