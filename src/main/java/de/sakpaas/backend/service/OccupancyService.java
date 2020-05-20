@@ -269,7 +269,7 @@ public class OccupancyService {
           .sum();
       return new AccumulatedOccupancy(avg.getAsDouble(), sum, ZonedDateTime.now());
     } else {
-      return new AccumulatedOccupancy(0.0, 0, ZonedDateTime.now());
+      return new AccumulatedOccupancy(null, 0, ZonedDateTime.now());
     }
   }
 
