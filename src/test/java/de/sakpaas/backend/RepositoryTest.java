@@ -3,10 +3,12 @@ package de.sakpaas.backend;
 import de.sakpaas.backend.model.Favorite;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.Occupancy;
+import de.sakpaas.backend.model.OccupancyHistory;
 import de.sakpaas.backend.service.AddressRepository;
 import de.sakpaas.backend.service.FavoriteRepository;
 import de.sakpaas.backend.service.LocationDetailsRepository;
 import de.sakpaas.backend.service.LocationRepository;
+import de.sakpaas.backend.service.OccupancyHistoryRepository;
 import de.sakpaas.backend.service.OccupancyRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,6 +18,8 @@ public class RepositoryTest extends HappyHamsterTest {
 
   @Autowired
   protected OccupancyRepository occupancyRepository;
+  @Autowired
+  protected OccupancyHistoryRepository occupancyHistoryRepository;
   @Autowired
   protected FavoriteRepository favoriteRepository;
   @Autowired
@@ -29,6 +33,7 @@ public class RepositoryTest extends HappyHamsterTest {
   @AfterEach
   protected void clearTables() {
     occupancyRepository.deleteAll();
+    occupancyHistoryRepository.deleteAll();
     favoriteRepository.deleteAll();
     locationRepository.deleteAll();
     addressRepository.deleteAll();
@@ -47,5 +52,9 @@ public class RepositoryTest extends HappyHamsterTest {
 
   protected void insert(Occupancy occupancy) {
     occupancyRepository.save(occupancy);
+  }
+
+  protected void insert(OccupancyHistory occupancyHistory) {
+    occupancyHistoryRepository.save(occupancyHistory);
   }
 }

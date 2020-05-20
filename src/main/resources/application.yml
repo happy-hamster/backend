@@ -34,6 +34,8 @@ app:
     factorA: 30
     factorB: 150
     range: 15
+  # A secret used for the OSM import and history aggregation
+  secret: INSERT_SECRET_HERE
   import:
     country: ${IMPORT_COUNTRY:"DE"}
     shoptypes:
@@ -43,6 +45,9 @@ app:
       - kiosk
       - newsagent
       - convenience
+  history:
+    # Size of the batches used for aggregation
+    batch-size: 1000
   version: dev
   commit: dev
 management:

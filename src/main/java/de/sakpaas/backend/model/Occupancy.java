@@ -16,10 +16,12 @@ import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
 @NoArgsConstructor
+@ToString
 @Entity(name = "OCCUPANCY")
 @Table(indexes = {@Index(name = "timestamp_index", columnList = "TIMESTAMP")})
 public class Occupancy {
@@ -48,6 +50,9 @@ public class Occupancy {
 
   @Column(name = "REQUEST_HASH")
   private byte[] requestHash;
+
+  @Column(name = "HISTORY_PROCESSED", columnDefinition = "boolean not null default false")
+  private boolean historyProcessed = false;
 
   /**
    * Creates a new {@link Occupancy} for a {@link Location}.

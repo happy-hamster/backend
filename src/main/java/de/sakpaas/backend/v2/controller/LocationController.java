@@ -13,6 +13,7 @@ import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.Occupancy;
 import de.sakpaas.backend.model.SearchResultObject;
 import de.sakpaas.backend.service.LocationService;
+import de.sakpaas.backend.service.OccupancyHistoryService;
 import de.sakpaas.backend.service.OccupancyService;
 import de.sakpaas.backend.service.OpenStreetMapService;
 import de.sakpaas.backend.service.PresenceService;
@@ -29,6 +30,7 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -50,6 +52,7 @@ public class LocationController {
   private static final String MAPPING_POST_CHECKIN = "/{locationId}/check-in";
   private static final String MAPPING_BY_ID = "/{locationId}";
   private static final String MAPPING_START_DATABASE = "/generate/{key}";
+  private static final String MAPPING_START_AGGREGATION = "/aggregate/{key}";
   private static final String MAPPING_SEARCH_LOCATION = "/search/{key}";
   private static final String MAPPING_LOCATION_TYPES = "/types";
   private final LocationService locationService;
@@ -58,21 +61,27 @@ public class LocationController {
   private final LocationMapper locationMapper;
   private final SearchResultMapper searchResultMapper;
   private final OccupancyService occupancyService;
+  private final OccupancyHistoryService occupancyHistoryService;
   private final PresenceService presenceService;
   private final UserService userService;
   private final AtomicBoolean importState;
+  private final AtomicBoolean aggregationState;
+
+  @Value("${app.secret}")
+  private String secret;
 
 
   /**
    * Constructor that injects the needed dependencies.
    *
-   * @param locationService      The Location Service
-   * @param searchService        The Service for searching the database
-   * @param openStreetMapService The OpenStreetMap Service
-   * @param locationMapper       An OSM Location to Location Mapper
-   * @param searchResultMapper   A Mapper for the results of Search Requests
-   * @param occupancyService     The Occupancy Service
-   * @param presenceService      The Presence Service
+   * @param locationService         the {@link LocationService}
+   * @param searchService           the {@link SearchService}
+   * @param openStreetMapService    the {@link OpenStreetMapService}
+   * @param locationMapper          the {@link LocationMapper}
+   * @param searchResultMapper      the {@link SearchResultMapper}
+   * @param occupancyService        the {@link OccupancyService}
+   * @param occupancyHistoryService the {@link OccupancyHistoryService}
+   * @param presenceService         the {@link PresenceService}
    */
   public LocationController(LocationService locationService,
                             SearchService searchService,
@@ -80,6 +89,7 @@ public class LocationController {
                             LocationMapper locationMapper,
                             SearchResultMapper searchResultMapper,
                             OccupancyService occupancyService,
+                            OccupancyHistoryService occupancyHistoryService,
                             PresenceService presenceService,
                             UserService userService) {
     this.locationService = locationService;
@@ -88,9 +98,11 @@ public class LocationController {
     this.locationMapper = locationMapper;
     this.searchResultMapper = searchResultMapper;
     this.occupancyService = occupancyService;
+    this.occupancyHistoryService = occupancyHistoryService;
     this.presenceService = presenceService;
     this.userService = userService;
     this.importState = new AtomicBoolean(false);
+    this.aggregationState = new AtomicBoolean(false);
   }
 
   /**
@@ -211,7 +223,7 @@ public class LocationController {
   @GetMapping(value = MAPPING_START_DATABASE)
   public ResponseEntity<String> startDatabase(@PathVariable("key") String key) {
     // Check key
-    if (!key.equals(BackendApplication.GENERATED)) {
+    if (!key.equals(secret)) {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Permission denied");
     }
 
@@ -226,6 +238,35 @@ public class LocationController {
     openStreetMapService.updateDatabase();
     // Unlock database import
     importState.set(false);
+
+    return ResponseEntity.ok("Success");
+  }
+
+
+  /**
+   * Endpoint to initiate the Occupancy aggregation.
+   *
+   * @param key Secret key to authorize the update. Printed do the Log on startup
+   * @return Returns if the Import was successful
+   */
+  @GetMapping(value = MAPPING_START_AGGREGATION)
+  public ResponseEntity<String> startOccupancyAggregation(@PathVariable("key") String key) {
+    // Check key
+    if (!key.equals(secret)) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Permission denied");
+    }
+
+    // Check if it is the only query running
+    if (aggregationState.get()) {
+      return ResponseEntity.status(HttpStatus.CONFLICT).body("Already running");
+    }
+
+    // Lock Occupancy aggregation
+    aggregationState.set(true);
+    // Aggregating Occupancy
+    occupancyHistoryService.aggregateHistory();
+    // Unlock Occupancy aggregation
+    aggregationState.set(false);
 
     return ResponseEntity.ok("Success");
   }
