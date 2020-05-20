@@ -11,7 +11,6 @@ import de.sakpaas.backend.model.OccupancyHistory;
 import de.sakpaas.backend.util.OccupancyAccumulationConfiguration;
 import de.sakpaas.backend.util.OccupancyReportLimitsConfiguration;
 import java.time.DayOfWeek;
-import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
