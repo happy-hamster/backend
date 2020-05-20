@@ -46,4 +46,30 @@ class OccupancyHistoryRepositoryTest extends RepositoryTest {
     assertThat(output.size()).isEqualTo(1);
     assertThat(output.iterator().next()).isEqualTo(occupancyHistoryEdeka);
   }
+
+  @Test
+  void testFindByLocationAndAggregationHour() {
+    // Setup test data
+    Location locationEdeka = new Location(1000L, "Edeka Eima", 42.0, 7.0,
+        new LocationDetails("supermarket", "Mo-Fr 10-22", "Edeka"),
+        new Address("DE", "Mannheim", "25565", "Handelshafen", "12a")
+    );
+    Location locationAldi = new Location(2000L, "Aldi", 42.001, 7.001,
+        new LocationDetails("kiosk", "Fr-Sa 12-14", "Aldi"),
+        new Address("FR", "Paris", "101010", "Louvre", "1")
+    );
+    super.insert(locationEdeka);
+    super.insert(locationAldi);
+
+    OccupancyHistory occupancyHistoryEdeka = new OccupancyHistory(locationEdeka, 10);
+    OccupancyHistory occupancyHistoryAldi = new OccupancyHistory(locationAldi, 10);
+    super.insert(occupancyHistoryEdeka);
+    super.insert(occupancyHistoryAldi);
+
+    // Test
+    Set<OccupancyHistory> output = occupancyHistoryRepository.findByLocationAndAggregationHour(
+        locationEdeka, 10);
+    assertThat(output.size()).isEqualTo(1);
+    assertThat(output.iterator().next()).isEqualTo(occupancyHistoryEdeka);
+  }
 }

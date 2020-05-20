@@ -93,4 +93,8 @@ public class OccupancyHistory {
     return Objects.hash((location == null) ? null : location.getId(),
         aggregationHour, occupancySum, occupancyCount);
   }
+
+  public double getOccupancy() {
+    return occupancySum / occupancyCount;
+  }
 }
