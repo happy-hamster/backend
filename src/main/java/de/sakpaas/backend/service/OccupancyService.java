@@ -9,6 +9,7 @@ import de.sakpaas.backend.exception.TooManyRequestsException;
 import de.sakpaas.backend.model.AccumulatedOccupancy;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.Occupancy;
+import de.sakpaas.backend.model.OccupancyHistory;
 import de.sakpaas.backend.util.OccupancyAccumulationConfiguration;
 import de.sakpaas.backend.util.OccupancyReportLimitsConfiguration;
 import java.time.DayOfWeek;
@@ -16,33 +17,41 @@ import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.OptionalDouble;
+import java.util.Set;
 import java.util.UUID;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 public class OccupancyService {
 
   private final OccupancyRepository occupancyRepository;
   private final OccupancyAccumulationConfiguration config;
   private final OccupancyReportLimitsConfiguration configReportLimits;
-
+  private final OccupancyHistoryRepository occupancyHistoryRepository;
 
   /**
    * Default Constructor. Handles the Dependency Injection.
    *
-   * @param occupancyRepository the {@link OccupancyRepository}
+   * @param occupancyRepository                the {@link OccupancyRepository}
    * @param occupancyAccumulationConfiguration the {@link OccupancyAccumulationConfiguration}
-   * @param configReportLimits the {@link OccupancyReportLimitsConfiguration}
+   * @param configReportLimits                 the {@link OccupancyReportLimitsConfiguration}
+   * @param occupancyHistoryRepository         The OccupancyHistoryRepository
    */
   @Autowired
   public OccupancyService(OccupancyRepository occupancyRepository,
                           OccupancyAccumulationConfiguration occupancyAccumulationConfiguration,
-                          OccupancyReportLimitsConfiguration configReportLimits) {
+                          OccupancyReportLimitsConfiguration configReportLimits,
+                          OccupancyHistoryRepository occupancyHistoryRepository) {
     this.occupancyRepository = occupancyRepository;
     this.config = occupancyAccumulationConfiguration;
     this.configReportLimits = configReportLimits;
+    this.occupancyHistoryRepository = occupancyHistoryRepository;
   }
 
   /**
@@ -250,9 +259,25 @@ public class OccupancyService {
    * @param location The Location you want an occupancy for
    * @return The Occupancy
    */
-  private AccumulatedOccupancy getOccupancyFromHistory(Location location,
-                                                       List<Integer> aggregationHours) {
-    return new AccumulatedOccupancy(1.0, 1, ZonedDateTime.now());
+  protected AccumulatedOccupancy getOccupancyFromHistory(Location location,
+                                                         List<Integer> aggregationHours) {
+    Set<OccupancyHistory> occupancyHistories = new HashSet<>();
+    for (Integer aggregationHour : aggregationHours) {
+      occupancyHistories
+          .addAll(occupancyHistoryRepository
+              .findByLocationAndAggregationHour(location, aggregationHour));
+    }
+    OptionalDouble avg = occupancyHistories.stream()
+        .mapToDouble(OccupancyHistory::getOccupancy)
+        .average();
+    if (avg.isPresent()) {
+      int sum = occupancyHistories.stream()
+          .mapToInt(OccupancyHistory::getOccupancyCount)
+          .sum();
+      return new AccumulatedOccupancy(avg.getAsDouble(), sum, ZonedDateTime.now());
+    } else {
+      return new AccumulatedOccupancy(null, 0, ZonedDateTime.now());
+    }
   }
 
 
