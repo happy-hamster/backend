@@ -3,6 +3,8 @@ package de.sakpaas.backend.service;
 import de.sakpaas.backend.model.Location;
 import de.sakpaas.backend.model.Occupancy;
 import de.sakpaas.backend.model.OccupancyHistory;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -94,6 +96,23 @@ public class OccupancyHistoryService {
       occupancyHistories.add(occupancyHistory);
       return occupancyHistory;
     });
+  }
+
+  /**
+   * Returns the OccupancyHistory related to the AggregationHours and Location
+   *
+   * @param aggregationHours The AggregationHours
+   * @param location         The Location
+   * @return The OccupancyHistory
+   */
+  private Set<OccupancyHistory> getByAggregationHour(List<Integer> aggregationHours,
+                                                     Location location) {
+    Set<OccupancyHistory> resultSet = new HashSet<>();
+    for (Integer aggregationHour : aggregationHours) {
+      resultSet.addAll(
+          occupancyHistoryRepository.findByLocationAndAggregationHour(location, aggregationHour));
+    }
+    return resultSet;
   }
 }
 

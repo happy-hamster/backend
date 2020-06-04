@@ -108,7 +108,6 @@ public class OccupancyService {
    * @return the occupancy report
    */
   public AccumulatedOccupancy getOccupancyCalculation(Location location) {
-    // TODO Muss neu implementiert werden. Task bereits angelegt.
 
     ZonedDateTime time = now();
     List<Occupancy> occupancies = occupancyRepository.findByLocationAndTimestampAfter(location,
